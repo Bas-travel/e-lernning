@@ -7,27 +7,37 @@ import (
 	"github.com/ablearning/api/pkg/httpx"
 )
 
-type Course struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
+type Controller struct {
+	service *Service
+}
+
+func NewController(service *Service) *Controller {
+	return &Controller{service: service}
 }
 
 func RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/courses", listCourses)
-	mux.HandleFunc("/api/v1/courses/", courseByID)
+	controller := NewController(NewService(NewRepository()))
+	mux.HandleFunc("/api/v1/courses", controller.ListCourses)
+	mux.HandleFunc("/api/v1/courses/", controller.CourseByID)
 }
 
-func listCourses(w http.ResponseWriter, r *http.Request) {
-	courses := []Course{{ID: "c001", Title: "Go Backend Professional"}, {ID: "c002", Title: "Flutter Professional"}}
+func (c *Controller) ListCourses(w http.ResponseWriter, r *http.Request) {
+	courses := c.service.List()
 	httpx.JSON(w, http.StatusOK, courses)
 }
 
-func courseByID(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) CourseByID(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/api/v1/courses/")
 	if id == "" {
 		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": "missing id"})
 		return
 	}
-	c := Course{ID: id, Title: "Course " + id}
-	httpx.JSON(w, http.StatusOK, c)
+
+	course, err := c.service.GetByID(id)
+	if err != nil {
+		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, course)
 }

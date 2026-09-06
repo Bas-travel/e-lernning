@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'core/theme/colors.dart';
 import 'core/router/app_router.dart';
+import 'core/theme/colors.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
