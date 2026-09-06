@@ -1,0 +1,137 @@
+{
+  "roles": [
+    {"id":"r-1","code":"LEARNER","name":"Learner"},
+    {"id":"r-2","code":"INSTRUCTOR","name":"Instructor"},
+    {"id":"r-3","code":"ADMIN","name":"Administrator"},
+    {"id":"r-4","code":"EMPLOYER","name":"Employer"},
+    {"id":"r-5","code":"CORP_ADMIN","name":"Corp Admin"}
+  ],
+
+  "users": [
+    {"id":"u-1","email":"anan@example.com","role_id":"r-1","created_at":"2026-09-06T08:00:00Z"},
+    {"id":"u-2","email":"krit@example.com","role_id":"r-2","created_at":"2026-09-06T08:05:00Z"},
+    {"id":"u-3","email":"nicha@example.com","role_id":"r-1","created_at":"2026-09-06T08:10:00Z"},
+    {"id":"u-4","email":"bank@example.com","role_id":"r-1","created_at":"2026-09-06T08:11:00Z"},
+    {"id":"u-5","email":"tida@example.com","role_id":"r-2","created_at":"2026-09-06T08:12:00Z"},
+    {"id":"u-6","email":"emma@example.com","role_id":"r-1","created_at":"2026-09-06T08:13:00Z"},
+    {"id":"u-7","email":"corpadmin@example.com","role_id":"r-5","created_at":"2026-09-06T08:14:00Z"},
+    {"id":"u-8","email":"employer1@example.com","role_id":"r-4","created_at":"2026-09-06T08:15:00Z"},
+    {"id":"u-9","email":"user9@example.com","role_id":"r-1","created_at":"2026-09-06T08:16:00Z"},
+    {"id":"u-10","email":"user10@example.com","role_id":"r-1","created_at":"2026-09-06T08:17:00Z"},
+    {"id":"u-11","email":"admin@example.com","role_id":"r-3","created_at":"2026-09-06T08:18:00Z"},
+    {"id":"u-12","email":"instructor2@example.com","role_id":"r-2","created_at":"2026-09-06T08:20:00Z"}
+  ],
+
+  "profiles": [
+    {"id":"p-1","user_id":"u-1","display_name":"อนันต์","bio":"Learner interested in backend and DevOps."},
+    {"id":"p-2","user_id":"u-2","display_name":"Dr. Krit","bio":"Senior Go instructor."},
+    {"id":"p-3","user_id":"u-3","display_name":"นิชา","bio":"Product designer."}
+  ],
+
+  "instructors": [
+    {"id":"i-1","user_id":"u-2","headline":"Go Backend Expert","rating":4.9},
+    {"id":"i-2","user_id":"u-5","headline":"AI & Data","rating":4.8},
+    {"id":"i-3","user_id":"u-12","headline":"Flutter Instructor","rating":4.7}
+  ],
+
+  "organizations": [
+    {"id":"org-1","name":"Acme Corp"},
+    {"id":"org-2","name":"Beta Solutions"},
+    {"id":"org-3","name":"Gamma Enterprise"}
+  ],
+
+  "categories": [
+    {"id":"c-1","name":"Programming"},
+    {"id":"c-2","name":"AI & Data"},
+    {"id":"c-3","name":"Design"},
+    {"id":"c-4","name":"Marketing"},
+    {"id":"c-5","name":"Business"}
+  ],
+
+  "courses": [
+    {"id":"course-1","instructor_id":"i-1","category_id":"c-1","title":"Go Backend Professional","price":2990.00},
+    {"id":"course-2","instructor_id":"i-2","category_id":"c-2","title":"AI for Business","price":1990.00},
+    {"id":"course-3","instructor_id":"i-3","category_id":"c-1","title":"Flutter Professional","price":2490.00},
+    {"id":"course-4","instructor_id":"i-1","category_id":"c-1","title":"Go Masterclass: REST & APIs","price":1990.00},
+    {"id":"course-5","instructor_id":"i-2","category_id":"c-2","title":"Prompt Engineering","price":1490.00},
+    {"id":"course-6","instructor_id":"i-3","category_id":"c-3","title":"UX/UI Essentials","price":1690.00},
+    {"id":"course-7","instructor_id":"i-1","category_id":"c-1","title":"SQL Masterclass","price":1290.00},
+    {"id":"course-8","instructor_id":"i-2","category_id":"c-2","title":"Data Analytics with Python","price":1990.00},
+    {"id":"course-9","instructor_id":"i-3","category_id":"c-3","title":"Design Systems","price":1590.00},
+    {"id":"course-10","instructor_id":"i-1","category_id":"c-1","title":"Backend Security","price":1990.00},
+    {"id":"course-11","instructor_id":"i-2","category_id":"c-2","title":"Machine Learning Basics","price":2490.00},
+    {"id":"course-12","instructor_id":"i-3","category_id":"c-1","title":"Advanced Flutter Animations","price":1890.00},
+    {"id":"course-13","instructor_id":"i-1","category_id":"c-5","title":"Startup Fundraising 101","price":990.00},
+    {"id":"course-14","instructor_id":"i-2","category_id":"c-4","title":"Digital Marketing","price":1590.00},
+    {"id":"course-15","instructor_id":"i-3","category_id":"c-3","title":"Portfolio Building","price":1290.00}
+  ],
+
+  "enrollments": [
+    {"id":"enr-1","user_id":"u-1","course_id":"course-1","status":"in_progress","progress":68.0},
+    {"id":"enr-2","user_id":"u-3","course_id":"course-3","status":"completed","progress":100.0},
+    {"id":"enr-3","user_id":"u-4","course_id":"course-2","status":"in_progress","progress":12.5}
+  ],
+
+  "orders": [
+    {"id":"ord-1","user_id":"u-1","total_amount":2990.00,"status":"paid"},
+    {"id":"ord-2","user_id":"u-3","total_amount":2490.00,"status":"paid"}
+  ],
+
+  "payments": [
+    {"id":"pay-1","order_id":"ord-1","method":"card","amount":2990.00,"status":"succeeded"},
+    {"id":"pay-2","order_id":"ord-2","method":"card","amount":2490.00,"status":"succeeded"}
+  ],
+
+  "live_sessions": [
+    {"id":"live-1","course_id":"course-2","title":"AI for Business — Live Q&A","start_at":"2026-09-08T18:00:00Z"},
+    {"id":"live-2","course_id":"course-3","title":"Flutter — Live Workshop","start_at":"2026-09-10T19:00:00Z"},
+    {"id":"live-3","course_id":"course-1","title":"Go Backend — Live Q&A","start_at":"2026-09-12T20:00:00Z"},
+    {"id":"live-4","course_id":"course-5","title":"Prompt Engineering — AMA","start_at":"2026-09-09T17:00:00Z"},
+    {"id":"live-5","course_id":"course-8","title":"Data Analytics — Office Hours","start_at":"2026-09-11T16:00:00Z"}
+  ],
+
+  "community_posts": [
+    {"id":"post-1","user_id":"u-1","content":"มีใครลองทำ project นี้แล้ว แชร์ได้ไหมครับ?"},
+    {"id":"post-2","user_id":"u-3","content":"แนะนำ resource สำหรับ UX/UI หน่อยครับ"},
+    {"id":"post-3","user_id":"u-4","content":"กำลังเตรียมสอบ Cert ใครมี tips บ้าง"},
+    {"id":"post-4","user_id":"u-6","content":"ใครจะเข้าร่วม Live Q&A บ้างครับ?"},
+    {"id":"post-5","user_id":"u-1","content":"แชร์โค้ดตัวอย่าง REST API ที่ใช้ในคอร์ส"},
+    {"id":"post-6","user_id":"u-9","content":"หางานสาย Data มีใครแนะนำบริษัทไหม"},
+    {"id":"post-7","user_id":"u-10","content":"ใครทำ Portfolio สวยๆ แชร์หน่อย"},
+    {"id":"post-8","user_id":"u-4","content":"ถามเรื่อง career path ในสาย backend"},
+    {"id":"post-9","user_id":"u-1","content":"อยากให้มี subtitle ภาษาไทยในวิดีโอครับ"},
+    {"id":"post-10","user_id":"u-6","content":"ขอคูปองลดราคาคอร์สหน่อยจ้า"}
+  ],
+
+  "skills": [
+    {"id":"skill-1","name":"API Design"},
+    {"id":"skill-2","name":"Database"},
+    {"id":"skill-3","name":"Authentication"},
+    {"id":"skill-4","name":"Flutter"},
+    {"id":"skill-5","name":"Data Analysis"},
+    {"id":"skill-6","name":"UX Design"},
+    {"id":"skill-7","name":"Prompt Engineering"},
+    {"id":"skill-8","name":"Deployment"}
+  ],
+
+  "employers": [
+    {"id":"emp-1","name":"TechCorp"},
+    {"id":"emp-2","name":"DataWorks"},
+    {"id":"emp-3","name":"DesignStudio"},
+    {"id":"emp-4","name":"Marketize"},
+    {"id":"emp-5","name":"FinServe"}
+  ],
+
+  "jobs": [
+    {"id":"job-1","employer_id":"emp-1","title":"Backend Engineer","location":"Bangkok"},
+    {"id":"job-2","employer_id":"emp-2","title":"Data Analyst","location":"Remote"},
+    {"id":"job-3","employer_id":"emp-3","title":"Product Designer","location":"Chiang Mai"},
+    {"id":"job-4","employer_id":"emp-4","title":"Digital Marketer","location":"Bangkok"},
+    {"id":"job-5","employer_id":"emp-5","title":"SRE","location":"Remote"},
+    {"id":"job-6","employer_id":"emp-1","title":"Golang Developer","location":"Bangkok"},
+    {"id":"job-7","employer_id":"emp-2","title":"Machine Learning Engineer","location":"Remote"},
+    {"id":"job-8","employer_id":"emp-3","title":"UX Researcher","location":"Bangkok"},
+    {"id":"job-9","employer_id":"emp-4","title":"Growth Analyst","location":"Bangkok"},
+    {"id":"job-10","employer_id":"emp-5","title":"Cloud Engineer","location":"Remote"}
+  ]
+}

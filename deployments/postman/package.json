@@ -1,0 +1,12 @@
+{
+  "name": "ab-learning-postman",
+  "version": "1.0.0",
+  "description": "Generate Postman collection from OpenAPI for AB Learning",
+  "scripts": {
+    "generate": "node convert.js"
+  },
+  "dependencies": {
+    "openapi-to-postmanv2": "^2.5.0",
+    "js-yaml": "^4.1.0"
+  }
+}

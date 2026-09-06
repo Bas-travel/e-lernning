@@ -1,0 +1,202 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  backend:
+    name: Backend — Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Set lint/tool versions
+        run: echo "GOLANGCI_LINT_VERSION=v1.64.0" >> $GITHUB_ENV
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
+
+      - name: Run linter
+        run: golangci-lint run ./...
+
+      - name: Run tests with coverage
+        run: |
+          go test ./... -v -coverprofile=coverage.out
+
+      - name: Upload backend coverage
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: coverage.out
+
+      - name: Compute backend coverage percent
+        if: always()
+        run: |
+          if [ -f coverage.out ]; then
+            PCT=$(go tool cover -func=coverage.out | grep total | awk '{print $3}')
+          else
+            PCT="0%"
+          fi
+          echo "$PCT" > backend-coverage.txt
+
+      - name: Upload backend coverage summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-summary
+          path: backend-coverage.txt
+
+      - name: Upload backend coverage to Codecov
+        if: secrets.CODECOV_TOKEN
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.out
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: backend
+          fail_ci_if_error: false
+
+  frontend:
+    name: Frontend — Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.0'
+
+      - name: Set flutter version env
+        run: echo "FLUTTER_VERSION=3.13.0" >> $GITHUB_ENV
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Flutter analyze
+        run: flutter analyze
+
+      - name: Flutter test
+        run: flutter test --coverage
+
+      - name: Upload flutter coverage
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-coverage
+          path: coverage/lcov.info
+
+      - name: Compute frontend coverage percent
+        if: always()
+        run: |
+          LCOV_FILE=""
+          if [ -f ab_learning_app/coverage/lcov.info ]; then
+            LCOV_FILE=ab_learning_app/coverage/lcov.info
+          elif [ -f coverage/lcov.info ]; then
+            LCOV_FILE=coverage/lcov.info
+          fi
+          if [ -n "$LCOV_FILE" ]; then
+            TOTAL_LINES=$(grep -E '^LF:' $LCOV_FILE | awk -F: '{sum += $2} END {print sum}')
+            HIT_LINES=$(grep -E '^LH:' $LCOV_FILE | awk -F: '{sum += $2} END {print sum}')
+            if [ -z "$TOTAL_LINES" ] || [ "$TOTAL_LINES" -eq 0 ]; then
+              PCT="0%"
+            else
+              PCT=$(awk "BEGIN {printf \"%.1f%%\", ($HIT_LINES/$TOTAL_LINES)*100}")
+            fi
+          else
+            PCT="0%"
+          fi
+          echo "$PCT" > frontend-coverage.txt
+
+      - name: Upload frontend coverage summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-summary
+          path: frontend-coverage.txt
+
+      - name: Upload flutter coverage to Codecov
+        if: secrets.CODECOV_TOKEN
+        uses: codecov/codecov-action@v4
+        with:
+          files: ab_learning_app/coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: frontend
+          fail_ci_if_error: false
+
+  coverage-report:
+    name: Coverage Report (PR comment)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Download backend coverage summary
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage-summary
+
+      - name: Download frontend coverage summary
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage-summary
+
+      - name: Read coverage files
+        id: read
+        run: |
+          BACKEND=$(cat backend-coverage.txt 2>/dev/null || echo "0%")
+          FRONTEND=$(cat frontend-coverage.txt 2>/dev/null || echo "0%")
+          echo "backend=$BACKEND" >> $GITHUB_OUTPUT
+          echo "frontend=$FRONTEND" >> $GITHUB_OUTPUT
+
+      - name: Enforce coverage thresholds (patch)
+        id: enforce
+        run: |
+          THRESH=75.0
+          BACKEND=${{ steps.read.outputs.backend }}
+          FRONTEND=${{ steps.read.outputs.frontend }}
+          # strip percent sign
+          B=$(echo "$BACKEND" | tr -d '%')
+          F=$(echo "$FRONTEND" | tr -d '%')
+          echo "Backend coverage: $B%"; echo "Frontend coverage: $F%"
+          BELOW=0
+          cmp() { awk "BEGIN{print ($1 < $2)}"; }
+          if [ -z "$B" ] || [ "$B" = "" ]; then B=0; fi
+          if [ -z "$F" ] || [ "$F" = "" ]; then F=0; fi
+          if [ $(cmp $B $THRESH) -eq 1 ]; then BELOW=1; fi
+          if [ $(cmp $F $THRESH) -eq 1 ]; then BELOW=1; fi
+          if [ "$BELOW" -eq 1 ]; then
+            echo "Coverage check failed: one or more modules below ${THRESH}%"
+            exit 1
+          fi
+
+      - name: Post coverage summary as PR comment
+        if: always()
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **Coverage Summary**
+
+            - Backend: ${{ steps.read.outputs.backend }}
+            - Frontend: ${{ steps.read.outputs.frontend }}
+
+            _Generated by CI. The job will fail if coverage is below the patch threshold (75%)._
