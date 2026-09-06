@@ -1,0 +1,42 @@
+# Codecov configuration for AB Learning
+# See: https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  status:
+    project:
+      default:
+        # Target overall coverage percent for the repository
+        target: 80%
+        # Allow small negative/positive diffs (set to 0% to be strict)
+        threshold: 0%
+        # Use auto base (PR base) for comparison
+        base: auto
+    patch:
+      default:
+        # Target coverage for changes in a PR (patch coverage)
+        target: 75%
+        threshold: 0%
+
+comment:
+  layout: "header, diff, changes"
+  behavior: default
+
+ignore:
+  - "**/third_party/**"
+  - "**/vendor/**"
+  - "**/testdata/**"
+  - "**/docs/**"
+  - "**/*.md"
+
+flags:
+  backend: # backend-specific reports
+    paths:
+      - ab-learning-api/**
+  frontend: # frontend-specific reports
+    paths:
+      - ab_learning_app/**
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes

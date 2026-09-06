@@ -1,0 +1,142 @@
+{
+  "info": {
+    "name": "AB Learning API - Full",
+    "description": "Auto-generated best-effort Postman collection covering endpoints from 05-openapi.yaml. Replace {{baseUrl}} and {{access_token}} as needed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    { "name": "Health", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } } },
+
+    { "name": "Auth - Login", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"identifier\": \"user@example.com\",\n  \"password\": \"secret\"\n}" }, "url": { "raw":"{{baseUrl}}/auth/login","host":["{{baseUrl}}"],"path":["auth","login"] } } },
+
+    { "name": "Auth - Register", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"first_name\": \"First\",\n  \"last_name\": \"Last\",\n  \"email\": \"user@example.com\",\n  \"password\": \"secret\"\n}" }, "url": { "raw":"{{baseUrl}}/auth/register","host":["{{baseUrl}}"],"path":["auth","register"] } } },
+
+    { "name": "Auth - Verify OTP", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"user_id\": 1,\n  \"code\": \"123456\"\n}" }, "url": { "raw":"{{baseUrl}}/auth/verify-otp","host":["{{baseUrl}}"],"path":["auth","verify-otp"] } } },
+
+    { "name": "Auth - Forgot Password", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"email\": \"user@example.com\"\n}" }, "url": { "raw":"{{baseUrl}}/auth/forgot-password","host":["{{baseUrl}}"],"path":["auth","forgot-password"] } } },
+
+    { "name": "Me - Get Profile", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/me","host":["{{baseUrl}}"],"path":["me"] } } },
+
+    { "name": "Me - Save Preferences", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw": "{\n  \"interests\": [\"python\", \"web\"],\n  \"level\": \"beginner\"\n}" }, "url": { "raw":"{{baseUrl}}/me/preferences","host":["{{baseUrl}}"],"path":["me","preferences"] } } },
+
+    { "name": "Home - Feed", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/home","host":["{{baseUrl}}"],"path":["home"] } } },
+
+    { "name": "Courses - List", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/courses","host":["{{baseUrl}}"],"path":["courses"], "query": [{"key":"page","value":"1"},{"key":"limit","value":"20"}] } } },
+
+    { "name": "Courses - Get by ID", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/courses/:id","host":["{{baseUrl}}"],"path":["courses",":id"] } } },
+
+    { "name": "Courses - Curriculum", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/courses/:id/curriculum","host":["{{baseUrl}}"],"path":["courses",":id","curriculum"] } } },
+
+    { "name": "Search - Courses", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/search?q=keyword","host":["{{baseUrl}}"],"path":["search"], "query": [{"key":"q","value":"keyword"}] } } },
+
+    { "name": "Orders - Create", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"course_ids\": [101,102],\n  \"coupon_code\": \"PROMO10\"\n}" }, "url": { "raw":"{{baseUrl}}/orders","host":["{{baseUrl}}"],"path":["orders"] } } },
+
+    { "name": "Payments - Create", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"order_id\": 201,\n  \"method\": \"stripe\"\n}" }, "url": { "raw":"{{baseUrl}}/payments","host":["{{baseUrl}}"],"path":["payments"] } } },
+
+    { "name": "Me - Enrolled Courses", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/me/courses","host":["{{baseUrl}}"],"path":["me","courses"] } } },
+
+    { "name": "Enrollments - Create", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"user_id\": 1,\n  \"course_id\": 101\n}" }, "url": { "raw":"{{baseUrl}}/enrollments","host":["{{baseUrl}}"],"path":["enrollments"] } } },
+
+    { "name": "Enrollments - Get", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/enrollments/:id","host":["{{baseUrl}}"],"path":["enrollments",":id"] } } },
+
+    { "name": "Lessons - Get", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/lessons/:id","host":["{{baseUrl}}"],"path":["lessons",":id"] } } },
+
+    { "name": "Lessons - Update (Instructor)", "request": { "method": "PUT", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"id\": 301,\n  \"title\": \"Updated Lesson\",\n  \"type\": \"video\"\n}" }, "url": { "raw":"{{baseUrl}}/lessons/:id","host":["{{baseUrl}}"],"path":["lessons",":id"] } } },
+
+    { "name": "Lesson Progress - Save", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"watched_seconds\": 120,\n  \"status\": \"in_progress\"\n}" }, "url": { "raw":"{{baseUrl}}/lessons/:id/progress","host":["{{baseUrl}}"],"path":["lessons",":id","progress"] } } },
+
+    { "name": "Quizzes - Get Questions", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/quizzes/:id","host":["{{baseUrl}}"],"path":["quizzes",":id"] } } },
+
+    { "name": "Quizzes - Submit", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"answers\": { \"q1\": \"a\", \"q2\": \"b\" }\n}" }, "url": { "raw":"{{baseUrl}}/quizzes/:id/submit","host":["{{baseUrl}}"],"path":["quizzes",":id","submit"] } } },
+
+    { "name": "Certificates - List", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/certificates","host":["{{baseUrl}}"],"path":["certificates"] } } },
+
+    { "name": "Certificates - Download", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/certificates/:id/download","host":["{{baseUrl}}"],"path":["certificates",":id","download"] } } },
+
+    { "name": "Live - List", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/live","host":["{{baseUrl}}"],"path":["live"] } } },
+
+    { "name": "Live - Join", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/live/:id/join","host":["{{baseUrl}}"],"path":["live",":id","join"] } } },
+
+    { "name": "Live - Chat", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/live/:id/chat","host":["{{baseUrl}}"],"path":["live",":id","chat"] } } },
+
+    { "name": "Live - Questions", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"question\": \"Can you explain topic X?\"\n}" }, "url": { "raw":"{{baseUrl}}/live/:id/questions","host":["{{baseUrl}}"],"path":["live",":id","questions"] } } },
+
+    { "name": "Community - List Posts", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/community/posts","host":["{{baseUrl}}"],"path":["community","posts"] } } },
+
+    { "name": "Community - Create Post", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"title\": \"Hello\",\n  \"content\": \"This is a post\"\n}" }, "url": { "raw":"{{baseUrl}}/community/posts","host":["{{baseUrl}}"],"path":["community","posts"] } } },
+
+    { "name": "AI - Tutor Request", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"message\": \"Explain closures in JS\",\n  \"action\": \"explain\"\n}" }, "url": { "raw":"{{baseUrl}}/ai/tutor","host":["{{baseUrl}}"],"path":["ai","tutor"] } } },
+
+    { "name": "Skills - Assessment (Get)", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/skills/assessment","host":["{{baseUrl}}"],"path":["skills","assessment"] } } },
+
+    { "name": "Skills - Assessment Submit", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"answers\": {}\n}" }, "url": { "raw":"{{baseUrl}}/skills/assessment/submit","host":["{{baseUrl}}"],"path":["skills","assessment","submit"] } } },
+
+    { "name": "Skills - Result", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/skills/result","host":["{{baseUrl}}"],"path":["skills","result"] } } },
+
+    { "name": "Career Paths - List", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/career-paths","host":["{{baseUrl}}"],"path":["career-paths"] } } },
+
+    { "name": "Career Paths - Get", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/career-paths/:id","host":["{{baseUrl}}"],"path":["career-paths",":id"] } } },
+
+    { "name": "Portfolio - Get", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/portfolio","host":["{{baseUrl}}"],"path":["portfolio"] } } },
+
+    { "name": "Portfolio - Update", "request": { "method": "PUT", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"headline\": \"Senior Developer\",\n  \"skills\": [\"Go\", \"Flutter\"]\n}" }, "url": { "raw":"{{baseUrl}}/portfolio","host":["{{baseUrl}}"],"path":["portfolio"] } } },
+
+    { "name": "Jobs - Search", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/jobs?location=Bangkok&remote=false","host":["{{baseUrl}}"],"path":["jobs"],"query":[{"key":"location","value":"Bangkok"},{"key":"remote","value":"false"}] } } },
+
+    { "name": "Jobs - Get", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/jobs/:id","host":["{{baseUrl}}"],"path":["jobs",":id"] } } },
+
+    { "name": "Jobs - Apply", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/jobs/:id/apply","host":["{{baseUrl}}"],"path":["jobs",":id","apply"] } } },
+
+    { "name": "Wallet - Get", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/wallet","host":["{{baseUrl}}"],"path":["wallet"] } } },
+
+    { "name": "Wallet - Transactions", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/wallet/transactions","host":["{{baseUrl}}"],"path":["wallet","transactions"] } } },
+
+    { "name": "Instructor - Dashboard", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/instructor/dashboard","host":["{{baseUrl}}"],"path":["instructor","dashboard"] } } },
+
+    { "name": "Instructor - Courses (List)", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/instructor/courses","host":["{{baseUrl}}"],"path":["instructor","courses"] } } },
+
+    { "name": "Instructor - Courses (Create)", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"title\": \"New Course\",\n  \"description\": \"Course desc\"\n}" }, "url": { "raw":"{{baseUrl}}/instructor/courses","host":["{{baseUrl}}"],"path":["instructor","courses"] } } },
+
+    { "name": "Instructor - Revenue", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/instructor/revenue","host":["{{baseUrl}}"],"path":["instructor","revenue"] } } },
+
+    { "name": "Course Sections - Create", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"course_id\": 101,\n  \"title\": \"Section 1\"\n}" }, "url": { "raw":"{{baseUrl}}/course-sections","host":["{{baseUrl}}"],"path":["course-sections"] } } },
+
+    { "name": "Lessons - Create", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"title\": \"New Lesson\",\n  \"type\": \"video\"\n}" }, "url": { "raw":"{{baseUrl}}/lessons","host":["{{baseUrl}}"],"path":["lessons"] } } },
+
+    { "name": "Corporate - Dashboard", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/corporate/dashboard","host":["{{baseUrl}}"],"path":["corporate","dashboard"] } } },
+
+    { "name": "Corporate - Employees (List)", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/corporate/employees","host":["{{baseUrl}}"],"path":["corporate","employees"] } } },
+
+    { "name": "Corporate - Employees (Create)", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"email\": \"employee@example.com\",\n  \"department\": \"Learning\"\n}" }, "url": { "raw":"{{baseUrl}}/corporate/employees","host":["{{baseUrl}}"],"path":["corporate","employees"] } } },
+
+    { "name": "Corporate - Learning Paths", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/corporate/learning-paths","host":["{{baseUrl}}"],"path":["corporate","learning-paths"] } } },
+
+    { "name": "Corporate - Learning Paths (Create)", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"name\": \"Onboarding\",\n  \"course_ids\": [101,102]\n}" }, "url": { "raw":"{{baseUrl}}/corporate/learning-paths","host":["{{baseUrl}}"],"path":["corporate","learning-paths"] } } },
+
+    { "name": "Employer/Admin - Dashboard", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/employer/dashboard","host":["{{baseUrl}}"],"path":["employer","dashboard"] } } },
+
+    { "name": "Admin - Dashboard", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/dashboard","host":["{{baseUrl}}"],"path":["admin","dashboard"] } } },
+
+    { "name": "Admin - Pending Courses", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/courses/pending","host":["{{baseUrl}}"],"path":["admin","courses","pending"] } } },
+
+    { "name": "Admin - Approve Course", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/courses/:id/approve","host":["{{baseUrl}}"],"path":["admin","courses",":id","approve"] } } },
+
+    { "name": "Admin - Reject Course", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"reason\": \"Not meeting quality standards\"\n}" }, "url": { "raw":"{{baseUrl}}/admin/courses/:id/reject","host":["{{baseUrl}}"],"path":["admin","courses",":id","reject"] } } },
+
+    { "name": "Admin - Payments", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/payments","host":["{{baseUrl}}"],"path":["admin","payments"] } } },
+
+    { "name": "Admin - Refund Payment", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/payments/:id/refund","host":["{{baseUrl}}"],"path":["admin","payments",":id","refund"] } } },
+
+    { "name": "Admin - Users List", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/users","host":["{{baseUrl}}"],"path":["admin","users"] } } },
+
+    { "name": "Admin - User Get", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/users/:id","host":["{{baseUrl}}"],"path":["admin","users",":id"] } } },
+
+    { "name": "Admin - User Update", "request": { "method": "PUT", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"},{"key":"Content-Type","value":"application/json"}], "body": { "mode":"raw", "raw":"{\n  \"first_name\": \"Updated\"\n}" }, "url": { "raw":"{{baseUrl}}/admin/users/:id","host":["{{baseUrl}}"],"path":["admin","users",":id"] } } },
+
+    { "name": "Admin - Suspend User", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{access_token}}"}], "url": { "raw":"{{baseUrl}}/admin/users/:id/suspend","host":["{{baseUrl}}"],"path":["admin","users",":id","suspend"] } } }
+  ]
+}

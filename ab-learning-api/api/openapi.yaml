@@ -1,0 +1,19 @@
+openapi: 3.0.0
+info:
+  title: AB LEARNING API (stub)
+  version: 0.1.0
+paths:
+  /api/v1/courses:
+    get:
+      summary: List courses
+      responses:
+        '200':
+          description: OK
+  /api/v1/auth/login:
+    post:
+      summary: Login (stub)
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: OK

@@ -1,0 +1,39 @@
+{
+  "color": {
+    "primary": "#4338CA",
+    "secondary": "#7C3AED",
+    "accent": "#0EA5E9",
+    "success": "#22C55E",
+    "warning": "#F59E0B",
+    "error": "#EF4444",
+    "bg": "#F8FAFC",
+    "text": "#0F172A",
+    "text-secondary": "#64748B",
+    "pill-success-bg": "#DCFCE7",
+    "pill-warn-bg": "#FEF3C7",
+    "pill-error-bg": "#FEE2E2",
+    "btn-primary-bg": "#4338CA",
+    "btn-outline-border": "#4338CA",
+    "card-border": "#EEF0F4"
+  },
+  "type": {
+    "thai": "Noto Sans Thai",
+    "en": "Inter/Aptos",
+    "scale": {
+      "display": {"size": 28, "lineHeight": 36},
+      "h1": {"size": 22, "lineHeight": 28},
+      "h2": {"size": 18, "lineHeight": 24},
+      "body": {"size": 15, "lineHeight": 22},
+      "caption": {"size": 13, "lineHeight": 18},
+      "micro": {"size": 11, "lineHeight": 16}
+    },
+    "weight": {"heading": 500, "body": 400, "emphasis": 600}
+  },
+  "radius": {
+    "card": 16,
+    "button": 12,
+    "input": 10,
+    "modal": 20,
+    "badge": 999
+  }
+}

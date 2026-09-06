@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ../../ab-learning-api
+      dockerfile: Dockerfile
+    env_file:
+      - ../../ab-learning-api/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - ablearn
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: ablearning
+      MYSQL_USER: ablearning
+      MYSQL_PASSWORD: ablearning
+      TZ: UTC
+    volumes:
+      - db_data:/var/lib/mysql
+      # Seeds placed under project db/seed are executed on first startup
+      - ../../db/seed:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - ablearn
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - ablearn
+
+volumes:
+  db_data:
+  redis_data:
+
+networks:
+  ablearn:
+    driver: bridge
+
+# Notes:
+# - Place a real secret in '../../ab-learning-api/.env' or override envs in CI.
+# - The API service expects a Dockerfile at 'ab-learning-api/Dockerfile'.
+# - Seed SQL/JSON files placed under 'db/seed' are mounted and run by MySQL on first init.
