@@ -7,32 +7,36 @@ import (
 	"github.com/ablearning/api/pkg/httpx"
 )
 
-type loginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type Controller struct {
+	service *Service
 }
 
-type loginResponse struct {
-	Token string `json:"token"`
+func NewController(service *Service) *Controller {
+	return &Controller{service: service}
 }
 
 func RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/auth/login", Login)
+	controller := NewController(NewService(NewRepository()))
+	mux.HandleFunc("/api/v1/auth/login", controller.Login)
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		return
 	}
 
-	var req loginRequest
+	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": "invalid body"})
 		return
 	}
 
-	// Prototype stub: accept any credentials
-	resp := loginResponse{Token: "stub-access-token"}
+	resp, err := c.service.Login(req)
+	if err != nil {
+		httpx.JSON(w, http.StatusUnauthorized, map[string]string{"error": err.Error()})
+		return
+	}
+
 	httpx.JSON(w, http.StatusOK, resp)
 }
