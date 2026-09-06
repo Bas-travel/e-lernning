@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 <!-- <<<<<<< HEAD -->
 # e-lernning
 new06092569
 <!-- ======= -->
+=======
+>>>>>>> 86d2ddaa793f5184fd815a859db90057726a8c50
 # AB LEARNING — Prototype V1 (scaffold)
 
 [![CI](https://github.com/ablearning/ab-learning/actions/workflows/ci.yml/badge.svg)](https://github.com/ablearning/ab-learning/actions/workflows/ci.yml) [![Codecov](https://codecov.io/gh/ablearning/ab-learning/branch/main/graph/badge.svg)](https://codecov.io/gh/ablearning/ab-learning)
@@ -58,4 +61,7 @@ gh secret set CODECOV_TOKEN --body "<your-codecov-token>" --repo ablearning/ab-l
 	```
 
 วางบรรทัดที่ต้องการใน `README.md` และอย่าใส่ token แบบสาธารณะในไฟล์ — ใช้ GitHub secrets/Codecov settings แทน.
+<<<<<<< HEAD
 <!-- >>>>>>> 320bc5e (chore(design): update design tokens and sync theme) -->
+=======
+>>>>>>> 86d2ddaa793f5184fd815a859db90057726a8c50
