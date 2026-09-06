@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-<!-- <<<<<<< HEAD -->
 # e-lernning
 new06092569
-<!-- ======= -->
-=======
+
 >>>>>>> 86d2ddaa793f5184fd815a859db90057726a8c50
 # AB LEARNING — Prototype V1 (scaffold)
 
