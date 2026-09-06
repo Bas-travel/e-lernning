@@ -1,0 +1,407 @@
+screens:
+  - id: "01"
+    name: "Splash"
+    priority: P0
+    platforms: [M, D]
+    purpose: "Cold-start entry, session check"
+    route: "/"
+    api: ["GET /api/v1/app/config"]
+    entities: [app_config]
+    states: [loading, offline, maintenance]
+    components: [Logo, ProgressIndicator]
+    nav: {no_session: "/onboarding", session: "/home"}
+
+  - id: "02"
+    name: "Onboarding"
+    priority: P1
+    platforms: [M, D]
+    purpose: "3-slide value prop"
+    route: "/onboarding"
+    api: []
+    entities: [onboarding_settings]
+    states: [default, last_slide]
+    components: [Illustration, Heading, DotIndicator, CTA]
+    nav: {next: "/onboarding/next", get_started: "/login"}
+
+  - id: "03"
+    name: "Login"
+    priority: P0
+    platforms: [M, D]
+    purpose: "Auth entry"
+    route: "/login"
+    api: ["POST /api/v1/auth/login"]
+    entities: [users, roles, profiles]
+    states: [default, loading, error]
+    components: [TextInput, PasswordInput, Checkbox, SocialButtons]
+    nav: {success: "/home", register: "/register", forgot: "/forgot-password"}
+
+  - id: "04"
+    name: "Register"
+    priority: P0
+    platforms: [M, D]
+    purpose: "Account creation"
+    route: "/register"
+    api: ["POST /api/v1/auth/register"]
+    entities: [users, profiles]
+    states: [default, loading, error]
+    components: [FormFields, TermsCheckbox, CTA]
+    nav: {success: "/otp"}
+
+  - id: "05"
+    name: "OTP Verification"
+    priority: P1
+    platforms: [M, D]
+    route: "/otp"
+    api: ["POST /api/v1/auth/verify-otp"]
+    entities: [otp_verifications]
+    states: [default, countdown, resend_disabled]
+    components: [OTPInput, Countdown, ResendLink]
+    nav: {success: "/interests"}
+
+  - id: "06"
+    name: "Interests"
+    priority: P0
+    platforms: [M, D]
+    purpose: "Personalization intake"
+    route: "/interests"
+    api: ["POST /api/v1/me/preferences"]
+    entities: [user_preferences, skills]
+    components: [FilterChips, RadioGroup, CTA]
+    nav: {next: "/home"}
+
+  - id: "07"
+    name: "Forgot Password"
+    priority: P1
+    platforms: [M, D]
+    route: "/forgot-password"
+    api: ["POST /api/v1/auth/forgot-password"]
+    entities: [password_resets]
+    components: [EmailInput, CTA]
+    states: [default, success]
+
+  - id: "08"
+    name: "Home"
+    priority: P0
+    platforms: [M, D]
+    purpose: "Personalized landing hub"
+    route: "/home"
+    api: ["GET /api/v1/home"]
+    entities: [courses, enrollments, live_sessions, career_paths, notifications]
+    components: [CourseCard, LiveCard, ProgressCard, CareerCard]
+    nav: {course: "/course/:id", continue: "/player/:id", live: "/live"}
+
+  - id: "09"
+    name: "Explore"
+    priority: P0
+    platforms: [M, D]
+    route: "/explore"
+    api: ["GET /api/v1/courses"]
+    entities: [courses, categories]
+    components: [SearchBar, CategoryPills, CourseGrid, FilterSheet]
+
+  - id: "10"
+    name: "Search"
+    priority: P0
+    platforms: [M, D]
+    route: "/search"
+    api: ["GET /api/v1/search?q="]
+    entities: [courses, instructors, skills]
+    components: [SearchInput, RecentChips, ResultsList]
+
+  - id: "11"
+    name: "Course Detail"
+    priority: P0
+    platforms: [M, D]
+    route: "/course/:id"
+    api: ["GET /api/v1/courses/{id}"]
+    entities: [courses, lessons, instructors, reviews]
+    components: [HeroMedia, InstructorRow, PriceCard, CurriculumAccordion, Reviews]
+    nav: {buy: "/checkout", start: "/player/:lessonId"}
+
+  - id: "12"
+    name: "Curriculum"
+    priority: P0
+    platforms: [M, D]
+    route: "/course/:id/curriculum"
+    api: ["GET /api/v1/courses/{id}/curriculum"]
+    entities: [courses, course_sections, lessons, lesson_progress]
+    components: [Accordion, ProgressRing]
+
+  - id: "13"
+    name: "Video Player"
+    priority: P0
+    platforms: [M, D]
+    route: "/player/:id"
+    api: ["GET /api/v1/lessons/{id}", "POST /api/v1/lessons/{id}/progress"]
+    entities: [lessons, lesson_progress, enrollments]
+    components: [VideoPlayer, Transcript, Notes, Discussion, AIAsk]
+
+  - id: "14"
+    name: "Quiz"
+    priority: P0
+    platforms: [M, D]
+    route: "/quiz/:id"
+    api: ["GET /api/v1/quizzes/{id}", "POST /api/v1/quizzes/{id}/submit"]
+    entities: [quizzes, quiz_questions, quiz_attempts]
+    components: [QuestionCard, OptionList, ProgressBar]
+
+  - id: "15"
+    name: "Quiz Result"
+    priority: P0
+    platforms: [M, D]
+    route: "/quiz-attempts/:id"
+    api: ["GET /api/v1/quiz-attempts/{id}"]
+    entities: [quiz_attempts, skills]
+    components: [ScoreRing, SkillAnalysis, Recommendations]
+
+  - id: "16"
+    name: "Certificate"
+    priority: P0
+    platforms: [M, D]
+    route: "/certificates"
+    api: ["GET /api/v1/certificates", "GET /api/v1/certificates/{id}/download"]
+    entities: [certificates, courses, users]
+    components: [CertificateCard, QRCode, Actions]
+
+  - id: "17"
+    name: "Live List"
+    priority: P0
+    platforms: [M, D]
+    route: "/live"
+    api: ["GET /api/v1/live"]
+    entities: [live_sessions]
+    components: [Tabs, LiveCard]
+
+  - id: "18"
+    name: "Live Room"
+    priority: P0
+    platforms: [M, D]
+    route: "/live/:id"
+    api: ["POST /api/v1/live/{id}/join", "GET /api/v1/live/{id}/chat", "POST /api/v1/live/{id}/questions"]
+    entities: [live_sessions, live_attendees, live_questions]
+    components: [LiveVideo, Chat, QAndA, Participants]
+
+  - id: "19"
+    name: "Community Home"
+    priority: P1
+    platforms: [M, D]
+    route: "/community"
+    api: ["GET /api/v1/community/posts"]
+    entities: [communities, community_posts, comments, likes]
+    components: [Feed, PostCard, FloatingAction]
+
+  - id: "20"
+    name: "Create Post"
+    priority: P1
+    platforms: [M, D]
+    route: "/community/create"
+    api: ["POST /api/v1/community/posts"]
+    entities: [community_posts, attachments]
+    components: [TitleInput, ContentEditor, AttachmentPicker, PublishCTA]
+
+  - id: "21"
+    name: "AI Tutor"
+    priority: P0
+    platforms: [M, D]
+    route: "/ai/tutor"
+    api: ["POST /api/v1/ai/tutor"]
+    entities: [ai_conversations, ai_messages, users, lessons]
+    components: [ChatThread, SuggestedChips, QuickActions]
+
+  - id: "22"
+    name: "Skill Assessment"
+    priority: P0
+    platforms: [M, D]
+    route: "/skills/assessment"
+    api: ["GET /api/v1/skills/assessment", "POST /api/v1/skills/assessment/submit"]
+    entities: [skills, skill_assessments, skill_questions]
+    components: [CategoryHeader, QuestionCard]
+
+  - id: "23"
+    name: "Skill Result"
+    priority: P0
+    platforms: [M, D]
+    route: "/skills/result"
+    api: ["GET /api/v1/skills/result"]
+    entities: [skills, skill_results, career_paths]
+    components: [ScoreRing, RadarChart, RecommendedCourses]
+
+  - id: "24"
+    name: "Career Path"
+    priority: P0
+    platforms: [M, D]
+    route: "/career-paths/:id"
+    api: ["GET /api/v1/career-paths/{id}"]
+    entities: [career_paths, career_path_skills, skills, courses]
+    components: [Timeline, SkillsGrid, CoursesCarousel]
+
+  - id: "25"
+    name: "Portfolio"
+    priority: P0
+    platforms: [M, D]
+    route: "/portfolio"
+    api: ["GET /api/v1/portfolio", "PUT /api/v1/portfolio"]
+    entities: [portfolios, portfolio_projects, certificates, skills]
+    components: [ProfileHeader, SkillsRow, ProjectsList]
+
+  - id: "26"
+    name: "Jobs"
+    priority: P0
+    platforms: [M, D]
+    route: "/jobs"
+    api: ["GET /api/v1/jobs"]
+    entities: [jobs]
+    components: [SearchBar, FilterChips, JobCard]
+
+  - id: "27"
+    name: "Job Detail"
+    priority: P0
+    platforms: [M, D]
+    route: "/jobs/:id"
+    api: ["GET /api/v1/jobs/{id}", "POST /api/v1/jobs/{id}/apply"]
+    entities: [jobs, job_applications, portfolios]
+    components: [CompanyHeader, MatchScore, Requirements, ApplyCTA]
+
+  - id: "28"
+    name: "Wallet"
+    priority: P1
+    platforms: [M, D]
+    route: "/wallet"
+    api: ["GET /api/v1/wallet", "GET /api/v1/wallet/transactions"]
+    entities: [wallets, wallet_transactions, payments]
+    components: [BalanceCards, TransactionList, TopUpCTA]
+
+  - id: "29"
+    name: "Gamification"
+    priority: P1
+    platforms: [M, D]
+    route: "/gamification"
+    api: ["GET /api/v1/gamification"]
+    entities: [user_points, badges, achievements, leaderboards]
+    components: [LevelCard, BadgeGrid, Leaderboard]
+
+  - id: "30"
+    name: "Profile"
+    priority: P0
+    platforms: [M, D]
+    route: "/me"
+    api: ["GET /api/v1/me"]
+    entities: [users, profiles]
+    components: [ProfileSummary, MenuList, ProgressRing]
+
+  - id: "31"
+    name: "Instructor Dashboard"
+    priority: P0
+    platforms: [M, D]
+    route: "/instructor/dashboard"
+    api: ["GET /api/v1/instructor/dashboard"]
+    entities: [instructors, courses, enrollments, orders, creator_payouts]
+    components: [KPICards, Charts, QuickActions]
+
+  - id: "32"
+    name: "My Courses"
+    priority: P1
+    platforms: [M, D]
+    route: "/instructor/courses"
+    api: ["GET /api/v1/instructor/courses"]
+    entities: [courses]
+    components: [Tabs, CourseCard, ActionsMenu]
+
+  - id: "33"
+    name: "Create Course"
+    priority: P0
+    platforms: [M, D]
+    route: "/instructor/courses/create"
+    api: ["POST /api/v1/instructor/courses"]
+    entities: [courses]
+    components: [Stepper, FormFields, CTA]
+
+  - id: "34"
+    name: "Course Builder"
+    priority: P0
+    platforms: [M, D]
+    route: "/instructor/courses/:id/builder"
+    api: ["POST /api/v1/course-sections", "POST /api/v1/lessons", "PUT /api/v1/lessons/{id}"]
+    entities: [courses, course_sections, lessons, quizzes]
+    components: [Tree, Editor, SettingsPanel]
+
+  - id: "35"
+    name: "Instructor Revenue"
+    priority: P1
+    platforms: [M, D]
+    route: "/instructor/revenue"
+    api: ["GET /api/v1/instructor/revenue"]
+    entities: [orders, payments, creator_payouts]
+    components: [KPIs, Charts, PayoutList]
+
+  - id: "36"
+    name: "Corporate Dashboard"
+    priority: P0
+    platforms: [M, D]
+    route: "/corporate/dashboard"
+    api: ["GET /api/v1/corporate/dashboard"]
+    entities: [organizations, organization_users, enrollments, learning_paths]
+    components: [KPIs, Charts, SkillGapHeatmap]
+
+  - id: "37"
+    name: "Employee Management"
+    priority: P0
+    platforms: [M, D]
+    route: "/corporate/employees"
+    api: ["GET /api/v1/corporate/employees", "POST /api/v1/corporate/employees"]
+    entities: [organization_users, users, departments]
+    components: [Search, EmployeeList, ImportCSV]
+
+  - id: "38"
+    name: "Learning Path"
+    priority: P0
+    platforms: [M, D]
+    route: "/corporate/learning-paths"
+    api: ["GET /api/v1/corporate/learning-paths", "POST /api/v1/corporate/learning-paths"]
+    entities: [learning_paths, learning_path_courses, organization_users, courses]
+    components: [PathCards, DetailDrawer]
+
+  - id: "39"
+    name: "Employer Dashboard"
+    priority: P1
+    platforms: [M, D]
+    route: "/employer/dashboard"
+    api: ["GET /api/v1/employer/dashboard"]
+    entities: [employers, jobs, job_applications, portfolios]
+    components: [KPIs, TalentCards, Charts]
+
+  - id: "40"
+    name: "Admin Dashboard"
+    priority: P0
+    platforms: [M, D]
+    route: "/admin/dashboard"
+    api: ["GET /api/v1/admin/dashboard"]
+    entities: [all_core]
+    components: [KPIs, Charts, QuickMenu]
+
+  - id: "41"
+    name: "Course Moderation"
+    priority: P0
+    platforms: [M, D]
+    route: "/admin/courses/moderation"
+    api: ["GET /api/v1/admin/courses/pending", "POST /api/v1/admin/courses/{id}/approve", "POST /api/v1/admin/courses/{id}/reject"]
+    entities: [courses, instructors, reports, audit_logs]
+    components: [Tabs, ModerationTable, Actions]
+
+  - id: "42"
+    name: "Payment Management"
+    priority: P0
+    platforms: [M, D]
+    route: "/admin/payments"
+    api: ["GET /api/v1/admin/payments", "POST /api/v1/admin/payments/{id}/refund"]
+    entities: [orders, order_items, payments, refunds]
+    components: [Filters, TransactionTable, RefundAction]
+
+  - id: "43"
+    name: "User Management"
+    priority: P0
+    platforms: [M, D]
+    route: "/admin/users"
+    api: ["GET /api/v1/admin/users", "GET /api/v1/admin/users/{id}", "PUT /api/v1/admin/users/{id}", "POST /api/v1/admin/users/{id}/suspend"]
+    entities: [users, profiles, roles, orders, payments, audit_logs]
+    components: [Search, UserTable, DetailDrawer]

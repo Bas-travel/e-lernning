@@ -1,0 +1,18 @@
+# Flutter
+**/build/
+**/ios/Flutter/Flutter.framework
+**/.dart_tool/
+**/.packages
+
+# Go
+**/bin/
+**/pkg/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

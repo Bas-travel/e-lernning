@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>AB LEARNING — High-Fidelity Mockups</title>
+<style>
+:root{
+  --primary:#4338CA; --secondary:#7C3AED; --accent:#0EA5E9;
+  --success:#22C55E; --warning:#F59E0B; --error:#EF4444;
+  --bg:#F8FAFC; --text:#0F172A; --text2:#64748B;
+  --pill-success-bg:#DCFCE7; --pill-warn-bg:#FEF3C7; --pill-error-bg:#FEE2E2;
+  --btn-primary-bg:#4338CA; --btn-outline-border:#4338CA;
+  --card-border:#EEF0F4;
+  --r-card:16px; --r-btn:12px; --r-in:10px; --r-badge:999px;
+  --font: 'Inter','Noto Sans Thai',-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font);}
+body{background:#EEF0F5;color:var(--text);}
+.app{display:flex;min-height:100vh;}
+.rail{width:230px;background:#0F172A;color:#fff;padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.rail h1{font-size:15px;font-weight:600;margin-bottom:2px;color:#fff;}
+.rail .sub{font-size:11px;color:#94A3B8;margin-bottom:18px;}
+.rail button{display:block;width:100%;text-align:left;background:none;border:none;color:#CBD5E1;padding:9px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;}
+.rail button:hover{background:#1E293B;}
+.rail button.active{background:var(--primary);color:#fff;}
+.rail .grp{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:#64748B;margin:14px 0 6px 10px;}
+.main{flex:1;padding:28px 36px;}
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+.toolbar h2{font-size:19px;font-weight:600;}
+.toolbar .toggle{display:flex;background:#fff;border-radius:10px;padding:4px;border:1px solid #E2E8F0;}
+.toolbar .toggle button{border:none;background:none;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);}
+.toolbar .toggle button.active{background:var(--primary);color:#fff;}
+.stage{display:flex;justify-content:center;}
+.frame-m{width:375px;height:812px;background:#fff;border-radius:36px;border:8px solid #111;overflow-y:auto;box-shadow:0 20px 50px rgba(15,23,42,.25);}
+.frame-d{width:1280px;max-width:100%;min-height:800px;background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;box-shadow:0 20px 50px rgba(15,23,42,.15);}
+/* shared components */
+.scr{background:var(--bg);min-height:100%;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #E2E8F0;}
+.topbar .greet{font-size:14px;font-weight:600;}
+.topbar .icons{display:flex;gap:14px;align-items:center;color:var(--text2);font-size:13px;}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+.coin{background:#FEF3C7;color:#92400E;font-size:11px;padding:3px 8px;border-radius:var(--r-badge);font-weight:600;}
+.bottomnav{position:sticky;bottom:0;background:#fff;border-top:1px solid #E2E8F0;display:flex;justify-content:space-around;padding:9px 0 12px;font-size:10px;color:var(--text2);}
+.bottomnav .it{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bottomnav .it.active{color:var(--primary);font-weight:600;}
+.dot{width:20px;height:20px;border-radius:6px;background:#E2E8F0;}
+.dot.active{background:var(--primary);}
+.card{background:#fff;border-radius:var(--r-card);padding:14px;border:1px solid #EEF0F4;}
+.btn-p{background:var(--primary);color:#fff;border:none;border-radius:var(--r-btn);padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-s{background:#fff;color:var(--primary);border:1px solid var(--primary);border-radius:var(--r-btn);padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-g{background:none;color:var(--text2);border:1px solid #E2E8F0;border-radius:var(--r-btn);padding:9px 14px;font-size:12px;cursor:pointer;}
+.pill{border-radius:var(--r-badge);padding:3px 10px;font-size:10.5px;font-weight:600;}
+.pill-success{background:#DCFCE7;color:#166534;}
+.pill-warn{background:#FEF3C7;color:#92400E;}
+.pill-error{background:#FEE2E2;color:#991B1B;}
+.pill-live{background:#CFFAFE;color:#0E7490;}
+.h-section{font-size:14px;font-weight:600;margin:18px 0 10px;padding:0 16px;}
+.hscroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 4px;}
+.hscroll::-webkit-scrollbar{display:none;}
+.ccard{min-width:180px;background:#fff;border-radius:var(--r-card);border:1px solid #EEF0F4;overflow:hidden;flex-shrink:0;}
+.ccard .thumb{height:96px;background:linear-gradient(135deg,var(--primary),var(--secondary));}
+.ccard .body{padding:10px;}
+.ccard .title{font-size:12.5px;font-weight:600;margin-bottom:4px;}
+.ccard .meta{font-size:11px;color:var(--text2);display:flex;justify-content:space-between;align-items:center;}
+.progress-track{height:6px;background:#E2E8F0;border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--primary);}
+.sidebar-d{width:240px;background:#fff;border-right:1px solid #E2E8F0;padding:20px 14px;flex-shrink:0;}
+.sidebar-d .logo{font-size:16px;font-weight:700;color:var(--primary);margin-bottom:22px;padding:0 8px;}
+.sidebar-d a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:2px;}
+.sidebar-d a.active{background:#EEF2FF;color:var(--primary);font-weight:600;}
+.d-flex{display:flex;}
+.d-row{display:flex;gap:18px;}
+.d-body{flex:1;padding:24px 28px;overflow-y:auto;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.kpi{background:#fff;border-radius:var(--r-card);border:1px solid #EEF0F4;padding:16px;}
+.kpi .lbl{font-size:11.5px;color:var(--text2);margin-bottom:6px;}
+.kpi .val{font-size:22px;font-weight:700;}
+.d-topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;border-bottom:1px solid #E2E8F0;background:#fff;}
+table.dt{width:100%;border-collapse:collapse;font-size:12.5px;}
+table.dt th{text-align:left;color:var(--text2);font-weight:600;padding:9px 10px;border-bottom:1px solid #E2E8F0;font-size:11.5px;}
+table.dt td{padding:10px;border-bottom:1px solid #F1F5F9;}
+.chip{background:#F1F5F9;border-radius:99px;padding:6px 12px;font-size:12px;color:var(--text2);white-space:nowrap;}
+.chip.active{background:var(--primary);color:#fff;}
+.badge-role{font-size:10.5px;padding:3px 8px;border-radius:6px;background:#EEF2FF;color:var(--primary);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rail">
+    <h1>AB LEARNING</h1>
+    <div class="sub">Hi-Fi Mockup Set · V1</div>
+    <div class="grp">Auth</div>
+    <button data-s="splash" class="active">01 · Splash</button>
+    <button data-s="onboarding">02 · Onboarding</button>
+    <button data-s="login">03 · Login</button>
+    <button data-s="register">04 · Register</button>
+    <button data-s="otp">05 · OTP</button>
+    <button data-s="interests">06 · Interests</button>
+    <button data-s="forgot">07 · Forgot Password</button>
+    <div class="grp">Home / Explore</div>
+    <button data-s="home">08 · Home</button>
+    <button data-s="explore">09 · Explore</button>
+    <button data-s="search">10 · Search</button>
+    <div class="grp">Course</div>
+    <button data-s="course">11 · Course Detail</button>
+    <button data-s="curriculum">12 · Curriculum</button>
+    <button data-s="player">13 · Video Player</button>
+    <button data-s="quiz">14 · Quiz</button>
+    <button data-s="quizresult">15 · Quiz Result</button>
+    <button data-s="certificate">16 · Certificate</button>
+    <div class="grp">Live</div>
+    <button data-s="livelist">17 · Live List</button>
+    <button data-s="liveroom">18 · Live Room</button>
+    <div class="grp">Community</div>
+    <button data-s="communityhome">19 · Community Home</button>
+    <button data-s="createpost">20 · Create Post</button>
+    <div class="grp">AI / Career</div>
+    <button data-s="aitutor">21 · AI Tutor</button>
+    <button data-s="skillassess">22 · Skill Assessment</button>
+    <button data-s="skillresult">23 · Skill Result</button>
+    <button data-s="career">24 · Career Path</button>
+    <button data-s="portfolio">25 · Portfolio</button>
+    <button data-s="jobs">26 · Jobs</button>
+    <button data-s="jobapply">27 · Job Detail / Apply</button>
+    <div class="grp">Wallet / Profile</div>
+    <button data-s="wallet">28 · Wallet</button>
+    <button data-s="gamification">29 · Gamification</button>
+    <button data-s="profile">30 · Profile</button>
+    <div class="grp">Instructor</div>
+    <button data-s="instructor">31 · Instructor Dashboard</button>
+    <button data-s="mycourses">32 · My Courses</button>
+    <button data-s="createcourse">33 · Create Course</button>
+    <button data-s="coursebuilder">34 · Course Builder</button>
+    <button data-s="instructorrevenue">35 · Instructor Revenue</button>
+    <div class="grp">Corporate / Employer</div>
+    <button data-s="corp">36 · Corporate Dashboard</button>
+    <button data-s="employees">37 · Employee Management</button>
+    <button data-s="learningpath">38 · Learning Path</button>
+    <button data-s="employerdash">39 · Employer Dashboard</button>
+    <div class="grp">Admin</div>
+    <button data-s="admin">40 · Admin Dashboard</button>
+    <button data-s="moderation">41 · Course Moderation</button>
+    <button data-s="paymentmgmt">42 · Payment Management</button>
+    <button data-s="usermgmt">43 · User Management</button>
+  </div>
+  <div class="main">
+    <div class="toolbar">
+      <h2 id="scr-title">03 — Login</h2>
+      <div class="toggle">
+        <button id="tg-m" class="active" onclick="setDevice('m')">Mobile</button>
+        <button id="tg-d" onclick="setDevice('d')">Desktop</button>
+      </div>
+    </div>
+    <div class="stage" id="stage"></div>
+  </div>
+</div>
+
+<script>
+const titles = {
+  splash:"01 — Splash", onboarding:"02 — Onboarding", login:"03 — Login",
+  register:"04 — Register", otp:"05 — OTP Verification", interests:"06 — Interests / Learning Preferences",
+  forgot:"07 — Forgot Password", home:"08 — Home", explore:"09 — Explore", search:"10 — Search",
+  course:"11 — Course Detail", curriculum:"12 — Curriculum",
+  player:"13 — Video Player / Learning", quiz:"14 — Quiz", quizresult:"15 — Quiz Result",
+  certificate:"16 — Certificate", livelist:"17 — Live List", liveroom:"18 — Live Room",
+  communityhome:"19 — Community Home", createpost:"20 — Create Post",
+  aitutor:"21 — AI Tutor", skillassess:"22 — Skill Assessment", skillresult:"23 — Skill Result",
+  career:"24 — Career Path", portfolio:"25 — Portfolio",
+  jobs:"26 — Jobs", jobapply:"27 — Job Detail / Apply",
+  wallet:"28 — Wallet", gamification:"29 — Gamification", profile:"30 — Profile",
+  instructor:"31 — Instructor Dashboard", mycourses:"32 — My Courses", createcourse:"33 — Create Course",
+  coursebuilder:"34 — Course Builder", instructorrevenue:"35 — Instructor Revenue",
+  corp:"36 — Corporate Dashboard", employees:"37 — Employee Management", learningpath:"38 — Learning Path",
+  employerdash:"39 — Employer Dashboard",
+  admin:"40 — Admin Dashboard", moderation:"41 — Course Moderation",
+  paymentmgmt:"42 — Payment Management", usermgmt:"43 — User Management"
+};
+
+const bottomNavM = `<div class="bottomnav">
+  <div class="it active">🏠<span>Home</span></div>
+  <div class="it">🔎<span>Explore</span></div>
+  <div class="it">🎓<span>Learn</span></div>
+  <div class="it">💬<span>Community</span></div>
+  <div class="it">👤<span>Profile</span></div>
+</div>`;
+
+function sidebarD(active){
+  const items = [["Home","home"],["Explore","explore"],["My Learning","learn"],["Live","live"],["Community","community"],["AI Tutor","ai"],["Career","career"],["Portfolio","portfolio"],["Jobs","jobs"],["Wallet","wallet"],["Settings","settings"]];
+  return `<div class="sidebar-d"><div class="logo">AB LEARNING</div>` +
+    items.map(([label,key])=>`<a class="${key===active?'active':''}" href="#">${label}</a>`).join('') +
+    `</div>`;
+}
+
+const screens = {
+splash: {
+ m:`<div class="scr" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:linear-gradient(160deg,var(--primary),var(--secondary));color:#fff;">
+   <div style="width:72px;height:72px;border-radius:20px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);margin-bottom:16px;"></div>
+   <div style="font-size:20px;font-weight:700;letter-spacing:.02em;">AB LEARNING</div>
+   <div style="font-size:12px;opacity:.85;margin:6px 0 40px;">Learn · Live · Community · Career</div>
+   <div style="width:120px;height:4px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;"><div style="width:60%;height:100%;background:#fff;"></div></div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(160deg,var(--primary),var(--secondary));">
+   <div style="width:480px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:60px;text-align:center;color:#fff;">
+     <div style="width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.15);margin:0 auto 18px;"></div>
+     <div style="font-size:22px;font-weight:700;">AB LEARNING</div>
+     <div style="font-size:13px;opacity:.85;margin:8px 0 34px;">Learn · Live · Community · Career</div>
+     <div style="width:160px;height:4px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;margin:0 auto;"><div style="width:60%;height:100%;background:#fff;"></div></div>
+   </div>
+ </div>`
+},
+
+onboarding: {
+ m:`<div class="scr" style="display:flex;flex-direction:column;height:100%;padding:28px 24px;">
+   <div style="text-align:right;font-size:12px;color:var(--text2);">Skip</div>
+   <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+     <div style="width:220px;height:220px;border-radius:24px;background:linear-gradient(135deg,var(--primary),var(--accent));"></div>
+   </div>
+   <div style="text-align:center;margin-bottom:20px;">
+     <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Build real skills, not just watch videos</div>
+     <div style="font-size:12.5px;color:var(--text2);">ลงมือทำโปรเจกต์จริงในทุกหลักสูตร พร้อม AI ที่คอยช่วยตลอดทาง</div>
+   </div>
+   <div style="display:flex;justify-content:center;gap:6px;margin-bottom:20px;">
+     <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+   </div>
+   <button class="btn-p" style="width:100%;">Next</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;height:100%;">
+   <div style="flex:1;background:linear-gradient(135deg,var(--primary),var(--accent));"></div>
+   <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 70px;">
+     <div style="font-size:26px;font-weight:700;margin-bottom:14px;line-height:1.3;">Build real skills,<br>not just watch videos</div>
+     <div style="font-size:14px;color:var(--text2);margin-bottom:30px;max-width:380px;">ลงมือทำโปรเจกต์จริงในทุกหลักสูตร พร้อม AI ที่คอยช่วยตลอดทาง ตั้งแต่เรียนจนถึงหางาน</div>
+     <div style="display:flex;gap:6px;margin-bottom:30px;">
+       <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+     </div>
+     <div style="display:flex;gap:10px;">
+       <button class="btn-g">Skip</button>
+       <button class="btn-p">Next</button>
+     </div>
+   </div>
+ </div>`
+},
+
+login: {
+ m: `<div class="scr" style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:32px 24px;">
+   <div style="text-align:center;margin-bottom:34px;">
+     <div style="width:56px;height:56px;border-radius:16px;background:var(--primary);margin:0 auto 12px;"></div>
+     <div style="font-size:18px;font-weight:700;">AB LEARNING</div>
+     <div style="font-size:12px;color:var(--text2);">Learn · Live · Community · Career</div>
+   </div>
+   <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Email or phone</div>
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:13px;" value="learner@ablearning.com">
+   <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Password</div>
+   <input type="password" style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:8px;font-size:13px;" value="********">
+   <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:18px;">
+     <label style="color:var(--text2);"><input type="checkbox" checked> Remember me</label>
+     <span style="color:var(--primary);font-weight:600;">Forgot password?</span>
+   </div>
+   <button class="btn-p" style="width:100%;margin-bottom:16px;">Log in</button>
+   <div style="text-align:center;font-size:11px;color:var(--text2);margin-bottom:14px;">or continue with</div>
+   <div style="display:flex;gap:8px;margin-bottom:20px;">
+     <button class="btn-g" style="flex:1;">Google</button>
+     <button class="btn-g" style="flex:1;">Facebook</button>
+     <button class="btn-g" style="flex:1;">LINE</button>
+   </div>
+   <div style="text-align:center;font-size:12px;color:var(--text2);">Don't have an account? <span style="color:var(--primary);font-weight:600;">Register</span></div>
+ </div>`,
+ d: `<div class="scr" style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);">
+   <div style="width:420px;background:#fff;border-radius:20px;padding:40px;box-shadow:0 10px 40px rgba(79,70,229,.12);">
+     <div style="text-align:center;margin-bottom:28px;">
+       <div style="width:52px;height:52px;border-radius:14px;background:var(--primary);margin:0 auto 10px;"></div>
+       <div style="font-size:19px;font-weight:700;">AB LEARNING</div>
+       <div style="font-size:12.5px;color:var(--text2);">Learn · Live · Community · Career</div>
+     </div>
+     <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">Email or phone</div>
+     <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:14px;font-size:13.5px;" value="learner@ablearning.com">
+     <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">Password</div>
+     <input type="password" style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:10px;font-size:13.5px;" value="********">
+     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:20px;">
+       <label style="color:var(--text2);"><input type="checkbox" checked> Remember me</label>
+       <span style="color:var(--primary);font-weight:600;">Forgot password?</span>
+     </div>
+     <button class="btn-p" style="width:100%;margin-bottom:18px;">Log in</button>
+     <div style="text-align:center;font-size:11.5px;color:var(--text2);margin-bottom:14px;">or continue with</div>
+     <div style="display:flex;gap:8px;margin-bottom:22px;">
+       <button class="btn-g" style="flex:1;">Google</button>
+       <button class="btn-g" style="flex:1;">Facebook</button>
+       <button class="btn-g" style="flex:1;">LINE</button>
+     </div>
+     <div style="text-align:center;font-size:12.5px;color:var(--text2);">Don't have an account? <span style="color:var(--primary);font-weight:600;">Register</span></div>
+   </div>
+ </div>`
+},
+
+register: {
+ m:`<div class="scr" style="padding:24px;">
+   <div style="font-size:18px;font-weight:700;margin-bottom:4px;">สร้างบัญชีใหม่</div>
+   <div style="font-size:12px;color:var(--text2);margin-bottom:18px;">เริ่มต้นเส้นทางการเรียนรู้ของคุณ</div>
+   <div style="display:flex;gap:8px;margin-bottom:10px;">
+     <input style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;" placeholder="First name">
+     <input style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;" placeholder="Last name">
+   </div>
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:10px;font-size:13px;" placeholder="Email">
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:10px;font-size:13px;" placeholder="Phone">
+   <input type="password" style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:10px;font-size:13px;" placeholder="Password">
+   <input type="password" style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:13px;" placeholder="Confirm password">
+   <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:16px;"><input type="checkbox" checked> ฉันยอมรับ Terms & Conditions</label>
+   <button class="btn-p" style="width:100%;margin-bottom:14px;">Create Account</button>
+   <div style="text-align:center;font-size:12px;color:var(--text2);">มีบัญชีแล้ว? <span style="color:var(--primary);font-weight:600;">Log in</span></div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);">
+   <div style="width:480px;background:#fff;border-radius:20px;padding:40px;box-shadow:0 10px 40px rgba(79,70,229,.12);">
+     <div style="font-size:20px;font-weight:700;margin-bottom:4px;">สร้างบัญชีใหม่</div>
+     <div style="font-size:13px;color:var(--text2);margin-bottom:22px;">เริ่มต้นเส้นทางการเรียนรู้ของคุณ</div>
+     <div style="display:flex;gap:10px;margin-bottom:12px;">
+       <input style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13.5px;" placeholder="First name">
+       <input style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13.5px;" placeholder="Last name">
+     </div>
+     <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:13.5px;" placeholder="Email">
+     <div style="display:flex;gap:10px;margin-bottom:12px;">
+       <input style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13.5px;" placeholder="Phone">
+       <input type="password" style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13.5px;" placeholder="Password">
+     </div>
+     <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:18px;"><input type="checkbox" checked> ฉันยอมรับ Terms & Conditions</label>
+     <button class="btn-p" style="width:100%;margin-bottom:16px;">Create Account</button>
+     <div style="text-align:center;font-size:12.5px;color:var(--text2);">มีบัญชีแล้ว? <span style="color:var(--primary);font-weight:600;">Log in</span></div>
+   </div>
+ </div>`
+},
+
+otp: {
+ m:`<div class="scr" style="padding:32px 24px;text-align:center;">
+   <div style="font-size:17px;font-weight:700;margin-bottom:6px;">ยืนยันบัญชีของคุณ</div>
+   <div style="font-size:12.5px;color:var(--text2);margin-bottom:26px;">กรอกรหัส 6 หลักที่ส่งไปยัง 08X-XXX-1234</div>
+   <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px;">
+     ${[1,2,3,4,5,6].map(()=>`<div style="width:40px;height:48px;border:1.5px solid var(--primary);border-radius:var(--r-in);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;">•</div>`).join('')}
+   </div>
+   <div style="font-size:12px;color:var(--text2);margin-bottom:24px;">ขอรหัสใหม่ได้ใน 00:42</div>
+   <button class="btn-p" style="width:100%;">ยืนยัน</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);">
+   <div style="width:400px;background:#fff;border-radius:20px;padding:40px;text-align:center;box-shadow:0 10px 40px rgba(79,70,229,.12);">
+     <div style="font-size:19px;font-weight:700;margin-bottom:8px;">ยืนยันบัญชีของคุณ</div>
+     <div style="font-size:13px;color:var(--text2);margin-bottom:28px;">กรอกรหัส 6 หลักที่ส่งไปยัง 08X-XXX-1234</div>
+     <div style="display:flex;justify-content:center;gap:10px;margin-bottom:22px;">
+       ${[1,2,3,4,5,6].map(()=>`<div style="width:44px;height:52px;border:1.5px solid var(--primary);border-radius:var(--r-in);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;">•</div>`).join('')}
+     </div>
+     <div style="font-size:12.5px;color:var(--text2);margin-bottom:26px;">ขอรหัสใหม่ได้ใน 00:42</div>
+     <button class="btn-p" style="width:100%;">ยืนยัน</button>
+   </div>
+ </div>`
+},
+
+interests: {
+ m:`<div class="scr" style="padding:24px;">
+   <div style="font-size:17px;font-weight:700;margin-bottom:16px;">คุณสนใจเรื่องอะไร?</div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;">
+     <span class="chip active">Programming</span><span class="chip active">AI</span><span class="chip">Data</span><span class="chip">Marketing</span><span class="chip">Design</span><span class="chip">Business</span><span class="chip">Finance</span><span class="chip">English</span>
+   </div>
+   <div style="font-size:13px;font-weight:600;margin-bottom:10px;">ระดับของคุณ</div>
+   <div style="display:flex;gap:8px;margin-bottom:22px;">
+     <span class="chip active">Beginner</span><span class="chip">Intermediate</span><span class="chip">Advanced</span>
+   </div>
+   <div style="font-size:13px;font-weight:600;margin-bottom:10px;">เป้าหมาย</div>
+   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px;">
+     <span class="chip active">Get a Job</span><span class="chip">Upskill</span><span class="chip">Career Change</span><span class="chip">Freelance</span>
+   </div>
+   <button class="btn-p" style="width:100%;">Start Learning</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;align-items:center;justify-content:center;height:100%;">
+   <div style="width:820px;background:#fff;border-radius:20px;padding:40px;box-shadow:0 10px 40px rgba(15,23,42,.06);">
+     <div style="font-size:20px;font-weight:700;margin-bottom:24px;text-align:center;">บอกเราหน่อยว่าคุณสนใจอะไร</div>
+     <div class="grid3">
+       <div>
+         <div style="font-size:12.5px;font-weight:600;color:var(--text2);margin-bottom:10px;">สนใจ</div>
+         <div style="display:flex;flex-wrap:wrap;gap:8px;">
+           <span class="chip active">Programming</span><span class="chip active">AI</span><span class="chip">Data</span><span class="chip">Design</span><span class="chip">Marketing</span>
+         </div>
+       </div>
+       <div>
+         <div style="font-size:12.5px;font-weight:600;color:var(--text2);margin-bottom:10px;">ระดับ</div>
+         <div style="display:flex;flex-direction:column;gap:8px;">
+           <span class="chip active">Beginner</span><span class="chip">Intermediate</span><span class="chip">Advanced</span>
+         </div>
+       </div>
+       <div>
+         <div style="font-size:12.5px;font-weight:600;color:var(--text2);margin-bottom:10px;">เป้าหมาย</div>
+         <div style="display:flex;flex-direction:column;gap:8px;">
+           <span class="chip active">Get a Job</span><span class="chip">Upskill</span><span class="chip">Career Change</span>
+         </div>
+       </div>
+     </div>
+     <button class="btn-p" style="width:100%;margin-top:30px;">Start Learning</button>
+   </div>
+ </div>`
+},
+
+forgot: {
+ m:`<div class="scr" style="padding:32px 24px;">
+   <div style="font-size:17px;font-weight:700;margin-bottom:6px;">ลืมรหัสผ่าน?</div>
+   <div style="font-size:12.5px;color:var(--text2);margin-bottom:20px;">กรอกอีเมลที่ลงทะเบียนไว้ เราจะส่งลิงก์รีเซ็ตให้</div>
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:16px;font-size:13px;" placeholder="Email">
+   <button class="btn-p" style="width:100%;">Send Reset Link</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);">
+   <div style="width:400px;background:#fff;border-radius:20px;padding:40px;box-shadow:0 10px 40px rgba(79,70,229,.12);">
+     <div style="font-size:19px;font-weight:700;margin-bottom:8px;">ลืมรหัสผ่าน?</div>
+     <div style="font-size:13px;color:var(--text2);margin-bottom:22px;">กรอกอีเมลที่ลงทะเบียนไว้ เราจะส่งลิงก์รีเซ็ตให้</div>
+     <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:18px;font-size:13.5px;" placeholder="Email">
+     <button class="btn-p" style="width:100%;">Send Reset Link</button>
+   </div>
+ </div>`
+},
+
+home: {
+ m: `<div class="scr">
+  <div class="topbar"><div class="greet">สวัสดี, คุณอนันต์ 👋</div><div class="icons"><span>🔎</span><span>🔔</span><span class="coin">🪙 2,450</span><div class="avatar">A</div></div></div>
+  <div style="padding:16px;">
+    <div class="card" style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">วันนี้อยากพัฒนาอะไร?</div>
+      <div style="font-size:11.5px;opacity:.85;margin-bottom:10px;">ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ</div>
+      <button style="background:#fff;color:var(--primary);border:none;border-radius:var(--r-btn);padding:8px 14px;font-size:12px;font-weight:600;">ถาม AI Tutor →</button>
+    </div>
+  </div>
+  <div class="h-section">เรียนต่อ</div>
+  <div class="hscroll">
+    <div class="ccard" style="min-width:230px;">
+      <div class="thumb"></div>
+      <div class="body">
+        <div class="title">Go Backend Masterclass</div>
+        <div class="progress-track" style="margin-bottom:6px;"><div class="progress-fill" style="width:68%;"></div></div>
+        <div class="meta"><span>68% เสร็จแล้ว</span><span style="color:var(--primary);font-weight:600;">เรียนต่อ</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="h-section">แนะนำสำหรับคุณ</div>
+  <div class="hscroll">
+    <div class="ccard"><div class="thumb"></div><div class="body"><div class="title">AI for Business</div><div class="meta"><span>4.9 ★</span><span>฿1,990</span></div></div></div>
+    <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),var(--primary));"></div><div class="body"><div class="title">Flutter Professional</div><div class="meta"><span>4.8 ★</span><span>฿2,490</span></div></div></div>
+  </div>
+  <div class="h-section">Live กำลังจะเริ่ม</div>
+  <div class="hscroll" style="margin-bottom:16px;">
+    <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),#0891B2);"></div><div class="body"><div class="title">AI for Business — Live Q&A</div><div class="meta"><span class="pill pill-live">อีก 2 ชม.</span></div></div></div>
+  </div>
+  ${bottomNavM}
+ </div>`,
+ d: `<div class="scr d-flex" style="height:100%;">
+   ${sidebarD('home')}
+   <div class="d-body">
+     <div class="d-row" style="justify-content:space-between;align-items:center;margin-bottom:20px;">
+       <div><div style="font-size:19px;font-weight:700;">สวัสดี, คุณอนันต์ 👋</div><div style="font-size:12.5px;color:var(--text2);">มาต่อการเรียนรู้ของวันนี้กันเถอะ</div></div>
+       <div class="icons" style="display:flex;gap:16px;align-items:center;"><span>🔎</span><span>🔔</span><span class="coin">🪙 2,450</span><div class="avatar">A</div></div>
+     </div>
+     <div class="d-row" style="margin-bottom:22px;">
+       <div class="card" style="flex:2;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;">
+         <div style="font-size:16px;font-weight:600;margin-bottom:6px;">วันนี้อยากพัฒนาอะไร?</div>
+         <div style="font-size:12.5px;opacity:.85;margin-bottom:14px;">ถาม AI Tutor เพื่อวางแผนการเรียนของคุณแบบเฉพาะบุคคล</div>
+         <button style="background:#fff;color:var(--primary);border:none;border-radius:var(--r-btn);padding:9px 16px;font-size:12.5px;font-weight:600;">ถาม AI Tutor →</button>
+       </div>
+       <div class="card" style="flex:1;">
+         <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Career Path Progress</div>
+         <div style="font-size:20px;font-weight:700;margin-bottom:6px;">78%</div>
+         <div class="progress-track"><div class="progress-fill" style="width:78%;"></div></div>
+       </div>
+     </div>
+     <div class="h-section" style="padding:0;">แนะนำสำหรับคุณ</div>
+     <div class="grid3" style="margin:12px 0 22px;">
+       <div class="ccard"><div class="thumb"></div><div class="body"><div class="title">AI for Business</div><div class="meta"><span>4.9 ★</span><span>฿1,990</span></div></div></div>
+       <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),var(--primary));"></div><div class="body"><div class="title">Flutter Professional</div><div class="meta"><span>4.8 ★</span><span>฿2,490</span></div></div></div>
+       <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,#0EA5E9,var(--secondary));"></div><div class="body"><div class="title">Digital Marketing</div><div class="meta"><span>4.7 ★</span><span>฿1,590</span></div></div></div>
+     </div>
+     <div class="h-section" style="padding:0;">Live กำลังจะเริ่ม</div>
+     <div class="grid3" style="margin-top:12px;">
+       <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),#0891B2);"></div><div class="body"><div class="title">AI for Business — Live Q&A</div><div class="meta"><span class="pill pill-live">อีก 2 ชม.</span></div></div></div>
+     </div>
+   </div>
+ </div>`
+},
+
+explore: {
+ m:`<div class="scr">
+   <div style="padding:14px 16px;"><input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;" placeholder="ค้นหาคอร์ส, สกิล, อาจารย์..."></div>
+   <div class="hscroll" style="padding:0 16px;margin-bottom:12px;">
+     <span class="chip active">ทั้งหมด</span><span class="chip">Programming</span><span class="chip">AI</span><span class="chip">Data</span><span class="chip">Design</span><span class="chip">Marketing</span>
+   </div>
+   <div class="h-section">กำลังมาแรง</div>
+   <div class="hscroll"><div class="ccard"><div class="thumb"></div><div class="body"><div class="title">Prompt Engineering</div><div class="meta"><span>4.9 ★</span><span>฿1,490</span></div></div></div>
+   <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),var(--primary));"></div><div class="body"><div class="title">SQL Masterclass</div><div class="meta"><span>4.8 ★</span><span>฿1,290</span></div></div></div></div>
+   <div class="h-section">คอร์สทั้งหมด</div>
+   <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px;">
+     <div class="card" style="display:flex;gap:12px;"><div style="width:80px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));flex-shrink:0;"></div><div><div style="font-size:12.5px;font-weight:600;">Python Data Analytics</div><div style="font-size:11px;color:var(--text2);">4.8 ★ · ฿1,990</div></div></div>
+     <div class="card" style="display:flex;gap:12px;"><div style="width:80px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0891B2);flex-shrink:0;"></div><div><div style="font-size:12.5px;font-weight:600;">UX/UI Design</div><div style="font-size:11px;color:var(--text2);">4.7 ★ · ฿1,690</div></div></div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="padding:24px 40px;">
+   <div style="display:flex;gap:12px;margin-bottom:16px;">
+     <input style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13.5px;" placeholder="ค้นหาคอร์ส, สกิล, อาจารย์...">
+     <button class="btn-g">☰ Filter</button>
+   </div>
+   <div class="hscroll" style="padding:0;margin-bottom:20px;">
+     <span class="chip active">ทั้งหมด</span><span class="chip">Programming</span><span class="chip">AI</span><span class="chip">Data</span><span class="chip">Design</span><span class="chip">Marketing</span><span class="chip">Business</span>
+   </div>
+   <div class="h-section" style="padding:0;">คอร์สทั้งหมด</div>
+   <div class="grid4" style="margin-top:14px;">
+     <div class="ccard"><div class="thumb"></div><div class="body"><div class="title">Prompt Engineering</div><div class="meta"><span>4.9 ★</span><span>฿1,490</span></div></div></div>
+     <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),var(--primary));"></div><div class="body"><div class="title">SQL Masterclass</div><div class="meta"><span>4.8 ★</span><span>฿1,290</span></div></div></div>
+     <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,#0EA5E9,var(--secondary));"></div><div class="body"><div class="title">Python Data Analytics</div><div class="meta"><span>4.8 ★</span><span>฿1,990</span></div></div></div>
+     <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--warning),#F97316);"></div><div class="body"><div class="title">UX/UI Design</div><div class="meta"><span>4.7 ★</span><span>฿1,690</span></div></div></div>
+   </div>
+ </div>`
+},
+
+search: {
+ m:`<div class="scr" style="padding:14px 16px;">
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;margin-bottom:14px;" value="Flutter">
+   <div class="h-section" style="padding:0;">ผลการค้นหา (3)</div>
+   <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+     <div class="card" style="display:flex;gap:12px;"><div style="width:70px;height:50px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--secondary));flex-shrink:0;"></div><div><div style="font-size:12.5px;font-weight:600;">Flutter Professional</div><div style="font-size:11px;color:var(--text2);">4.8 ★ · ฿2,490</div></div></div>
+     <div class="card" style="display:flex;gap:12px;"><div style="width:70px;height:50px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0891B2);flex-shrink:0;"></div><div><div style="font-size:12.5px;font-weight:600;">Flutter + Go Full Stack</div><div style="font-size:11px;color:var(--text2);">4.9 ★ · ฿3,290</div></div></div>
+     <div class="card" style="display:flex;gap:12px;"><div style="width:70px;height:50px;border-radius:8px;background:linear-gradient(135deg,var(--warning),#F97316);flex-shrink:0;"></div><div><div style="font-size:12.5px;font-weight:600;">Flutter Advanced Animation</div><div style="font-size:11px;color:var(--text2);">4.7 ★ · ฿1,890</div></div></div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="padding:24px 60px;">
+   <input style="width:100%;max-width:600px;padding:12px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:14px;margin-bottom:8px;" value="Flutter">
+   <div style="font-size:12px;color:var(--text2);margin-bottom:20px;">พบ 3 ผลลัพธ์สำหรับ "Flutter"</div>
+   <div class="grid3">
+     <div class="ccard"><div class="thumb"></div><div class="body"><div class="title">Flutter Professional</div><div class="meta"><span>4.8 ★</span><span>฿2,490</span></div></div></div>
+     <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),#0891B2);"></div><div class="body"><div class="title">Flutter + Go Full Stack</div><div class="meta"><span>4.9 ★</span><span>฿3,290</span></div></div></div>
+     <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--warning),#F97316);"></div><div class="body"><div class="title">Flutter Advanced Animation</div><div class="meta"><span>4.7 ★</span><span>฿1,890</span></div></div></div>
+   </div>
+ </div>`
+},
+
+course: {
+ m: `<div class="scr">
+  <div style="height:200px;background:linear-gradient(135deg,var(--primary),var(--secondary));"></div>
+  <div style="padding:16px 16px 90px;">
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px;">Go Backend Professional</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">⭐ 4.9 (2,140) · 8,421 students · Dr. Krit</div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px;">
+      <div style="font-size:22px;font-weight:700;color:var(--primary);">฿2,990</div>
+      <div style="font-size:13px;color:var(--text2);text-decoration:line-through;">฿4,990</div>
+      <span class="pill pill-error">-40%</span>
+    </div>
+    <div class="h-section" style="padding:0;">สิ่งที่คุณจะได้เรียนรู้</div>
+    <div style="font-size:12.5px;color:var(--text2);line-height:1.8;">✓ ออกแบบ REST API ด้วย Go<br>✓ เชื่อมต่อฐานข้อมูล MySQL<br>✓ Authentication ด้วย JWT<br>✓ Deploy สู่ Production</div>
+    <div class="h-section" style="padding:0;">หลักสูตร</div>
+    <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;"><span style="font-size:13px;">✓ Introduction</span><span style="font-size:11px;color:var(--text2);">12 min</span></div>
+    <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;"><span style="font-size:13px;">▶ Go Fundamentals</span><span style="font-size:11px;color:var(--text2);">1h 20m</span></div>
+    <div class="card" style="display:flex;justify-content:space-between;color:var(--text2);"><span style="font-size:13px;">🔒 Production Deployment</span><span style="font-size:11px;">40 min</span></div>
+  </div>
+  <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #E2E8F0;padding:12px 16px;">
+    <button class="btn-p" style="width:100%;">ซื้อคอร์สนี้เลย — ฿2,990</button>
+  </div>
+ </div>`,
+ d: `<div class="scr" style="padding:28px 60px;display:flex;gap:32px;">
+   <div style="flex:1;">
+     <div style="height:320px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--secondary));margin-bottom:20px;"></div>
+     <div style="font-size:24px;font-weight:700;margin-bottom:8px;">Go Backend Professional</div>
+     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">⭐ 4.9 (2,140 รีวิว) · 8,421 students · สอนโดย Dr. Krit</div>
+     <div class="h-section" style="padding:0;">สิ่งที่คุณจะได้เรียนรู้</div>
+     <div class="grid3" style="margin-top:10px;font-size:12.5px;color:var(--text2);">
+       <div class="card">✓ ออกแบบ REST API ด้วย Go</div>
+       <div class="card">✓ เชื่อมต่อฐานข้อมูล MySQL</div>
+       <div class="card">✓ Authentication ด้วย JWT</div>
+     </div>
+     <div class="h-section" style="padding:0;">หลักสูตร</div>
+     <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;"><span style="font-size:13px;">✓ Introduction</span><span style="font-size:11.5px;color:var(--text2);">12 min</span></div>
+     <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;"><span style="font-size:13px;">▶ Go Fundamentals</span><span style="font-size:11.5px;color:var(--text2);">1h 20m</span></div>
+     <div class="card" style="display:flex;justify-content:space-between;color:var(--text2);"><span style="font-size:13px;">🔒 Production Deployment</span><span style="font-size:11.5px;">40 min</span></div>
+   </div>
+   <div style="width:320px;flex-shrink:0;">
+     <div class="card" style="position:sticky;top:24px;">
+       <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+         <div style="font-size:24px;font-weight:700;color:var(--primary);">฿2,990</div>
+         <div style="font-size:13px;color:var(--text2);text-decoration:line-through;">฿4,990</div>
+       </div>
+       <span class="pill pill-error">ประหยัด 40%</span>
+       <button class="btn-p" style="width:100%;margin:16px 0 8px;">ซื้อคอร์สนี้เลย</button>
+       <button class="btn-s" style="width:100%;">เพิ่มลงตะกร้า</button>
+       <div style="border-top:1px solid #EEF0F4;margin-top:16px;padding-top:12px;font-size:12px;color:var(--text2);line-height:2;">📹 18h 30m วิดีโอ<br>📄 42 บทเรียน<br>🏆 ใบเกียรติบัตรเมื่อจบหลักสูตร</div>
+     </div>
+   </div>
+ </div>`
+},
+
+curriculum: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Go Backend Professional</div>
+   <div class="progress-track" style="margin:10px 0 4px;"><div class="progress-fill" style="width:68%;"></div></div>
+   <div style="font-size:11.5px;color:var(--text2);margin-bottom:16px;">68% เสร็จแล้ว · 42 บทเรียน</div>
+   <div class="card" style="margin-bottom:8px;"><div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Section 1 · Introduction</div>
+     <div style="font-size:12px;color:var(--success);">✓ Welcome & Setup — 8 min</div>
+     <div style="font-size:12px;color:var(--success);">✓ Environment Setup — 12 min</div>
+   </div>
+   <div class="card" style="margin-bottom:8px;border:2px solid var(--primary);"><div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Section 2 · REST API</div>
+     <div style="font-size:12px;color:var(--primary);font-weight:600;">▶ REST API with Go — 24 min (กำลังเรียน)</div>
+     <div style="font-size:12px;color:var(--text2);">○ JWT Authentication — 18 min</div>
+   </div>
+   <div class="card" style="color:var(--text2);"><div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Section 3 · Production Deployment 🔒</div>
+     <div style="font-size:12px;">🔒 Docker & CI/CD — 40 min</div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;padding:24px 60px;gap:32px;">
+   <div style="flex:1;">
+     <div style="font-size:18px;font-weight:700;margin-bottom:14px;">หลักสูตร — Go Backend Professional</div>
+     <div class="card" style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Section 1 · Introduction</div>
+       <div style="font-size:12.5px;color:var(--success);margin-bottom:4px;">✓ Welcome & Setup — 8 min</div>
+       <div style="font-size:12.5px;color:var(--success);">✓ Environment Setup — 12 min</div>
+     </div>
+     <div class="card" style="margin-bottom:10px;border:2px solid var(--primary);"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Section 2 · REST API</div>
+       <div style="font-size:12.5px;color:var(--primary);font-weight:600;margin-bottom:4px;">▶ REST API with Go — 24 min (กำลังเรียน)</div>
+       <div style="font-size:12.5px;color:var(--text2);">○ JWT Authentication — 18 min</div>
+     </div>
+     <div class="card" style="color:var(--text2);"><div style="font-size:13px;font-weight:600;margin-bottom:8px;">Section 3 · Production Deployment 🔒</div>
+       <div style="font-size:12.5px;">🔒 Docker & CI/CD — 40 min</div>
+     </div>
+   </div>
+   <div style="width:300px;">
+     <div class="card" style="text-align:center;margin-bottom:14px;">
+       <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">ความคืบหน้ารวม</div>
+       <div style="font-size:26px;font-weight:700;color:var(--primary);">68%</div>
+       <div class="progress-track" style="margin-top:10px;"><div class="progress-fill" style="width:68%;"></div></div>
+     </div>
+     <div class="card"><div style="font-size:12.5px;font-weight:600;margin-bottom:4px;">บทเรียนถัดไป</div><div style="font-size:12px;color:var(--text2);">JWT Authentication · 18 min</div></div>
+   </div>
+ </div>`
+},
+
+player: {
+ m:`<div class="scr">
+   <div style="height:210px;background:#0F172A;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;">▶</div>
+   <div style="padding:14px 16px;">
+     <div style="font-size:14px;font-weight:600;margin-bottom:4px;">REST API with Go</div>
+     <div style="font-size:11.5px;color:var(--text2);margin-bottom:12px;">บทเรียนที่ 8 · 24:35 · ถัดไป: JWT Authentication</div>
+     <div style="display:flex;gap:8px;margin-bottom:14px;">
+       <span class="chip active">Resources</span><span class="chip">Notes</span><span class="chip">Discussion</span><span class="chip">Ask AI ✨</span>
+     </div>
+     <div class="card" style="font-size:12.5px;color:var(--text2);">📎 slides-rest-api.pdf<br>📎 source-code.zip</div>
+   </div>
+   <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #E2E8F0;padding:12px 16px;">
+     <button class="btn-p" style="width:100%;">บทเรียนถัดไป: JWT Authentication →</button>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;height:100%;">
+   <div style="flex:1;background:#0F172A;display:flex;flex-direction:column;">
+     <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;">▶</div>
+     <div style="padding:16px 24px;background:#0F172A;color:#fff;">
+       <div style="display:flex;gap:16px;font-size:12.5px;">
+         <span class="chip active" style="background:var(--primary);">Transcript</span>
+         <span style="color:#94A3B8;">Notes</span><span style="color:#94A3B8;">Discussion</span>
+       </div>
+     </div>
+   </div>
+   <div style="width:360px;background:#fff;border-left:1px solid #E2E8F0;padding:18px;overflow-y:auto;">
+     <div style="font-size:14px;font-weight:600;margin-bottom:2px;">Go Backend Professional</div>
+     <div class="progress-track" style="margin:10px 0;"><div class="progress-fill" style="width:68%;"></div></div>
+     <div style="font-size:11px;color:var(--text2);margin-bottom:16px;">68% เสร็จแล้ว</div>
+     <div class="card" style="border:2px solid var(--primary);margin-bottom:8px;"><div style="font-size:12.5px;font-weight:600;">▶ REST API with Go</div><div style="font-size:11px;color:var(--text2);">24:35 · กำลังเล่น</div></div>
+     <div class="card" style="margin-bottom:8px;"><div style="font-size:12.5px;">JWT Authentication</div><div style="font-size:11px;color:var(--text2);">18:02</div></div>
+     <div class="card" style="color:var(--text2);"><div style="font-size:12.5px;">🔒 Production Deployment</div><div style="font-size:11px;">40:00</div></div>
+   </div>
+ </div>`
+},
+
+quiz: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px;"><span>คำถามที่ 3/10</span><span>API Knowledge</span></div>
+   <div class="progress-track" style="margin-bottom:20px;"><div class="progress-fill" style="width:30%;"></div></div>
+   <div class="card" style="margin-bottom:16px;"><div style="font-size:14px;font-weight:600;">HTTP status code 200 หมายถึงอะไร?</div></div>
+   <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+     <div class="card" style="border:2px solid #E2E8F0;font-size:13px;">A. Error</div>
+     <div class="card" style="border:2px solid var(--primary);background:#EEF2FF;font-size:13px;font-weight:600;color:var(--primary);">B. Success</div>
+     <div class="card" style="border:2px solid #E2E8F0;font-size:13px;">C. Redirect</div>
+     <div class="card" style="border:2px solid #E2E8F0;font-size:13px;">D. Unauthorized</div>
+   </div>
+   <div style="display:flex;gap:10px;">
+     <button class="btn-g" style="flex:1;">Previous</button>
+     <button class="btn-p" style="flex:1;">Next</button>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;flex-direction:column;align-items:center;padding:40px;">
+   <div style="width:640px;">
+     <div style="display:flex;justify-content:center;gap:6px;margin-bottom:18px;">
+       ${[1,2,3,4,5,6,7,8,9,10].map(i=>`<div style="width:26px;height:6px;border-radius:99px;background:${i<=3?'var(--primary)':'#E2E8F0'};"></div>`).join('')}
+     </div>
+     <div class="card" style="margin-bottom:18px;padding:24px;"><div style="font-size:16px;font-weight:600;">HTTP status code 200 หมายถึงอะไร?</div></div>
+     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px;">
+       <div class="card" style="border:2px solid #E2E8F0;font-size:13.5px;">A. Error</div>
+       <div class="card" style="border:2px solid var(--primary);background:#EEF2FF;font-size:13.5px;font-weight:600;color:var(--primary);">B. Success</div>
+       <div class="card" style="border:2px solid #E2E8F0;font-size:13.5px;">C. Redirect</div>
+       <div class="card" style="border:2px solid #E2E8F0;font-size:13.5px;">D. Unauthorized</div>
+     </div>
+     <div style="display:flex;justify-content:space-between;">
+       <button class="btn-g">Previous</button>
+       <button class="btn-p">Next</button>
+     </div>
+   </div>
+ </div>`
+},
+
+quizresult: {
+ m:`<div class="scr" style="padding:24px 16px;">
+   <div style="text-align:center;margin-bottom:22px;">
+     <div style="width:110px;height:110px;border-radius:50%;border:8px solid var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+       <div style="font-size:26px;font-weight:700;">85%</div>
+     </div>
+     <span class="pill pill-success">ผ่านแล้ว ✓</span>
+   </div>
+   <div class="h-section" style="padding:0;">ผลวิเคราะห์ทักษะ</div>
+   <div class="card" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>API Knowledge</span><span>90%</span></div><div class="progress-track"><div class="progress-fill" style="width:90%;"></div></div></div>
+   <div class="card" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>Authentication</span><span>70%</span></div><div class="progress-track"><div class="progress-fill" style="width:70%;background:var(--warning);"></div></div></div>
+   <div class="card"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>Database</span><span>85%</span></div><div class="progress-track"><div class="progress-fill" style="width:85%;"></div></div></div>
+   <button class="btn-p" style="width:100%;margin-top:20px;">เรียนต่อ</button>
+   <button class="btn-g" style="width:100%;margin-top:8px;">ทบทวนคำตอบ</button>
+ </div>`,
+ d:`<div class="scr" style="padding:40px 80px;display:flex;gap:40px;">
+   <div style="width:280px;text-align:center;">
+     <div style="width:150px;height:150px;border-radius:50%;border:10px solid var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+       <div style="font-size:32px;font-weight:700;">85%</div>
+     </div>
+     <span class="pill pill-success" style="font-size:12px;">ผ่านแล้ว ✓</span>
+     <button class="btn-p" style="width:100%;margin-top:26px;">เรียนต่อ</button>
+     <button class="btn-g" style="width:100%;margin-top:8px;">ทบทวนคำตอบ</button>
+   </div>
+   <div style="flex:1;">
+     <div class="h-section" style="padding:0;">ผลวิเคราะห์ทักษะ</div>
+     <div class="card" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>API Knowledge</span><span>90%</span></div><div class="progress-track"><div class="progress-fill" style="width:90%;"></div></div></div>
+     <div class="card" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Authentication</span><span>70%</span></div><div class="progress-track"><div class="progress-fill" style="width:70%;background:var(--warning);"></div></div></div>
+     <div class="card"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Database</span><span>85%</span></div><div class="progress-track"><div class="progress-fill" style="width:85%;"></div></div></div>
+   </div>
+ </div>`
+},
+
+certificate: {
+ m:`<div class="scr" style="padding:24px 16px;">
+   <div class="card" style="text-align:center;border:2px solid var(--primary);padding:28px 18px;margin-bottom:18px;">
+     <div style="font-size:11px;color:var(--text2);letter-spacing:.1em;margin-bottom:14px;">CERTIFICATE OF COMPLETION</div>
+     <div style="width:40px;height:40px;border-radius:50%;background:var(--primary);margin:0 auto 14px;"></div>
+     <div style="font-size:16px;font-weight:700;margin-bottom:4px;">Anan Suksawat</div>
+     <div style="font-size:11.5px;color:var(--text2);margin-bottom:14px;">has successfully completed</div>
+     <div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:14px;">Go Backend Professional</div>
+     <div style="font-size:10.5px;color:var(--text2);">Instructor: Dr. Krit · Issued: 5 Sep 2026</div>
+     <div style="font-size:10px;color:var(--text2);margin-top:6px;">Certificate ID: AB-2026-08421</div>
+     <div style="width:50px;height:50px;background:repeating-linear-gradient(45deg,#0F172A 0 2px,#fff 2px 4px);margin:14px auto 0;"></div>
+   </div>
+   <div style="display:flex;gap:8px;">
+     <button class="btn-p" style="flex:1;">Download PDF</button>
+     <button class="btn-s" style="flex:1;">Share</button>
+   </div>
+   <button class="btn-g" style="width:100%;margin-top:8px;">Add to Portfolio</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
+   <div class="card" style="width:600px;text-align:center;border:2px solid var(--primary);padding:50px;">
+     <div style="font-size:12px;color:var(--text2);letter-spacing:.15em;margin-bottom:20px;">CERTIFICATE OF COMPLETION</div>
+     <div style="width:56px;height:56px;border-radius:50%;background:var(--primary);margin:0 auto 18px;"></div>
+     <div style="font-size:22px;font-weight:700;margin-bottom:6px;">Anan Suksawat</div>
+     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;">has successfully completed</div>
+     <div style="font-size:19px;font-weight:600;color:var(--primary);margin-bottom:20px;">Go Backend Professional</div>
+     <div style="font-size:12px;color:var(--text2);">Instructor: Dr. Krit · Issued: 5 Sep 2026 · ID: AB-2026-08421</div>
+   </div>
+   <div style="display:flex;gap:10px;margin-top:22px;">
+     <button class="btn-p">Download PDF</button>
+     <button class="btn-s">Share</button>
+     <button class="btn-g">Add to Portfolio</button>
+   </div>
+ </div>`
+},
+
+livelist: {
+ m:`<div class="scr">
+   <div style="display:flex;gap:8px;padding:14px 16px 10px;">
+     <span class="chip active">Live Now</span><span class="chip">Upcoming</span><span class="chip">Completed</span>
+   </div>
+   <div style="padding:0 16px;display:flex;flex-direction:column;gap:12px;">
+     <div class="card" style="display:flex;gap:12px;">
+       <div style="width:90px;height:64px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0891B2);flex-shrink:0;position:relative;"><span class="pill pill-live" style="position:absolute;top:4px;left:4px;">● LIVE</span></div>
+       <div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">AI for Business — Live Q&A</div><div style="font-size:11px;color:var(--text2);margin:2px 0;">Bank · 1,204 viewers</div><button class="btn-p" style="font-size:11px;padding:6px 12px;">Join</button></div>
+     </div>
+     <div class="card" style="display:flex;gap:12px;">
+       <div style="width:90px;height:64px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));flex-shrink:0;"></div>
+       <div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">Flutter State Management Deep Dive</div><div style="font-size:11px;color:var(--text2);margin:2px 0;">12 Sep · 19:00</div><button class="btn-s" style="font-size:11px;padding:6px 12px;">Register</button></div>
+     </div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="padding:24px 40px;">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+     <div style="display:flex;gap:8px;"><span class="chip active">Live Now</span><span class="chip">Upcoming</span><span class="chip">Completed</span></div>
+     <div class="btn-g">📅 September 2026</div>
+   </div>
+   <div class="grid3">
+     <div class="card"><div style="height:110px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#0891B2);margin-bottom:10px;position:relative;"><span class="pill pill-live" style="position:absolute;top:8px;left:8px;">● LIVE</span></div><div style="font-size:13px;font-weight:600;">AI for Business — Live Q&A</div><div style="font-size:11.5px;color:var(--text2);margin:4px 0 10px;">Bank · 1,204 viewers</div><button class="btn-p" style="width:100%;">Join</button></div>
+     <div class="card"><div style="height:110px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--secondary));margin-bottom:10px;"></div><div style="font-size:13px;font-weight:600;">Flutter State Management</div><div style="font-size:11.5px;color:var(--text2);margin:4px 0 10px;">12 Sep · 19:00</div><button class="btn-s" style="width:100%;">Register</button></div>
+     <div class="card"><div style="height:110px;border-radius:10px;background:linear-gradient(135deg,var(--warning),#F97316);margin-bottom:10px;"></div><div style="font-size:13px;font-weight:600;">SQL Performance Tuning</div><div style="font-size:11.5px;color:var(--text2);margin:4px 0 10px;">15 Sep · 20:00</div><button class="btn-s" style="width:100%;">Register</button></div>
+   </div>
+ </div>`
+},
+
+liveroom: {
+ m:`<div class="scr" style="display:flex;flex-direction:column;height:100%;">
+   <div style="height:220px;background:#0F172A;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;position:relative;">▶<span class="pill pill-live" style="position:absolute;top:10px;left:10px;">● LIVE</span></div>
+   <div style="display:flex;gap:8px;padding:10px 16px;"><span class="chip active">Chat</span><span class="chip">Q&A</span></div>
+   <div style="flex:1;padding:0 16px;overflow-y:auto;font-size:12px;">
+     <div style="margin-bottom:8px;"><b>Somchai:</b> เข้าใจง่ายมากครับ 🙌</div>
+     <div style="margin-bottom:8px;"><b>Ploy:</b> ขอตัวอย่างเพิ่มได้ไหมคะ</div>
+   </div>
+   <div style="display:flex;justify-content:space-around;padding:10px 16px 16px;border-top:1px solid #E2E8F0;">
+     <div style="font-size:18px;">✋</div><div style="font-size:18px;">❤️</div><div style="font-size:18px;">💬</div><div style="font-size:18px;color:var(--error);">📵</div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;height:100%;">
+   <div style="flex:1;background:#0F172A;display:flex;flex-direction:column;">
+     <div style="flex:1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;position:relative;">▶<span class="pill pill-live" style="position:absolute;top:16px;left:16px;">● LIVE</span></div>
+     <div style="padding:14px 24px;display:flex;gap:16px;color:#fff;font-size:20px;">🎤 📷 🔗 😀</div>
+   </div>
+   <div style="width:340px;background:#fff;border-left:1px solid #E2E8F0;display:flex;flex-direction:column;">
+     <div style="display:flex;border-bottom:1px solid #E2E8F0;"><div style="flex:1;text-align:center;padding:12px;font-size:12.5px;font-weight:600;color:var(--primary);border-bottom:2px solid var(--primary);">Chat</div><div style="flex:1;text-align:center;padding:12px;font-size:12.5px;color:var(--text2);">Q&A</div><div style="flex:1;text-align:center;padding:12px;font-size:12.5px;color:var(--text2);">Participants</div></div>
+     <div style="flex:1;padding:16px;font-size:12.5px;overflow-y:auto;">
+       <div style="margin-bottom:10px;"><b>Somchai:</b> เข้าใจง่ายมากครับ 🙌</div>
+       <div style="margin-bottom:10px;"><b>Ploy:</b> ขอตัวอย่างเพิ่มได้ไหมคะ</div>
+     </div>
+     <div style="padding:12px;border-top:1px solid #E2E8F0;"><input style="width:100%;padding:9px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:12.5px;" placeholder="พิมพ์ข้อความ..."></div>
+   </div>
+ </div>`
+},
+
+communityhome: {
+ m:`<div class="scr">
+   <div style="display:flex;gap:8px;padding:14px 16px 10px;overflow-x:auto;">
+     <span class="chip active">Feed</span><span class="chip">Groups</span><span class="chip">Trending</span><span class="chip">Following</span>
+   </div>
+   <div style="padding:0 16px;display:flex;flex-direction:column;gap:12px;">
+     <div class="card"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><div class="avatar" style="width:28px;height:28px;font-size:11px;">S</div><div style="font-size:12.5px;font-weight:600;">Somchai</div></div>
+       <div style="font-size:12.5px;color:var(--text2);margin-bottom:8px;">มีใครกำลังเรียน Go Backend อยู่บ้างครับ? อยากหาเพื่อนแลกเปลี่ยนโปรเจกต์ 👋</div>
+       <div style="display:flex;gap:16px;font-size:11.5px;color:var(--text2);">❤️ 48 · 💬 12 · ↗ Share</div>
+     </div>
+     <div class="card"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><div class="avatar" style="width:28px;height:28px;font-size:11px;">P</div><div style="font-size:12.5px;font-weight:600;">Ploy</div></div>
+       <div style="font-size:12.5px;color:var(--text2);margin-bottom:8px;">เพิ่งได้ใบเกียรติบัตร Digital Marketing มา ขอบคุณอาจารย์มากค่ะ 🎉</div>
+       <div style="display:flex;gap:16px;font-size:11.5px;color:var(--text2);">❤️ 92 · 💬 20 · ↗ Share</div>
+     </div>
+   </div>
+   <div style="position:fixed;bottom:80px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;">+</div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;padding:24px 40px;gap:24px;">
+   <div style="width:220px;"><div style="font-size:12.5px;font-weight:600;color:var(--text2);margin-bottom:10px;">GROUPS</div>
+     <div style="font-size:13px;padding:8px 0;">💻 Go Developers</div><div style="font-size:13px;padding:8px 0;">🎨 UX/UI Thailand</div><div style="font-size:13px;padding:8px 0;">📊 Data Science TH</div>
+   </div>
+   <div style="flex:1;display:flex;flex-direction:column;gap:14px;">
+     <button class="btn-p" style="align-self:flex-start;">+ Create Post</button>
+     <div class="card"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><div class="avatar" style="width:30px;height:30px;">S</div><div style="font-size:13px;font-weight:600;">Somchai</div></div>
+       <div style="font-size:13px;color:var(--text2);margin-bottom:10px;">มีใครกำลังเรียน Go Backend อยู่บ้างครับ? อยากหาเพื่อนแลกเปลี่ยนโปรเจกต์ 👋</div>
+       <div style="display:flex;gap:18px;font-size:12px;color:var(--text2);">❤️ 48 · 💬 12 · ↗ Share</div>
+     </div>
+   </div>
+   <div style="width:240px;"><div style="font-size:12.5px;font-weight:600;color:var(--text2);margin-bottom:10px;">TRENDING</div>
+     <div class="card" style="margin-bottom:10px;font-size:12px;">#PromptEngineering</div>
+     <div class="card" style="font-size:12px;">#GoBackend</div>
+   </div>
+ </div>`
+},
+
+createpost: {
+ m:`<div class="scr" style="padding:16px;">
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:10px;font-size:13px;" placeholder="หัวข้อ (ไม่บังคับ)">
+   <textarea style="width:100%;height:120px;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:10px;font-size:13px;" placeholder="คุณกำลังคิดอะไรอยู่?"></textarea>
+   <div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn-g">📷 Image</button><button class="btn-g">📎 File</button></div>
+   <div style="display:flex;gap:6px;margin-bottom:20px;"><span class="chip active">Go Backend</span><span class="chip">+ Tag course</span></div>
+   <button class="btn-p" style="width:100%;">Publish</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;align-items:center;justify-content:center;height:100%;">
+   <div style="width:560px;background:#fff;border-radius:20px;padding:32px;box-shadow:0 10px 40px rgba(15,23,42,.08);">
+     <div style="font-size:16px;font-weight:700;margin-bottom:18px;">สร้างโพสต์ใหม่</div>
+     <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:13.5px;" placeholder="หัวข้อ (ไม่บังคับ)">
+     <textarea style="width:100%;height:140px;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:13.5px;" placeholder="คุณกำลังคิดอะไรอยู่?"></textarea>
+     <div style="display:flex;gap:8px;margin-bottom:14px;"><button class="btn-g">📷 Image</button><button class="btn-g">📎 File</button><span class="chip active">Go Backend</span></div>
+     <div style="display:flex;justify-content:flex-end;gap:10px;"><button class="btn-g">Save Draft</button><button class="btn-p">Publish</button></div>
+   </div>
+ </div>`
+},
+
+aitutor: {
+ m:`<div class="scr" style="display:flex;flex-direction:column;height:100%;">
+   <div class="topbar"><div class="greet">AI Tutor</div><div class="icons">💬 Go Backend</div></div>
+   <div style="flex:1;padding:16px;overflow-y:auto;">
+     <div style="background:#fff;border:1px solid #EEF0F4;border-radius:14px;border-top-left-radius:4px;padding:10px 12px;font-size:12.5px;max-width:80%;margin-bottom:12px;">สวัสดีครับ! มีอะไรให้ช่วยเรื่อง Go Backend ไหมครับ 😊</div>
+     <div style="background:var(--primary);color:#fff;border-radius:14px;border-top-right-radius:4px;padding:10px 12px;font-size:12.5px;max-width:80%;margin-left:auto;margin-bottom:12px;">อธิบาย REST API ให้เข้าใจง่ายหน่อย</div>
+     <div style="background:#fff;border:1px solid #EEF0F4;border-radius:14px;border-top-left-radius:4px;padding:10px 12px;font-size:12.5px;max-width:85%;">REST API คือวิธีมาตรฐานที่ให้แอปคุยกับ server ผ่าน HTTP เช่น GET เพื่อดึงข้อมูล, POST เพื่อสร้างข้อมูลใหม่...</div>
+   </div>
+   <div style="padding:10px 16px;display:flex;gap:8px;overflow-x:auto;">
+     <span class="chip">Explain</span><span class="chip">Give Example</span><span class="chip">Quiz Me</span>
+   </div>
+   <div style="padding:10px 16px 16px;display:flex;gap:8px;">
+     <input style="flex:1;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;" placeholder="ถามอะไรก็ได้เกี่ยวกับบทเรียนนี้...">
+     <button class="btn-p">➤</button>
+   </div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div style="flex:1;display:flex;flex-direction:column;">
+     <div class="d-topbar"><div style="font-weight:600;">AI Tutor</div></div>
+     <div style="flex:1;padding:24px 60px;overflow-y:auto;">
+       <div style="background:#fff;border:1px solid #EEF0F4;border-radius:14px;padding:12px 16px;font-size:13.5px;max-width:60%;margin-bottom:14px;">สวัสดีครับ! มีอะไรให้ช่วยเรื่อง Go Backend ไหมครับ 😊</div>
+       <div style="background:var(--primary);color:#fff;border-radius:14px;padding:12px 16px;font-size:13.5px;max-width:60%;margin-left:auto;margin-bottom:14px;">อธิบาย REST API ให้เข้าใจง่ายหน่อย</div>
+       <div style="background:#fff;border:1px solid #EEF0F4;border-radius:14px;padding:12px 16px;font-size:13.5px;max-width:65%;">REST API คือวิธีมาตรฐานที่ให้แอปคุยกับ server ผ่าน HTTP เช่น GET เพื่อดึงข้อมูล, POST เพื่อสร้างข้อมูลใหม่...</div>
+     </div>
+     <div style="padding:16px 60px;display:flex;gap:10px;">
+       <input style="flex:1;padding:12px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13.5px;" placeholder="ถามอะไรก็ได้เกี่ยวกับบทเรียนนี้...">
+       <button class="btn-p">ส่ง</button>
+     </div>
+   </div>
+   <div style="width:280px;border-left:1px solid #E2E8F0;padding:20px;">
+     <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Context ปัจจุบัน</div>
+     <div class="card" style="margin-bottom:16px;"><div style="font-size:12.5px;font-weight:600;">Go Backend Professional</div><div style="font-size:11.5px;color:var(--text2);">REST API with Go</div></div>
+     <button class="btn-g" style="width:100%;margin-bottom:8px;text-align:left;">Explain</button>
+     <button class="btn-g" style="width:100%;margin-bottom:8px;text-align:left;">Give Example</button>
+     <button class="btn-g" style="width:100%;margin-bottom:8px;text-align:left;">Quiz Me</button>
+     <button class="btn-g" style="width:100%;text-align:left;">Career Advice</button>
+   </div>
+ </div>`
+},
+
+skillassess: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px;"><span>Programming</span><span>Q 8/20</span></div>
+   <div class="progress-track" style="margin-bottom:20px;"><div class="progress-fill" style="width:40%;"></div></div>
+   <div class="card" style="margin-bottom:16px;"><div style="font-size:14px;font-weight:600;">ข้อใดคือการใช้งาน Goroutine ที่ถูกต้อง?</div></div>
+   <div style="display:flex;flex-direction:column;gap:10px;">
+     <div class="card" style="border:2px solid var(--primary);background:#EEF2FF;font-size:13px;font-weight:600;color:var(--primary);">A. go func() { ... }()</div>
+     <div class="card" style="border:2px solid #E2E8F0;font-size:13px;">B. async func() { ... }</div>
+     <div class="card" style="border:2px solid #E2E8F0;font-size:13px;">C. thread.start()</div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;height:100%;">
+   <div style="width:260px;background:#fff;border-right:1px solid #E2E8F0;padding:24px;">
+     <div style="font-size:13px;font-weight:600;margin-bottom:14px;">หมวดหมู่</div>
+     <div class="card" style="margin-bottom:8px;border:2px solid var(--primary);font-size:12.5px;">Programming (8/20)</div>
+     <div class="card" style="margin-bottom:8px;font-size:12.5px;color:var(--text2);">Database (0/15)</div>
+     <div class="card" style="font-size:12.5px;color:var(--text2);">Cloud (0/10)</div>
+   </div>
+   <div class="d-body" style="display:flex;flex-direction:column;align-items:center;padding-top:60px;">
+     <div style="width:560px;">
+       <div class="card" style="margin-bottom:18px;padding:24px;"><div style="font-size:16px;font-weight:600;">ข้อใดคือการใช้งาน Goroutine ที่ถูกต้อง?</div></div>
+       <div style="display:flex;flex-direction:column;gap:10px;">
+         <div class="card" style="border:2px solid var(--primary);background:#EEF2FF;font-size:13.5px;font-weight:600;color:var(--primary);">A. go func() { ... }()</div>
+         <div class="card" style="border:2px solid #E2E8F0;font-size:13.5px;">B. async func() { ... }</div>
+         <div class="card" style="border:2px solid #E2E8F0;font-size:13.5px;">C. thread.start()</div>
+       </div>
+     </div>
+   </div>
+ </div>`
+},
+
+skillresult: {
+ m:`<div class="scr" style="padding:22px 16px;">
+   <div style="text-align:center;margin-bottom:20px;">
+     <div style="width:100px;height:100px;border-radius:50%;border:8px solid var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><div style="font-size:22px;font-weight:700;">72%</div></div>
+     <div style="font-size:12.5px;color:var(--text2);">Overall Skill Score</div>
+   </div>
+   <div class="card" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>Backend</span><span>80%</span></div><div class="progress-track"><div class="progress-fill" style="width:80%;"></div></div></div>
+   <div class="card" style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>Database</span><span>65%</span></div><div class="progress-track"><div class="progress-fill" style="width:65%;background:var(--warning);"></div></div></div>
+   <div class="card" style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;"><span>Cloud</span><span>48%</span></div><div class="progress-track"><div class="progress-fill" style="width:48%;background:var(--error);"></div></div></div>
+   <button class="btn-p" style="width:100%;">Build My Learning Path</button>
+ </div>`,
+ d:`<div class="scr" style="padding:40px 80px;display:flex;gap:40px;">
+   <div style="width:280px;text-align:center;">
+     <div style="width:150px;height:150px;border-radius:50%;border:10px solid var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><div style="font-size:30px;font-weight:700;">72%</div></div>
+     <div style="font-size:13px;color:var(--text2);">Overall Skill Score</div>
+     <button class="btn-p" style="width:100%;margin-top:24px;">Build My Learning Path</button>
+   </div>
+   <div style="flex:1;">
+     <div class="h-section" style="padding:0;">Skill Gap</div>
+     <div class="card" style="margin:12px 0 10px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Backend</span><span>80%</span></div><div class="progress-track"><div class="progress-fill" style="width:80%;"></div></div></div>
+     <div class="card" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Database</span><span>65%</span></div><div class="progress-track"><div class="progress-fill" style="width:65%;background:var(--warning);"></div></div></div>
+     <div class="card"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Cloud</span><span>48%</span></div><div class="progress-track"><div class="progress-fill" style="width:48%;background:var(--error);"></div></div></div>
+   </div>
+ </div>`
+},
+
+career: {
+ m:`<div class="scr" style="padding:16px 16px 24px;">
+   <div style="font-size:16px;font-weight:700;">Senior Backend Developer</div>
+   <div style="font-size:12px;color:var(--text2);margin:6px 0 10px;">Career path progress</div>
+   <div class="progress-track" style="margin-bottom:4px;"><div class="progress-fill" style="width:78%;"></div></div>
+   <div style="font-size:11.5px;color:var(--text2);margin-bottom:18px;">78% complete</div>
+   <div class="h-section" style="padding:0;">ทักษะที่ต้องมี</div>
+   <div style="font-size:13px;line-height:2.2;color:var(--text2);margin-bottom:14px;">
+     <div>✅ Go</div><div>✅ REST API</div><div>✅ SQL</div><div>⬜ Docker</div><div>⬜ Kubernetes</div>
+   </div>
+   <div class="h-section" style="padding:0;">คอร์สแนะนำ</div>
+   <div class="hscroll">
+     <div class="ccard"><div class="thumb"></div><div class="body"><div class="title">Docker & Kubernetes</div><div class="meta"><span>4.8 ★</span></div></div></div>
+   </div>
+   <button class="btn-p" style="width:100%;margin-top:18px;">เริ่มเรียนต่อ</button>
+   <button class="btn-s" style="width:100%;margin-top:8px;">ดูตำแหน่งงานที่เกี่ยวข้อง</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;height:100%;">
+   <div style="width:300px;background:#fff;border-right:1px solid #E2E8F0;padding:28px 24px;">
+     <div style="font-size:17px;font-weight:700;margin-bottom:6px;">Senior Backend Developer</div>
+     <div class="progress-track" style="margin:14px 0 4px;"><div class="progress-fill" style="width:78%;"></div></div>
+     <div style="font-size:12px;color:var(--text2);margin-bottom:24px;">78% complete</div>
+     <div style="font-size:13px;line-height:2.4;color:var(--text2);">
+       <div>✅ Go</div><div>✅ REST API</div><div>✅ SQL</div><div>⬜ Docker</div><div>⬜ Kubernetes</div>
+     </div>
+   </div>
+   <div class="d-body">
+     <div class="h-section" style="padding:0;">คอร์สแนะนำ</div>
+     <div class="grid3" style="margin:12px 0 24px;">
+       <div class="ccard"><div class="thumb"></div><div class="body"><div class="title">Docker & Kubernetes</div><div class="meta"><span>4.8 ★</span><span>฿1,790</span></div></div></div>
+       <div class="ccard"><div class="thumb" style="background:linear-gradient(135deg,var(--accent),var(--primary));"></div><div class="body"><div class="title">Cloud AWS</div><div class="meta"><span>4.7 ★</span><span>฿2,190</span></div></div></div>
+     </div>
+     <div class="h-section" style="padding:0;">ตำแหน่งงานที่เกี่ยวข้อง</div>
+     <div class="card" style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+       <div><div style="font-weight:600;font-size:13.5px;">Backend Developer</div><div style="font-size:12px;color:var(--text2);">฿45,000–65,000 · Remote</div></div>
+       <span class="pill pill-success">Match 92%</span>
+     </div>
+   </div>
+ </div>`
+},
+
+portfolio: {
+ m:`<div class="scr" style="padding:0 0 24px;">
+   <div style="height:90px;background:linear-gradient(135deg,var(--primary),var(--secondary));"></div>
+   <div style="padding:0 16px;margin-top:-34px;">
+     <div class="avatar" style="width:68px;height:68px;font-size:22px;border:4px solid #fff;">A</div>
+     <div style="font-size:16px;font-weight:700;margin-top:8px;">Anan Suksawat</div>
+     <div style="font-size:12px;color:var(--text2);">Backend Developer · Bangkok</div>
+   </div>
+   <div class="h-section">ทักษะ</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 16px;">
+     <span class="chip active">Go</span><span class="chip">SQL</span><span class="chip">Docker</span><span class="chip">REST API</span>
+   </div>
+   <div class="h-section">ใบเกียรติบัตร</div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;">
+     <div class="card" style="text-align:center;font-size:11.5px;">🏆<br>Go Backend Pro</div>
+     <div class="card" style="text-align:center;font-size:11.5px;">🏆<br>SQL Masterclass</div>
+   </div>
+   <div class="h-section">โปรเจกต์</div>
+   <div class="card" style="margin:0 16px;"><div style="font-weight:600;font-size:13px;">E-commerce API</div><div style="font-size:11.5px;color:var(--text2);">Go · MySQL · Docker</div></div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;padding:28px 60px;gap:36px;">
+   <div style="width:280px;">
+     <div class="avatar" style="width:80px;height:80px;font-size:26px;margin-bottom:12px;">A</div>
+     <div style="font-size:19px;font-weight:700;">Anan Suksawat</div>
+     <div style="font-size:12.5px;color:var(--text2);margin-bottom:16px;">Backend Developer · Bangkok</div>
+     <button class="btn-p" style="width:100%;margin-bottom:8px;">Download Resume</button>
+     <button class="btn-s" style="width:100%;">Share Portfolio</button>
+   </div>
+   <div style="flex:1;">
+     <div class="h-section" style="padding:0;">ทักษะ</div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 20px;">
+       <span class="chip active">Go</span><span class="chip">SQL</span><span class="chip">Docker</span><span class="chip">REST API</span>
+     </div>
+     <div class="h-section" style="padding:0;">ใบเกียรติบัตร</div>
+     <div class="grid3" style="margin:10px 0 20px;">
+       <div class="card" style="text-align:center;font-size:12px;">🏆<br>Go Backend Pro</div>
+       <div class="card" style="text-align:center;font-size:12px;">🏆<br>SQL Masterclass</div>
+     </div>
+     <div class="h-section" style="padding:0;">โปรเจกต์</div>
+     <div class="card" style="margin-top:10px;"><div style="font-weight:600;font-size:13.5px;">E-commerce API</div><div style="font-size:12px;color:var(--text2);">Go · MySQL · Docker</div></div>
+   </div>
+ </div>`
+},
+
+jobs: {
+ m:`<div class="scr" style="padding:16px;">
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;margin-bottom:12px;" placeholder="ค้นหาตำแหน่งงาน...">
+   <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;">
+     <span class="chip active">Remote</span><span class="chip">Bangkok</span><span class="chip">Full-time</span><span class="chip">฿40k+</span>
+   </div>
+   <div class="card" style="margin-bottom:10px;">
+     <div style="display:flex;justify-content:space-between;"><div style="font-weight:600;font-size:13.5px;">Backend Developer</div><span class="pill pill-success">92%</span></div>
+     <div style="font-size:12px;color:var(--text2);margin:4px 0;">฿45,000–65,000 · Remote</div>
+     <div style="display:flex;gap:6px;"><span class="chip">Go</span><span class="chip">PostgreSQL</span><span class="chip">Docker</span></div>
+   </div>
+   <div class="card">
+     <div style="display:flex;justify-content:space-between;"><div style="font-weight:600;font-size:13.5px;">Cloud Engineer</div><span class="pill pill-warn">74%</span></div>
+     <div style="font-size:12px;color:var(--text2);margin:4px 0;">฿55,000–80,000 · Bangkok</div>
+     <div style="display:flex;gap:6px;"><span class="chip">AWS</span><span class="chip">Kubernetes</span></div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;padding:24px 40px;gap:24px;">
+   <div style="width:260px;">
+     <div style="font-weight:600;font-size:14px;margin-bottom:12px;">ตัวกรอง</div>
+     <div class="card" style="margin-bottom:10px;font-size:12.5px;">📍 Location: Remote / Bangkok</div>
+     <div class="card" style="margin-bottom:10px;font-size:12.5px;">💰 Salary: ฿40,000+</div>
+     <div class="card" style="font-size:12.5px;">🧩 Skill: Go, SQL, Docker</div>
+   </div>
+   <div style="flex:1;">
+     <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13.5px;margin-bottom:16px;" placeholder="ค้นหาตำแหน่งงาน...">
+     <div class="grid3">
+       <div class="card"><div style="display:flex;justify-content:space-between;"><div style="font-weight:600;font-size:13.5px;">Backend Developer</div><span class="pill pill-success">92%</span></div><div style="font-size:12px;color:var(--text2);margin:6px 0;">฿45,000–65,000 · Remote</div><div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="chip">Go</span><span class="chip">PostgreSQL</span></div></div>
+       <div class="card"><div style="display:flex;justify-content:space-between;"><div style="font-weight:600;font-size:13.5px;">Cloud Engineer</div><span class="pill pill-warn">74%</span></div><div style="font-size:12px;color:var(--text2);margin:6px 0;">฿55,000–80,000 · Bangkok</div><div style="display:flex;gap:6px;flex-wrap:wrap;"><span class="chip">AWS</span><span class="chip">K8s</span></div></div>
+     </div>
+   </div>
+ </div>`
+},
+
+jobapply: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;"><div style="width:44px;height:44px;border-radius:10px;background:var(--primary);"></div><div><div style="font-size:14px;font-weight:700;">Backend Developer</div><div style="font-size:11.5px;color:var(--text2);">TechCorp Thailand</div></div></div>
+   <div class="card" style="text-align:center;margin-bottom:14px;background:#EEF2FF;"><div style="font-size:11px;color:var(--text2);">Your Match</div><div style="font-size:24px;font-weight:700;color:var(--primary);">92%</div><div style="font-size:11px;color:var(--text2);">Skills matched: 9/10</div></div>
+   <div style="font-size:13px;font-weight:600;margin-bottom:6px;">เงินเดือน</div>
+   <div style="font-size:14px;font-weight:700;color:var(--primary);margin-bottom:14px;">฿45,000–65,000</div>
+   <div style="font-size:13px;font-weight:600;margin-bottom:6px;">ทักษะที่ต้องการ</div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;"><span class="chip">Go</span><span class="chip">PostgreSQL</span><span class="chip">Docker</span></div>
+   <div style="font-size:13px;font-weight:600;margin-bottom:6px;">รายละเอียด</div>
+   <div style="font-size:12px;color:var(--text2);margin-bottom:90px;">ร่วมทีมพัฒนา Backend สำหรับแพลตฟอร์ม e-commerce ที่มีผู้ใช้กว่า 2 ล้านคน...</div>
+   <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #E2E8F0;padding:12px 0;margin:0 -16px;padding-left:16px;padding-right:16px;"><button class="btn-p" style="width:100%;">Apply Now</button></div>
+ </div>`,
+ d:`<div class="scr" style="padding:32px 60px;display:flex;gap:36px;">
+   <div style="flex:1;">
+     <div style="display:flex;gap:14px;align-items:center;margin-bottom:20px;"><div style="width:56px;height:56px;border-radius:12px;background:var(--primary);"></div><div><div style="font-size:20px;font-weight:700;">Backend Developer</div><div style="font-size:13px;color:var(--text2);">TechCorp Thailand · Bangkok</div></div></div>
+     <div style="font-size:14px;font-weight:600;margin-bottom:8px;">รายละเอียดงาน</div>
+     <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">ร่วมทีมพัฒนา Backend สำหรับแพลตฟอร์ม e-commerce ที่มีผู้ใช้กว่า 2 ล้านคน ทำงานร่วมกับทีม Product และ DevOps อย่างใกล้ชิด</div>
+     <div style="font-size:14px;font-weight:600;margin-bottom:8px;">ทักษะที่ต้องการ</div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap;">
+       <span class="chip">Go</span><span class="chip">PostgreSQL</span><span class="chip">Docker</span><span class="chip">Kubernetes</span>
+     </div>
+   </div>
+   <div style="width:300px;">
+     <div class="card" style="position:sticky;top:24px;">
+       <div style="text-align:center;background:#EEF2FF;border-radius:12px;padding:14px;margin-bottom:14px;"><div style="font-size:11px;color:var(--text2);">Your Match</div><div style="font-size:26px;font-weight:700;color:var(--primary);">92%</div><div style="font-size:11px;color:var(--text2);">Skills matched: 9/10</div></div>
+       <div style="font-size:16px;font-weight:700;color:var(--primary);margin-bottom:4px;">฿45,000–65,000</div>
+       <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Full-time · Remote</div>
+       <button class="btn-p" style="width:100%;">Apply Now</button>
+     </div>
+   </div>
+ </div>`
+},
+
+wallet: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="display:flex;gap:10px;margin-bottom:16px;">
+     <div class="card" style="flex:1;background:linear-gradient(135deg,var(--warning),#F97316);color:#fff;"><div style="font-size:11px;opacity:.85;">AB Coin</div><div style="font-size:18px;font-weight:700;">2,450</div></div>
+     <div class="card" style="flex:1;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;"><div style="font-size:11px;opacity:.85;">Cash Wallet</div><div style="font-size:18px;font-weight:700;">฿850</div></div>
+   </div>
+   <div style="display:flex;gap:8px;margin-bottom:18px;"><button class="btn-p" style="flex:1;">Top Up</button><button class="btn-s" style="flex:1;">Withdraw</button></div>
+   <div class="h-section" style="padding:0;">ประวัติการทำรายการ</div>
+   <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+     <div class="card" style="display:flex;justify-content:space-between;"><span style="font-size:12.5px;">ซื้อคอร์ส Go Backend</span><span style="font-size:12.5px;color:var(--error);">-฿2,990</span></div>
+     <div class="card" style="display:flex;justify-content:space-between;"><span style="font-size:12.5px;">เติมเงิน</span><span style="font-size:12.5px;color:var(--success);">+฿1,000</span></div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="padding:28px 60px;">
+   <div class="grid3" style="margin-bottom:24px;">
+     <div class="card" style="background:linear-gradient(135deg,var(--warning),#F97316);color:#fff;"><div style="font-size:12px;opacity:.85;">AB Coin</div><div style="font-size:22px;font-weight:700;">2,450</div></div>
+     <div class="card" style="background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;"><div style="font-size:12px;opacity:.85;">Cash Wallet</div><div style="font-size:22px;font-weight:700;">฿850</div></div>
+     <div class="card"><div style="font-size:12px;color:var(--text2);">Payment Methods</div><div style="font-size:13px;font-weight:600;margin-top:6px;">💳 •••• 4242</div></div>
+   </div>
+   <div class="h-section" style="padding:0;">ประวัติการทำรายการ</div>
+   <table class="dt" style="margin-top:10px;"><tr><th>รายการ</th><th>วันที่</th><th>จำนวนเงิน</th></tr>
+   <tr><td>ซื้อคอร์ส Go Backend</td><td>1 Sep 2026</td><td style="color:var(--error);">-฿2,990</td></tr>
+   <tr><td>เติมเงิน</td><td>28 Aug 2026</td><td style="color:var(--success);">+฿1,000</td></tr></table>
+ </div>`
+},
+
+gamification: {
+ m:`<div class="scr" style="padding:16px;">
+   <div class="card" style="text-align:center;margin-bottom:16px;"><div style="font-size:12px;color:var(--text2);">Level</div><div style="font-size:24px;font-weight:700;color:var(--primary);">12</div><div class="progress-track" style="margin:8px 0 4px;"><div class="progress-fill" style="width:78%;"></div></div><div style="font-size:11px;color:var(--text2);">7,820 / 10,000 XP</div></div>
+   <div class="card" style="text-align:center;margin-bottom:16px;background:linear-gradient(135deg,var(--warning),#F97316);color:#fff;"><div style="font-size:22px;">🔥 18 Day Streak</div></div>
+   <div class="h-section" style="padding:0;">Badges</div>
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 16px;">
+     <div class="card" style="text-align:center;font-size:22px;">🏆</div><div class="card" style="text-align:center;font-size:22px;">⭐</div><div class="card" style="text-align:center;font-size:22px;">🎯</div>
+   </div>
+   <div class="h-section" style="padding:0;">Leaderboard</div>
+   <div class="card" style="margin-top:10px;display:flex;justify-content:space-between;"><span style="font-size:12.5px;">1. Somchai</span><span style="font-size:12.5px;">12,400 XP</span></div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;padding:28px 60px;gap:30px;">
+   <div style="width:260px;">
+     <div class="card" style="text-align:center;margin-bottom:16px;"><div style="font-size:12px;color:var(--text2);">Level</div><div style="font-size:30px;font-weight:700;color:var(--primary);">12</div><div class="progress-track" style="margin:10px 0 4px;"><div class="progress-fill" style="width:78%;"></div></div><div style="font-size:11.5px;color:var(--text2);">7,820 / 10,000 XP</div></div>
+     <div class="card" style="text-align:center;background:linear-gradient(135deg,var(--warning),#F97316);color:#fff;"><div style="font-size:22px;">🔥 18 Day Streak</div></div>
+   </div>
+   <div style="flex:1;">
+     <div class="h-section" style="padding:0;">Badges</div>
+     <div class="grid4" style="margin:12px 0 24px;">
+       <div class="card" style="text-align:center;font-size:26px;">🏆</div><div class="card" style="text-align:center;font-size:26px;">⭐</div><div class="card" style="text-align:center;font-size:26px;">🎯</div><div class="card" style="text-align:center;font-size:26px;opacity:.3;">🔒</div>
+     </div>
+     <div class="h-section" style="padding:0;">Leaderboard</div>
+     <table class="dt" style="margin-top:10px;"><tr><th>#</th><th>ผู้ใช้</th><th>XP</th></tr>
+     <tr><td>1</td><td>Somchai</td><td>12,400</td></tr><tr><td>2</td><td>Anan (คุณ)</td><td>7,820</td></tr></table>
+   </div>
+ </div>`
+},
+
+profile: {
+ m:`<div class="scr" style="padding:20px 16px;">
+   <div style="text-align:center;margin-bottom:20px;"><div class="avatar" style="width:72px;height:72px;font-size:24px;margin:0 auto 10px;">A</div><div style="font-size:16px;font-weight:700;">Anan Suksawat</div><div style="font-size:12px;color:var(--text2);">learner@ablearning.com</div></div>
+   <div style="display:flex;flex-direction:column;gap:2px;">
+     ${['Edit Profile','My Courses','Wallet','Certificates','Portfolio','Settings','Help Center'].map(i=>`<div class="card" style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;">${i}</span><span style="color:var(--text2);">›</span></div>`).join('')}
+     <div class="card" style="color:var(--error);font-size:13px;">Logout</div>
+   </div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;padding:28px 60px;gap:36px;">
+   <div style="width:260px;text-align:center;"><div class="avatar" style="width:88px;height:88px;font-size:28px;margin:0 auto 12px;">A</div><div style="font-size:17px;font-weight:700;">Anan Suksawat</div><div style="font-size:12.5px;color:var(--text2);margin-bottom:16px;">learner@ablearning.com</div>
+     <div class="progress-track" style="margin-bottom:6px;"><div class="progress-fill" style="width:68%;"></div></div><div style="font-size:11.5px;color:var(--text2);">68% Learning Progress</div>
+   </div>
+   <div style="flex:1;">
+     <div style="display:flex;gap:8px;margin-bottom:16px;"><span class="chip active">Overview</span><span class="chip">My Courses</span><span class="chip">Wallet</span><span class="chip">Certificates</span><span class="chip">Settings</span></div>
+     <div class="grid3">
+       <div class="kpi"><div class="lbl">Courses</div><div class="val">6</div></div>
+       <div class="kpi"><div class="lbl">Certificates</div><div class="val">3</div></div>
+       <div class="kpi"><div class="lbl">Streak</div><div class="val">18 🔥</div></div>
+     </div>
+   </div>
+ </div>`
+},
+
+instructor: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="font-size:16px;font-weight:700;margin-bottom:12px;">Instructor Dashboard</div>
+   <div class="hscroll" style="padding:0;margin-bottom:16px;">
+     <div class="kpi" style="min-width:130px;"><div class="lbl">Revenue</div><div class="val">฿148K</div></div>
+     <div class="kpi" style="min-width:130px;"><div class="lbl">Students</div><div class="val">8,421</div></div>
+     <div class="kpi" style="min-width:130px;"><div class="lbl">Rating</div><div class="val">4.9</div></div>
+   </div>
+   <div style="display:flex;gap:8px;margin-bottom:16px;">
+     <button class="btn-p" style="flex:1;font-size:12px;">Create Course</button>
+     <button class="btn-s" style="flex:1;font-size:12px;">Go Live</button>
+   </div>
+   <div class="card"><div style="font-size:12.5px;color:var(--text2);margin-bottom:8px;">Revenue (6 เดือน)</div><div style="height:90px;display:flex;align-items:flex-end;gap:6px;">
+     <div style="flex:1;height:40%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:55%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:48%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:70%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:60%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:85%;background:var(--primary);border-radius:4px;"></div>
+   </div></div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d"><div class="logo">AB LEARNING</div>
+     <a class="active">Dashboard</a><a>My Courses</a><a>Course Builder</a><a>Revenue</a><a>Reviews</a><a>Settings</a>
+   </div>
+   <div class="d-body">
+     <div style="font-size:19px;font-weight:700;margin-bottom:18px;">Instructor Dashboard</div>
+     <div class="grid4" style="margin-bottom:22px;">
+       <div class="kpi"><div class="lbl">Revenue</div><div class="val">฿148K</div></div>
+       <div class="kpi"><div class="lbl">Students</div><div class="val">8,421</div></div>
+       <div class="kpi"><div class="lbl">Courses</div><div class="val">6</div></div>
+       <div class="kpi"><div class="lbl">Rating</div><div class="val">4.9</div></div>
+     </div>
+     <div class="d-row">
+       <div class="card" style="flex:1;"><div style="font-size:13px;font-weight:600;margin-bottom:14px;">Revenue (6 เดือน)</div><div style="height:160px;display:flex;align-items:flex-end;gap:10px;">
+         <div style="flex:1;height:40%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:55%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:48%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:70%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:60%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:85%;background:var(--primary);border-radius:6px;"></div>
+       </div></div>
+       <div class="card" style="flex:1;"><div style="font-size:13px;font-weight:600;margin-bottom:14px;">Enrollment ตามคอร์ส</div><div style="height:160px;display:flex;align-items:flex-end;gap:10px;">
+         <div style="flex:1;height:80%;background:var(--accent);border-radius:6px;"></div><div style="flex:1;height:55%;background:var(--accent);border-radius:6px;"></div><div style="flex:1;height:65%;background:var(--accent);border-radius:6px;"></div><div style="flex:1;height:40%;background:var(--accent);border-radius:6px;"></div>
+       </div></div>
+     </div>
+   </div>
+ </div>`
+},
+
+mycourses: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;"><span class="chip active">Published</span><span class="chip">Draft</span><span class="chip">Pending</span><span class="chip">Rejected</span></div>
+   <div class="card" style="margin-bottom:10px;display:flex;gap:12px;"><div style="width:70px;height:50px;border-radius:8px;background:linear-gradient(135deg,var(--primary),var(--secondary));flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">Go Backend Professional</div><div style="font-size:11px;color:var(--text2);">8,421 students · ฿148K · 4.9★</div></div><span class="pill pill-success">Published</span></div>
+   <div class="card" style="display:flex;gap:12px;"><div style="width:70px;height:50px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#0891B2);flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">Advanced Go Patterns</div><div style="font-size:11px;color:var(--text2);">Draft · ยังไม่เผยแพร่</div></div><span class="pill pill-warn">Draft</span></div>
+ </div>`,
+ d:`<div class="scr" style="padding:24px 40px;">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div style="display:flex;gap:8px;"><span class="chip active">Published</span><span class="chip">Draft</span><span class="chip">Pending</span><span class="chip">Rejected</span></div><button class="btn-p">+ Create Course</button></div>
+   <table class="dt"><tr><th>Course</th><th>Students</th><th>Revenue</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
+   <tr><td>Go Backend Professional</td><td>8,421</td><td>฿148K</td><td>4.9★</td><td><span class="pill pill-success">Published</span></td><td><button class="btn-g">Edit</button></td></tr>
+   <tr><td>Advanced Go Patterns</td><td>—</td><td>—</td><td>—</td><td><span class="pill pill-warn">Draft</span></td><td><button class="btn-g">Edit</button></td></tr></table>
+ </div>`
+},
+
+createcourse: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="display:flex;gap:6px;margin-bottom:18px;">
+     ${['Basic','Pricing','Curriculum','Publish'].map((s,i)=>`<div style="flex:1;text-align:center;"><div style="width:26px;height:26px;border-radius:50%;background:${i===0?'var(--primary)':'#E2E8F0'};color:${i===0?'#fff':'var(--text2)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;margin:0 auto 4px;">${i+1}</div><div style="font-size:9.5px;color:var(--text2);">${s}</div></div>`).join('')}
+   </div>
+   <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">ชื่อคอร์ส</div>
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:13px;" placeholder="เช่น Go Backend Professional">
+   <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">หมวดหมู่</div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;"><span class="chip active">Programming</span><span class="chip">AI</span><span class="chip">Data</span></div>
+   <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">คำอธิบาย</div>
+   <textarea style="width:100%;height:90px;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:20px;font-size:13px;" placeholder="อธิบายคอร์สของคุณ..."></textarea>
+   <button class="btn-p" style="width:100%;">Continue</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;height:100%;">
+   <div style="width:220px;background:#fff;border-right:1px solid #E2E8F0;padding:28px 20px;">
+     ${['Basic Information','Pricing','Curriculum','Publish'].map((s,i)=>`<div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;"><div style="width:26px;height:26px;border-radius:50%;background:${i===0?'var(--primary)':'#E2E8F0'};color:${i===0?'#fff':'var(--text2)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">${i+1}</div><div style="font-size:12.5px;color:${i===0?'var(--text)':'var(--text2)'};font-weight:${i===0?600:400};">${s}</div></div>`).join('')}
+   </div>
+   <div class="d-body" style="max-width:600px;">
+     <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">ชื่อคอร์ส</div>
+     <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:14px;font-size:13.5px;" placeholder="เช่น Go Backend Professional">
+     <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">หมวดหมู่</div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;"><span class="chip active">Programming</span><span class="chip">AI</span><span class="chip">Data</span></div>
+     <div style="font-size:12px;color:var(--text2);margin-bottom:4px;">คำอธิบาย</div>
+     <textarea style="width:100%;height:110px;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:20px;font-size:13.5px;"></textarea>
+     <button class="btn-p">Save Draft & Continue</button>
+   </div>
+ </div>`
+},
+
+coursebuilder: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Go Backend Professional</div>
+   <div class="card" style="margin-bottom:8px;"><div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">▾ Section 1: Introduction</div><div style="font-size:12px;color:var(--text2);padding-left:10px;">📹 Welcome & Setup</div></div>
+   <div class="card" style="margin-bottom:8px;border:2px solid var(--primary);"><div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">▾ Section 2: REST API</div><div style="font-size:12px;color:var(--text2);padding-left:10px;">📹 REST API with Go</div><div style="font-size:12px;color:var(--text2);padding-left:10px;">📝 Quiz: HTTP Basics</div></div>
+   <button class="btn-g" style="width:100%;margin-bottom:16px;">+ Add Section</button>
+   <div style="display:flex;gap:8px;"><button class="btn-s" style="flex:1;">Preview</button><button class="btn-p" style="flex:1;">Save</button></div>
+ </div>`,
+ d:`<div class="scr" style="display:flex;height:100%;">
+   <div style="width:260px;background:#fff;border-right:1px solid #E2E8F0;padding:18px;">
+     <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Go Backend Professional</div>
+     <div class="card" style="margin-bottom:8px;font-size:12px;">▾ Section 1: Introduction</div>
+     <div class="card" style="margin-bottom:8px;border:2px solid var(--primary);font-size:12px;">▾ Section 2: REST API<br><span style="color:var(--text2);">📹 REST API with Go</span></div>
+     <button class="btn-g" style="width:100%;">+ Add Section</button>
+   </div>
+   <div style="flex:1;padding:24px;">
+     <div style="font-size:14px;font-weight:600;margin-bottom:12px;">Lesson: REST API with Go</div>
+     <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:13.5px;" value="REST API with Go">
+     <div style="height:200px;background:#F1F5F9;border-radius:var(--r-card);display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:13px;">📹 Upload video</div>
+   </div>
+   <div style="width:260px;background:#fff;border-left:1px solid #E2E8F0;padding:18px;">
+     <div style="font-size:12.5px;font-weight:600;margin-bottom:12px;">Settings</div>
+     <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Duration</div>
+     <input style="width:100%;padding:9px;border-radius:var(--r-in);border:1px solid #E2E8F0;margin-bottom:12px;font-size:12.5px;" value="24:35">
+     <label style="font-size:12px;color:var(--text2);"><input type="checkbox"> Free preview</label>
+     <button class="btn-p" style="width:100%;margin-top:16px;">Save</button>
+   </div>
+ </div>`
+},
+
+instructorrevenue: {
+ m:`<div class="scr" style="padding:16px;">
+   <div class="hscroll" style="padding:0;margin-bottom:16px;">
+     <div class="kpi" style="min-width:120px;"><div class="lbl">Gross</div><div class="val">฿185K</div></div>
+     <div class="kpi" style="min-width:120px;"><div class="lbl">Net</div><div class="val">฿148K</div></div>
+     <div class="kpi" style="min-width:120px;"><div class="lbl">Pending</div><div class="val">฿22K</div></div>
+   </div>
+   <div class="card"><div style="font-size:12.5px;font-weight:600;margin-bottom:10px;">Monthly Revenue</div><div style="height:90px;display:flex;align-items:flex-end;gap:6px;">
+     <div style="flex:1;height:50%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:65%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:80%;background:var(--primary);border-radius:4px;"></div><div style="flex:1;height:70%;background:var(--primary);border-radius:4px;"></div>
+   </div></div>
+ </div>`,
+ d:`<div class="scr" style="padding:28px 60px;">
+   <div class="grid4" style="margin-bottom:22px;">
+     <div class="kpi"><div class="lbl">Gross Sales</div><div class="val">฿185K</div></div>
+     <div class="kpi"><div class="lbl">Platform Fee</div><div class="val">฿37K</div></div>
+     <div class="kpi"><div class="lbl">Net Revenue</div><div class="val">฿148K</div></div>
+     <div class="kpi"><div class="lbl">Pending Payout</div><div class="val">฿22K</div></div>
+   </div>
+   <div class="card" style="margin-bottom:20px;"><div style="font-size:13px;font-weight:600;margin-bottom:14px;">Monthly Revenue</div><div style="height:160px;display:flex;align-items:flex-end;gap:10px;">
+     <div style="flex:1;height:50%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:65%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:80%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:70%;background:var(--primary);border-radius:6px;"></div><div style="flex:1;height:90%;background:var(--primary);border-radius:6px;"></div>
+   </div></div>
+   <table class="dt"><tr><th>Period</th><th>Gross</th><th>Net</th><th>Status</th></tr>
+   <tr><td>Aug 2026</td><td>฿185,000</td><td>฿148,000</td><td><span class="pill pill-success">Paid</span></td></tr></table>
+ </div>`
+},
+
+corp: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="font-size:16px;font-weight:700;margin-bottom:12px;">Corporate Dashboard</div>
+   <div class="hscroll" style="padding:0;margin-bottom:16px;">
+     <div class="kpi" style="min-width:130px;"><div class="lbl">Employees</div><div class="val">500</div></div>
+     <div class="kpi" style="min-width:130px;"><div class="lbl">Completion</div><div class="val">64%</div></div>
+     <div class="kpi" style="min-width:130px;"><div class="lbl">Hours</div><div class="val">2,140</div></div>
+   </div>
+   <div class="card" style="margin-bottom:10px;"><div style="font-size:12.5px;font-weight:600;margin-bottom:8px;">Skill Gap</div>
+     <div style="font-size:12px;margin-bottom:4px;">Cloud <span style="float:right;">48%</span></div><div class="progress-track" style="margin-bottom:8px;"><div class="progress-fill" style="width:48%;background:var(--warning);"></div></div>
+     <div style="font-size:12px;margin-bottom:4px;">Testing <span style="float:right;">55%</span></div><div class="progress-track"><div class="progress-fill" style="width:55%;background:var(--warning);"></div></div>
+   </div>
+   <button class="btn-p" style="width:100%;">สร้าง Learning Path</button>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d"><div class="logo">AB LEARNING</div>
+     <a class="active">Dashboard</a><a>Employees</a><a>Learning Paths</a><a>Reports</a><a>Settings</a>
+   </div>
+   <div class="d-body">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+       <div style="font-size:19px;font-weight:700;">Corporate Dashboard — ABC Technology</div>
+       <button class="btn-p">สร้าง Learning Path</button>
+     </div>
+     <div class="grid4" style="margin-bottom:22px;">
+       <div class="kpi"><div class="lbl">Employees</div><div class="val">500</div></div>
+       <div class="kpi"><div class="lbl">Active Learners</div><div class="val">312</div></div>
+       <div class="kpi"><div class="lbl">Completion</div><div class="val">64%</div></div>
+       <div class="kpi"><div class="lbl">Training hrs</div><div class="val">2,140</div></div>
+     </div>
+     <div class="d-row">
+       <div class="card" style="flex:1;"><div style="font-size:13px;font-weight:600;margin-bottom:14px;">Department Performance</div>
+         <table class="dt"><tr><th>Department</th><th>Learners</th><th>Progress</th></tr>
+         <tr><td>Engineering</td><td>120</td><td>72%</td></tr>
+         <tr><td>Sales</td><td>85</td><td>58%</td></tr>
+         <tr><td>Marketing</td><td>60</td><td>66%</td></tr></table>
+       </div>
+       <div class="card" style="flex:1;"><div style="font-size:13px;font-weight:600;margin-bottom:14px;">Skill Gap</div>
+         <div style="font-size:12.5px;margin-bottom:4px;">Cloud <span style="float:right;">48%</span></div><div class="progress-track" style="margin-bottom:10px;"><div class="progress-fill" style="width:48%;background:var(--warning);"></div></div>
+         <div style="font-size:12.5px;margin-bottom:4px;">Testing <span style="float:right;">55%</span></div><div class="progress-track" style="margin-bottom:10px;"><div class="progress-fill" style="width:55%;background:var(--warning);"></div></div>
+         <div style="font-size:12.5px;margin-bottom:4px;">Database <span style="float:right;">85%</span></div><div class="progress-track"><div class="progress-fill" style="width:85%;"></div></div>
+       </div>
+     </div>
+   </div>
+ </div>`
+},
+
+employees: {
+ m:`<div class="scr" style="padding:16px;">
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;margin-bottom:14px;" placeholder="ค้นหาพนักงาน...">
+   <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:12.5px;font-weight:600;">Somchai Jaidee</div><div style="font-size:11px;color:var(--text2);">Engineering · Senior Dev</div></div><span class="pill pill-success">72%</span></div>
+   <div class="card" style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:12.5px;font-weight:600;">Siriporn Wong</div><div style="font-size:11px;color:var(--text2);">Sales · Executive</div></div><span class="pill pill-warn">45%</span></div>
+   <div style="position:fixed;bottom:80px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;">+</div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d"><div class="logo">AB LEARNING</div><a>Dashboard</a><a class="active">Employees</a><a>Learning Paths</a><a>Reports</a></div>
+   <div class="d-body">
+     <div style="display:flex;justify-content:space-between;margin-bottom:16px;"><input style="width:320px;padding:10px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;" placeholder="ค้นหาพนักงาน..."><div style="display:flex;gap:8px;"><button class="btn-g">Import CSV</button><button class="btn-p">+ Add Employee</button></div></div>
+     <table class="dt"><tr><th><input type="checkbox"></th><th>Name</th><th>Department</th><th>Role</th><th>Progress</th><th>Status</th><th>Actions</th></tr>
+     <tr><td><input type="checkbox"></td><td>Somchai Jaidee</td><td>Engineering</td><td>Senior Dev</td><td>72%</td><td><span class="pill pill-success">Active</span></td><td><button class="btn-g">Assign</button></td></tr>
+     <tr><td><input type="checkbox"></td><td>Siriporn Wong</td><td>Sales</td><td>Executive</td><td>45%</td><td><span class="pill pill-success">Active</span></td><td><button class="btn-g">Assign</button></td></tr></table>
+   </div>
+ </div>`
+},
+
+learningpath: {
+ m:`<div class="scr" style="padding:16px;">
+   <div class="card" style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Leadership Development 2027</div><div style="font-size:11.5px;color:var(--text2);margin-bottom:8px;">6 Courses · 45 Employees</div><div class="progress-track" style="margin-bottom:4px;"><div class="progress-fill" style="width:64%;"></div></div><div style="font-size:11px;color:var(--text2);">64% average progress</div></div>
+   <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Cloud Fundamentals</div><div style="font-size:11.5px;color:var(--text2);margin-bottom:8px;">4 Courses · 28 Employees</div><div class="progress-track" style="margin-bottom:4px;"><div class="progress-fill" style="width:38%;background:var(--warning);"></div></div><div style="font-size:11px;color:var(--text2);">38% average progress</div></div>
+   <button class="btn-p" style="width:100%;margin-top:16px;">+ Create Learning Path</button>
+ </div>`,
+ d:`<div class="scr" style="display:flex;padding:24px 40px;gap:24px;">
+   <div style="flex:1;">
+     <div style="display:flex;justify-content:space-between;margin-bottom:16px;"><div style="font-size:17px;font-weight:700;">Learning Paths</div><button class="btn-p">+ Create Learning Path</button></div>
+     <div class="grid3">
+       <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Leadership Development 2027</div><div style="font-size:11.5px;color:var(--text2);margin-bottom:10px;">6 Courses · 45 Employees</div><div class="progress-track"><div class="progress-fill" style="width:64%;"></div></div></div>
+       <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Cloud Fundamentals</div><div style="font-size:11.5px;color:var(--text2);margin-bottom:10px;">4 Courses · 28 Employees</div><div class="progress-track"><div class="progress-fill" style="width:38%;background:var(--warning);"></div></div></div>
+     </div>
+   </div>
+   <div style="width:320px;"><div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px;">Leadership Development 2027 — Detail</div><div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Courses:</div><div style="font-size:12.5px;margin-bottom:10px;">Leadership · English for Career · Product Management</div><div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Deadline:</div><div style="font-size:12.5px;">31 Dec 2027</div></div></div>
+ </div>`
+},
+
+employerdash: {
+ m:`<div class="scr" style="padding:16px;">
+   <div class="hscroll" style="padding:0;margin-bottom:16px;">
+     <div class="kpi" style="min-width:110px;"><div class="lbl">Candidates</div><div class="val">1,240</div></div>
+     <div class="kpi" style="min-width:110px;"><div class="lbl">Shortlisted</div><div class="val">86</div></div>
+     <div class="kpi" style="min-width:110px;"><div class="lbl">Hired</div><div class="val">14</div></div>
+   </div>
+   <div class="h-section" style="padding:0;">Talent แนะนำ</div>
+   <div class="card" style="margin-top:10px;display:flex;gap:10px;"><div class="avatar" style="width:36px;height:36px;">A</div><div><div style="font-size:12.5px;font-weight:600;">Anan Suksawat</div><div style="font-size:11px;color:var(--text2);">Go · SQL · Docker · Match 92%</div></div></div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d"><div class="logo">AB LEARNING</div><a class="active">Dashboard</a><a>Jobs</a><a>Applications</a><a>Talent Search</a></div>
+   <div class="d-body">
+     <div class="grid4" style="margin-bottom:22px;">
+       <div class="kpi"><div class="lbl">Candidates</div><div class="val">1,240</div></div>
+       <div class="kpi"><div class="lbl">Applications</div><div class="val">312</div></div>
+       <div class="kpi"><div class="lbl">Shortlisted</div><div class="val">86</div></div>
+       <div class="kpi"><div class="lbl">Hired</div><div class="val">14</div></div>
+     </div>
+     <div class="h-section" style="padding:0;">Talent แนะนำ</div>
+     <div class="grid3" style="margin-top:12px;">
+       <div class="card" style="display:flex;gap:10px;"><div class="avatar" style="width:40px;height:40px;">A</div><div><div style="font-size:13px;font-weight:600;">Anan Suksawat</div><div style="font-size:11.5px;color:var(--text2);">Go · SQL · Docker</div><span class="pill pill-success">Match 92%</span></div></div>
+     </div>
+   </div>
+ </div>`
+},
+
+admin: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="font-size:16px;font-weight:700;margin-bottom:12px;">Admin Dashboard</div>
+   <div class="hscroll" style="padding:0;margin-bottom:16px;">
+     <div class="kpi" style="min-width:120px;"><div class="lbl">Users</div><div class="val">24.1K</div></div>
+     <div class="kpi" style="min-width:120px;"><div class="lbl">Revenue</div><div class="val">฿4.2M</div></div>
+     <div class="kpi" style="min-width:120px;"><div class="lbl">Courses</div><div class="val">312</div></div>
+   </div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+     <div class="card" style="text-align:center;font-size:12.5px;">👤<br>User Management</div>
+     <div class="card" style="text-align:center;font-size:12.5px;">🎓<br>Course Moderation</div>
+     <div class="card" style="text-align:center;font-size:12.5px;">💳<br>Payments</div>
+     <div class="card" style="text-align:center;font-size:12.5px;">🚩<br>Reports</div>
+   </div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d" style="width:260px;"><div class="logo">AB LEARNING</div>
+     <a class="active">Dashboard</a><a>Users</a><a>Course Moderation</a><a>Payments</a><a>Reports</a><a>Content</a><a>Settings</a>
+   </div>
+   <div class="d-body">
+     <div style="font-size:19px;font-weight:700;margin-bottom:18px;">Admin Dashboard</div>
+     <div class="grid4" style="margin-bottom:14px;">
+       <div class="kpi"><div class="lbl">Total Users</div><div class="val">24,180</div></div>
+       <div class="kpi"><div class="lbl">Instructors</div><div class="val">142</div></div>
+       <div class="kpi"><div class="lbl">Revenue</div><div class="val">฿4.2M</div></div>
+       <div class="kpi"><div class="lbl">GMV</div><div class="val">฿6.1M</div></div>
+     </div>
+     <div class="grid4" style="margin-bottom:22px;">
+       <div class="kpi"><div class="lbl">Courses</div><div class="val">312</div></div>
+       <div class="kpi"><div class="lbl">Live Sessions</div><div class="val">48</div></div>
+       <div class="kpi"><div class="lbl">Reports</div><div class="val">6</div></div>
+       <div class="kpi"><div class="lbl">Active Today</div><div class="val">3,410</div></div>
+     </div>
+     <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px;">Pending Course Moderation</div>
+       <table class="dt"><tr><th>Course</th><th>Instructor</th><th>Category</th><th>Status</th><th>Action</th></tr>
+       <tr><td>Prompt Engineering</td><td>Bank</td><td>AI</td><td><span class="pill pill-warn">Pending</span></td><td><button class="btn-g">Review</button></td></tr>
+       <tr><td>Personal Branding</td><td>Ploy</td><td>Marketing</td><td><span class="pill pill-warn">Pending</span></td><td><button class="btn-g">Review</button></td></tr></table>
+     </div>
+   </div>
+ </div>`
+},
+
+moderation: {
+ m:`<div class="scr" style="padding:16px;">
+   <div style="display:flex;gap:8px;overflow-x:auto;margin-bottom:14px;"><span class="chip active">Pending</span><span class="chip">Approved</span><span class="chip">Rejected</span><span class="chip">Reported</span></div>
+   <div class="card" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:12.5px;font-weight:600;">Prompt Engineering</span><span class="pill pill-warn">Pending</span></div><div style="font-size:11.5px;color:var(--text2);margin-bottom:10px;">by Bank · AI · Submitted 2 Sep</div><div style="display:flex;gap:8px;"><button class="btn-g" style="flex:1;">Preview</button><button class="btn-p" style="flex:1;">Approve</button></div></div>
+   <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:12.5px;font-weight:600;">Personal Branding</span><span class="pill pill-warn">Pending</span></div><div style="font-size:11.5px;color:var(--text2);margin-bottom:10px;">by Ploy · Marketing · Submitted 3 Sep</div><div style="display:flex;gap:8px;"><button class="btn-g" style="flex:1;">Preview</button><button class="btn-p" style="flex:1;">Approve</button></div></div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d" style="width:260px;"><div class="logo">AB LEARNING</div><a>Dashboard</a><a>Users</a><a class="active">Course Moderation</a><a>Payments</a><a>Reports</a></div>
+   <div class="d-body">
+     <div style="display:flex;gap:8px;margin-bottom:16px;"><span class="chip active">Pending (2)</span><span class="chip">Approved</span><span class="chip">Rejected</span><span class="chip">Reported</span></div>
+     <table class="dt"><tr><th>Course</th><th>Instructor</th><th>Category</th><th>Submitted</th><th>Status</th><th>Actions</th></tr>
+     <tr><td>Prompt Engineering</td><td>Bank</td><td>AI</td><td>2 Sep 2026</td><td><span class="pill pill-warn">Pending</span></td><td><button class="btn-g">Preview</button> <button class="btn-p">Approve</button> <button class="btn-g" style="color:var(--error);">Reject</button></td></tr>
+     <tr><td>Personal Branding</td><td>Ploy</td><td>Marketing</td><td>3 Sep 2026</td><td><span class="pill pill-warn">Pending</span></td><td><button class="btn-g">Preview</button> <button class="btn-p">Approve</button> <button class="btn-g" style="color:var(--error);">Reject</button></td></tr></table>
+   </div>
+ </div>`
+},
+
+paymentmgmt: {
+ m:`<div class="scr" style="padding:16px;">
+   <div class="hscroll" style="padding:0;margin-bottom:14px;">
+     <div class="kpi" style="min-width:110px;"><div class="lbl">Total</div><div class="val">฿4.2M</div></div>
+     <div class="kpi" style="min-width:110px;"><div class="lbl">Failed</div><div class="val">18</div></div>
+     <div class="kpi" style="min-width:110px;"><div class="lbl">Refund</div><div class="val">฿32K</div></div>
+   </div>
+   <div class="card" style="margin-bottom:8px;display:flex;justify-content:space-between;"><div><div style="font-size:12.5px;font-weight:600;">ORD-10234</div><div style="font-size:11px;color:var(--text2);">Anan S. · PromptPay</div></div><div style="text-align:right;"><div style="font-size:12.5px;font-weight:600;">฿2,990</div><span class="pill pill-success">Paid</span></div></div>
+   <div class="card" style="display:flex;justify-content:space-between;"><div><div style="font-size:12.5px;font-weight:600;">ORD-10235</div><div style="font-size:11px;color:var(--text2);">Ploy T. · Card</div></div><div style="text-align:right;"><div style="font-size:12.5px;font-weight:600;">฿1,990</div><span class="pill pill-error">Failed</span></div></div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d" style="width:260px;"><div class="logo">AB LEARNING</div><a>Dashboard</a><a>Users</a><a>Course Moderation</a><a class="active">Payments</a><a>Reports</a></div>
+   <div class="d-body">
+     <div class="grid4" style="margin-bottom:18px;">
+       <div class="kpi"><div class="lbl">Total Revenue</div><div class="val">฿4.2M</div></div>
+       <div class="kpi"><div class="lbl">Successful</div><div class="val">12,408</div></div>
+       <div class="kpi"><div class="lbl">Failed</div><div class="val">18</div></div>
+       <div class="kpi"><div class="lbl">Refund</div><div class="val">฿32K</div></div>
+     </div>
+     <table class="dt"><tr><th>Txn ID</th><th>User</th><th>Course</th><th>Amount</th><th>Method</th><th>Status</th><th>Actions</th></tr>
+     <tr><td>ORD-10234</td><td>Anan S.</td><td>Go Backend</td><td>฿2,990</td><td>PromptPay</td><td><span class="pill pill-success">Paid</span></td><td><button class="btn-g">View</button></td></tr>
+     <tr><td>ORD-10235</td><td>Ploy T.</td><td>UX/UI Design</td><td>฿1,990</td><td>Card</td><td><span class="pill pill-error">Failed</span></td><td><button class="btn-g">Retry</button></td></tr></table>
+   </div>
+ </div>`
+},
+
+usermgmt: {
+ m:`<div class="scr" style="padding:16px;">
+   <input style="width:100%;padding:11px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;margin-bottom:14px;" placeholder="ค้นหาผู้ใช้...">
+   <div class="card" style="margin-bottom:8px;display:flex;gap:10px;align-items:center;"><div class="avatar" style="width:32px;height:32px;font-size:11px;">A</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">Anan Suksawat</div><div style="font-size:11px;color:var(--text2);">learner@ablearning.com</div></div><span class="badge-role">LEARNER</span></div>
+   <div class="card" style="display:flex;gap:10px;align-items:center;"><div class="avatar" style="width:32px;height:32px;font-size:11px;background:var(--secondary);">K</div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">Dr. Krit</div><div style="font-size:11px;color:var(--text2);">krit@ablearning.com</div></div><span class="badge-role">INSTRUCTOR</span></div>
+ </div>`,
+ d:`<div class="scr d-flex" style="height:100%;">
+   <div class="sidebar-d" style="width:260px;"><div class="logo">AB LEARNING</div><a class="active">Users</a><a>Course Moderation</a><a>Payments</a><a>Reports</a></div>
+   <div class="d-body">
+     <div style="display:flex;justify-content:space-between;margin-bottom:16px;"><input style="width:320px;padding:10px;border-radius:var(--r-in);border:1px solid #E2E8F0;font-size:13px;" placeholder="ค้นหาผู้ใช้..."><button class="btn-p">+ Add User</button></div>
+     <table class="dt"><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Last Login</th><th>Actions</th></tr>
+     <tr><td>Anan Suksawat</td><td>learner@ablearning.com</td><td><span class="badge-role">LEARNER</span></td><td><span class="pill pill-success">Active</span></td><td>1 Jan 2026</td><td>Today</td><td><button class="btn-g">View</button></td></tr>
+     <tr><td>Dr. Krit</td><td>krit@ablearning.com</td><td><span class="badge-role">INSTRUCTOR</span></td><td><span class="pill pill-success">Active</span></td><td>15 Dec 2025</td><td>Yesterday</td><td><button class="btn-g">View</button></td></tr></table>
+   </div>
+ </div>`
+}
+};
+
+let current = 'splash', device = 'm';
+function render(){
+  document.getElementById('scr-title').textContent = titles[current];
+  const stage = document.getElementById('stage');
+  if(device==='m'){
+    stage.innerHTML = `<div class="frame-m">${screens[current].m}</div>`;
+  } else {
+    stage.innerHTML = `<div class="frame-d">${screens[current].d}</div>`;
+  }
+}
+function setDevice(d){
+  device = d;
+  document.getElementById('tg-m').classList.toggle('active', d==='m');
+  document.getElementById('tg-d').classList.toggle('active', d==='d');
+  render();
+}
+document.querySelectorAll('.rail button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.rail button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    current = b.dataset.s;
+    render();
+  });
+});
+render();
+</script>
+</body>
+</html>

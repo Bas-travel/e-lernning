@@ -1,0 +1,893 @@
+openapi: 3.0.3
+info:
+  title: AB Learning API
+  description: >
+    REST API for the AB Learning AI Career Learning Platform.
+    Matches the 43-screen prototype and MySQL schema (see 04-schema.sql).
+  version: "1.0.0"
+servers:
+  - url: https://api.ablearning.co/api/v1
+    description: Production
+  - url: https://staging-api.ablearning.co/api/v1
+    description: Staging
+
+tags:
+  - name: Auth
+  - name: Home
+  - name: Courses
+  - name: Learning
+  - name: Quiz
+  - name: Certificates
+  - name: Live
+  - name: Community
+  - name: AI
+  - name: Career
+  - name: Jobs
+  - name: Portfolio
+  - name: Wallet
+  - name: Instructor
+  - name: Corporate
+  - name: Admin
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        code: { type: string, example: "COURSE_NOT_FOUND" }
+        message: { type: string, example: "Course could not be found." }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        email: { type: string }
+        role: { type: string, enum: [GUEST, LEARNER, INSTRUCTOR, CORP_ADMIN, CORP_MANAGER, EMPLOYER, ADMIN] }
+        first_name: { type: string }
+        last_name: { type: string }
+        avatar_url: { type: string }
+
+    AuthTokenResponse:
+      type: object
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+
+    Course:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        thumbnail_url: { type: string }
+        price: { type: number, format: float }
+        discount_price: { type: number, format: float, nullable: true }
+        rating_avg: { type: number, format: float }
+        student_count: { type: integer }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        status: { type: string, enum: [draft, pending_review, published, rejected, archived] }
+        instructor: { $ref: '#/components/schemas/User' }
+
+    Lesson:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        type: { type: string, enum: [video, article, quiz, project] }
+        duration_seconds: { type: integer }
+        video_url: { type: string }
+    CourseSection:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        course_id: { type: integer, format: int64 }
+        title: { type: string }
+        position: { type: integer }
+        lessons: { type: array, items: { $ref: '#/components/schemas/Lesson' } }
+    Enrollment:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        user_id: { type: integer, format: int64 }
+        course_id: { type: integer, format: int64 }
+        status: { type: string }
+        progress: { type: number, format: float }
+        started_at: { type: string, format: date-time }
+        completed_at: { type: string, format: date-time, nullable: true }
+    Order:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        user_id: { type: integer, format: int64 }
+        total_amount: { type: number, format: float }
+        status: { type: string }
+        items: { type: array, items: { $ref: '#/components/schemas/OrderItem' } }
+    OrderItem:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        order_id: { type: integer, format: int64 }
+        course_id: { type: integer, format: int64 }
+        price: { type: number, format: float }
+    Payment:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        order_id: { type: integer, format: int64 }
+        method: { type: string }
+        amount: { type: number, format: float }
+        status: { type: string }
+        paid_at: { type: string, format: date-time }
+    LessonProgress:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        enrollment_id: { type: integer, format: int64 }
+        lesson_id: { type: integer, format: int64 }
+        watched_seconds: { type: number }
+        last_watched_at: { type: string, format: date-time }
+    Quiz:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        course_id: { type: integer, format: int64 }
+        title: { type: string }
+    QuizAttempt:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        quiz_id: { type: integer, format: int64 }
+        user_id: { type: integer, format: int64 }
+        score: { type: integer }
+        taken_at: { type: string, format: date-time }
+
+    QuizQuestion:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        question: { type: string }
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              text: { type: string }
+
+    QuizAttemptResult:
+      type: object
+      properties:
+        score_pct: { type: number, format: float }
+        passed: { type: boolean }
+        skill_breakdown:
+          type: object
+          additionalProperties: { type: number }
+
+    Certificate:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        certificate_code: { type: string }
+        pdf_url: { type: string }
+        issued_at: { type: string, format: date-time }
+
+    LiveSession:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        scheduled_at: { type: string, format: date-time }
+        status: { type: string, enum: [upcoming, live, ended, cancelled] }
+        stream_url: { type: string }
+
+    CommunityPost:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        content: { type: string }
+        image_url: { type: string }
+        like_count: { type: integer }
+        comment_count: { type: integer }
+        author: { $ref: '#/components/schemas/User' }
+
+    AiTutorRequest:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        course_id: { type: integer, format: int64 }
+        lesson_id: { type: integer, format: int64 }
+        action: { type: string, enum: [explain, example, quiz_me, career_advice] }
+
+    AiTutorResponse:
+      type: object
+      properties:
+        reply: { type: string }
+        conversation_id: { type: integer, format: int64 }
+
+    SkillResult:
+      type: object
+      properties:
+        overall_score: { type: number, format: float }
+        breakdown:
+          type: object
+          additionalProperties: { type: number }
+
+    CareerPath:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        progress_pct: { type: number, format: float }
+        required_skills:
+          type: array
+          items:
+            type: object
+            properties:
+              skill: { type: string }
+              acquired: { type: boolean }
+
+    Job:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        company_name: { type: string }
+        salary_min: { type: number }
+        salary_max: { type: number }
+        location: { type: string }
+        is_remote: { type: boolean }
+        match_score: { type: number, format: float }
+
+    Portfolio:
+      type: object
+      properties:
+        headline: { type: string }
+        summary: { type: string }
+        skills: { type: array, items: { type: string } }
+        certificates: { type: array, items: { $ref: '#/components/schemas/Certificate' } }
+
+    Wallet:
+      type: object
+      properties:
+        coin_balance: { type: integer }
+        cash_balance: { type: number, format: float }
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+    PageParam:
+      name: page
+      in: query
+      schema: { type: integer, default: 1 }
+    LimitParam:
+      name: limit
+      in: query
+      schema: { type: integer, default: 20 }
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier, password]
+              properties:
+                identifier: { type: string, description: "email or phone" }
+                password: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/AuthTokenResponse' } } } }
+        '401': { description: Invalid credentials, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name, email, password]
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                email: { type: string }
+                phone: { type: string }
+                password: { type: string }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+
+  /auth/verify-otp:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, code]
+              properties:
+                user_id: { type: integer }
+                code: { type: string }
+      responses:
+        '200': { description: Verified }
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string }
+      responses:
+        '200': { description: Reset link sent }
+
+  /me:
+    get:
+      tags: [Auth]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+
+  /me/preferences:
+    post:
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                interests: { type: array, items: { type: string } }
+                level: { type: string }
+                goal: { type: string }
+      responses:
+        '200': { description: Saved }
+
+  /home:
+    get:
+      tags: [Home]
+      responses:
+        '200':
+          description: Personalized home feed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  continue_learning: { type: array, items: { $ref: '#/components/schemas/Course' } }
+                  recommended: { type: array, items: { $ref: '#/components/schemas/Course' } }
+                  live: { type: array, items: { $ref: '#/components/schemas/LiveSession' } }
+
+  /courses:
+    get:
+      tags: [Courses]
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: level
+          in: query
+          schema: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Course' } } } } }
+
+  /courses/{id}:
+    get:
+      tags: [Courses]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Course' } } } }
+        '404': { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /courses/{id}/curriculum:
+    get:
+      tags: [Courses]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  course: { $ref: '#/components/schemas/Course' }
+                  sections: { type: array, items: { $ref: '#/components/schemas/CourseSection' } }
+
+  /search:
+    get:
+      tags: [Courses]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /orders:
+    post:
+      tags: [Courses]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                course_ids: { type: array, items: { type: integer } }
+                coupon_code: { type: string }
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /payments:
+    post:
+      tags: [Courses]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, method]
+              properties:
+                order_id: { type: integer }
+                method: { type: string, enum: [promptpay, card, stripe, wallet] }
+      responses:
+        '200':
+          description: Payment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+
+  /me/courses:
+    get:
+      tags: [Learning]
+      responses:
+        '200':
+          description: Enrolled courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /enrollments:
+    post:
+      tags: [Learning]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, course_id]
+              properties:
+                user_id: { type: integer }
+                course_id: { type: integer }
+      responses:
+        '201':
+          description: Enrollment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+
+  /enrollments/{id}:
+    get:
+      tags: [Learning]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Enrollment' } } } }
+
+  /lessons/{id}:
+    get:
+      tags: [Learning]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Lesson' } } } }
+    put:
+      tags: [Instructor]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Lesson' }
+      responses:
+        '200': { description: Updated }
+
+  /lessons/{id}/progress:
+    post:
+      tags: [Learning]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                watched_seconds: { type: integer }
+                status: { type: string, enum: [in_progress, completed] }
+      responses:
+        '200': { description: Progress saved }
+
+  /quizzes/{id}:
+    get:
+      tags: [Quiz]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/QuizQuestion' } } } } }
+
+  /quizzes/{id}/submit:
+    post:
+      tags: [Quiz]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers: { type: object, additionalProperties: { type: string } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/QuizAttemptResult' } } } }
+
+  /certificates:
+    get:
+      tags: [Certificates]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Certificate' } } } } }
+
+  /certificates/{id}/download:
+    get:
+      tags: [Certificates]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: PDF stream }
+
+  /live:
+    get:
+      tags: [Live]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/LiveSession' } } } } }
+
+  /live/{id}/join:
+    post:
+      tags: [Live]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: Joined, content: { application/json: { schema: { type: object, properties: { stream_url: { type: string } } } } } }
+
+  /live/{id}/chat:
+    get:
+      tags: [Live]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK }
+
+  /live/{id}/questions:
+    post:
+      tags: [Live]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { question: { type: string } } }
+      responses:
+        '201': { description: Question submitted }
+
+  /community/posts:
+    get:
+      tags: [Community]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/CommunityPost' } } } } }
+    post:
+      tags: [Community]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                title: { type: string }
+                content: { type: string }
+                image_url: { type: string }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityPost' } } } }
+
+  /ai/tutor:
+    post:
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiTutorRequest' }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/AiTutorResponse' } } } }
+        '429': { description: Usage limit reached, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /skills/assessment:
+    get:
+      tags: [Career]
+      responses:
+        '200': { description: OK }
+
+  /skills/assessment/submit:
+    post:
+      tags: [Career]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { answers: { type: object } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/SkillResult' } } } }
+
+  /skills/result:
+    get:
+      tags: [Career]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/SkillResult' } } } }
+
+  /career-paths:
+    get:
+      tags: [Career]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/CareerPath' } } } } }
+
+  /career-paths/{id}:
+    get:
+      tags: [Career]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/CareerPath' } } } }
+
+  /portfolio:
+    get:
+      tags: [Portfolio]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Portfolio' } } } }
+    put:
+      tags: [Portfolio]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Portfolio' }
+      responses:
+        '200': { description: Updated }
+
+  /jobs:
+    get:
+      tags: [Jobs]
+      parameters:
+        - name: location
+          in: query
+          schema: { type: string }
+        - name: remote
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Job' } } } } }
+
+  /jobs/{id}:
+    get:
+      tags: [Jobs]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Job' } } } }
+
+  /jobs/{id}/apply:
+    post:
+      tags: [Jobs]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '201': { description: Application submitted }
+
+  /wallet:
+    get:
+      tags: [Wallet]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Wallet' } } } }
+
+  /wallet/transactions:
+    get:
+      tags: [Wallet]
+      responses:
+        '200': { description: OK }
+
+  /instructor/dashboard:
+    get:
+      tags: [Instructor]
+      responses:
+        '200': { description: OK }
+
+  /instructor/courses:
+    get:
+      tags: [Instructor]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Course' } } } } }
+    post:
+      tags: [Instructor]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Course' }
+      responses:
+        '201': { description: Created }
+
+  /instructor/revenue:
+    get:
+      tags: [Instructor]
+      responses:
+        '200': { description: OK }
+
+  /course-sections:
+    post:
+      tags: [Instructor]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { course_id: { type: integer }, title: { type: string } } }
+      responses:
+        '201': { description: Created }
+
+  /lessons:
+    post:
+      tags: [Instructor]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Lesson' }
+      responses:
+        '201': { description: Created }
+
+  /corporate/dashboard:
+    get:
+      tags: [Corporate]
+      responses:
+        '200': { description: OK }
+
+  /corporate/employees:
+    get:
+      tags: [Corporate]
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Corporate]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { email: { type: string }, department: { type: string } } }
+      responses:
+        '201': { description: Created }
+
+  /corporate/learning-paths:
+    get:
+      tags: [Corporate]
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Corporate]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { name: { type: string }, course_ids: { type: array, items: { type: integer } } } }
+      responses:
+        '201': { description: Created }
+
+  /employer/dashboard:
+    get:
+      tags: [Admin]
+      responses:
+        '200': { description: OK }
+
+  /admin/dashboard:
+    get:
+      tags: [Admin]
+      responses:
+        '200': { description: OK }
+
+  /admin/courses/pending:
+    get:
+      tags: [Admin]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Course' } } } } }
+
+  /admin/courses/{id}/approve:
+    post:
+      tags: [Admin]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: Approved }
+
+  /admin/courses/{id}/reject:
+    post:
+      tags: [Admin]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { reason: { type: string } } }
+      responses:
+        '200': { description: Rejected }
+
+  /admin/payments:
+    get:
+      tags: [Admin]
+      responses:
+        '200': { description: OK }
+
+  /admin/payments/{id}/refund:
+    post:
+      tags: [Admin]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: Refund processed }
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/User' } } } } }
+
+  /admin/users/{id}:
+    get:
+      tags: [Admin]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+    put:
+      tags: [Admin]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/User' }
+      responses:
+        '200': { description: Updated }
+
+  /admin/users/{id}/suspend:
+    post:
+      tags: [Admin]
+      parameters: [ { $ref: '#/components/parameters/IdParam' } ]
+      responses:
+        '200': { description: Suspended }

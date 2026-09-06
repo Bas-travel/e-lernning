@@ -1,0 +1,29 @@
+{
+  "course_sections": [
+    {"id":"sec-1","course_id":"course-1","title":"Introduction","position":1},
+    {"id":"sec-2","course_id":"course-1","title":"REST API","position":2},
+    {"id":"sec-3","course_id":"course-3","title":"Getting Started","position":1},
+    {"id":"sec-4","course_id":"course-3","title":"State Management","position":2},
+    {"id":"sec-5","course_id":"course-2","title":"Foundations","position":1}
+  ],
+
+  "lessons": [
+    {"id":"ls-1","section_id":"sec-1","title":"Welcome & Setup","duration_seconds":480},
+    {"id":"ls-2","section_id":"sec-1","title":"Course Overview","duration_seconds":300},
+    {"id":"ls-3","section_id":"sec-2","title":"Designing RESTful APIs","duration_seconds":900},
+    {"id":"ls-4","section_id":"sec-2","title":"Routing & Handlers in Go","duration_seconds":1200},
+    {"id":"ls-5","section_id":"sec-3","title":"Flutter Project Setup","duration_seconds":600},
+    {"id":"ls-6","section_id":"sec-4","title":"State with Riverpod","duration_seconds":1400},
+    {"id":"ls-7","section_id":"sec-5","title":"Intro to AI Concepts","duration_seconds":800}
+  ],
+
+  "quiz_questions": [
+    {"id":"q-1","quiz_id":"quiz-1","question":"HTTP status code 200 means what?","choices":[{"id":"a","text":"Error"},{"id":"b","text":"Success"},{"id":"c","text":"Redirect"},{"id":"d","text":"Unauthorized"}],"correct":"b"},
+    {"id":"q-2","quiz_id":"quiz-1","question":"Which method is idempotent?","choices":[{"id":"a","text":"POST"},{"id":"b","text":"PATCH"},{"id":"c","text":"PUT"},{"id":"d","text":"CONNECT"}],"correct":"c"}
+  ],
+
+  "quiz_attempts": [
+    {"id":"qa-1","quiz_id":"quiz-1","user_id":"u-1","score":85,"taken_at":"2026-08-21T10:00:00Z"},
+    {"id":"qa-2","quiz_id":"quiz-1","user_id":"u-3","score":92,"taken_at":"2026-06-02T11:00:00Z"}
+  ]
+}
