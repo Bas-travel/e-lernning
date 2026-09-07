@@ -22,7 +22,8 @@ func RegisterRoutes(mux *http.ServeMux) {
 }
 
 func (c *Controller) ListCourses(w http.ResponseWriter, r *http.Request) {
-	courses := c.service.List()
+	query := r.URL.Query()
+	courses := c.service.Filter(query.Get("category"), query.Get("q"))
 	httpx.JSON(w, http.StatusOK, courses)
 }
 
