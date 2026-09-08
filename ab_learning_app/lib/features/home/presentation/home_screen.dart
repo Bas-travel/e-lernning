@@ -136,21 +136,57 @@ class _BrandMark extends StatelessWidget {
               color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900)));
 }
 
+// class _DesktopNavigation extends StatelessWidget {
+//   const _DesktopNavigation();
+//   @override
+//   Widget build(BuildContext context) => const Padding(
+//       padding: EdgeInsets.only(bottom: 22),
+//       child: Wrap(spacing: 24, children: [
+//         Text('Home',
+//             style: TextStyle(
+//                 color: AppColors.primary, fontWeight: FontWeight.bold)),
+//         Text('Explore'),
+//         Text('My learning'),
+//         Text('Live'),
+//         Text('Community'),
+//         Text('Career')
+//       ]));
+// }
+
+//เพิ่มปุ่มสำหรับการนำทางไปยังหน้าต่างๆ ของ FutureWorkspaceScreen 3 ปุ่ม
 class _DesktopNavigation extends StatelessWidget {
   const _DesktopNavigation();
+
   @override
-  Widget build(BuildContext context) => const Padding(
-      padding: EdgeInsets.only(bottom: 22),
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 22),
       child: Wrap(spacing: 24, children: [
-        Text('Home',
-            style: TextStyle(
-                color: AppColors.primary, fontWeight: FontWeight.bold)),
-        Text('Explore'),
-        Text('My learning'),
-        Text('Live'),
-        Text('Community'),
-        Text('Career')
+        _NavItem(label: 'Home', isActive: true, onTap: () => context.go('/home')),
+        _NavItem(label: 'Explore', onTap: () => context.go('/courses')),
+        _NavItem(label: 'My learning', onTap: () => context.go('/my-learning')),
+        _NavItem(label: 'Live', onTap: () => context.go('/live')),
+        _NavItem(label: 'Community', onTap: () => context.go('/community')),
+        _NavItem(label: 'Career', onTap: () => context.go('/career-path')),
       ]));
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({required this.label, required this.onTap, this.isActive = false});
+  final String label;
+  final VoidCallback onTap;
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Text(label,
+            style: TextStyle(
+                color: isActive ? AppColors.primary : null,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+      ));
 }
 
 class _Hero extends StatelessWidget {

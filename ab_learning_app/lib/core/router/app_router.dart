@@ -57,6 +57,10 @@ class AppRouter {
         GoRoute(path: '/ai-tutor', builder: (c, s) => const FutureWorkspaceScreen(area: 'ai')),
         GoRoute(path: '/skill-assessment', builder: (c, s) => const FutureWorkspaceScreen(area: 'assessment')),
         GoRoute(path: '/career-path', builder: (c, s) => const FutureWorkspaceScreen(area: 'career')),
+        //เพิ่มปุ่มสำหรับการนำทางไปยังหน้าต่างๆ ของ FutureWorkspaceScreen 3 ปุ่ม
+        GoRoute(path: '/my-learning', builder: (c, s) => const FutureWorkspaceScreen(area: 'my-learning')),
+        GoRoute(path: '/live', builder: (c, s) => const FutureWorkspaceScreen(area: 'live')),
+        GoRoute(path: '/community', builder: (c, s) => const FutureWorkspaceScreen(area: 'community')),
         GoRoute(path: '/portfolio', builder: (c, s) => const FutureWorkspaceScreen(area: 'portfolio')),
         GoRoute(path: '/jobs', builder: (c, s) => const FutureWorkspaceScreen(area: 'jobs')),
         GoRoute(path: '/corporate', builder: (c, s) => const FutureWorkspaceScreen(area: 'corporate')),
