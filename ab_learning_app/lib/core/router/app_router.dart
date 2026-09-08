@@ -1,3 +1,4 @@
+import '../../features/auth/presentation/register_screen.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
@@ -21,6 +22,8 @@ class AppRouter {
         GoRoute(path: '/', builder: (c, s) => const SplashScreen()),
         GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
         GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
+        // GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
+        GoRoute(path: '/register', builder: (c, s) => const RegisterScreen()),
         GoRoute(path: '/home', builder: (c, s) => const HomeScreen()),
         GoRoute(path: '/courses', builder: (c, s) => const CourseCatalogScreen()),
         GoRoute(path: '/course/:id', builder: (c, s) {

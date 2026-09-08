@@ -1,42 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'register_controller.dart';
 
-import 'login_controller.dart';
-
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _controller = LoginController();
+  final _confirmPasswordController = TextEditingController();
+  final _controller = RegisterController();
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _register() async {
+    final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-    final error = await _controller.login(email: email, password: password);
-    if (!mounted) {
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
       return;
     }
 
+    final error = await _controller.register(
+      name: name,
+      email: email,
+      password: password,
+    );
+
+    if (!mounted) {
+      return;
+    }
     if (error == null) {
       context.go('/home');
       return;
     }
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(error)),
     );
@@ -48,11 +63,16 @@ class _LoginScreenState extends State<LoginScreen> {
       animation: _controller,
       builder: (context, _) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Login')),
+          appBar: AppBar(title: const Text('Register')),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                const SizedBox(height: 8),
                 TextField(
                   controller: _emailController,
                   decoration: const InputDecoration(labelText: 'Email'),
@@ -62,6 +82,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextField(
                   controller: _passwordController,
                   decoration: const InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _confirmPasswordController,
+                  decoration: const InputDecoration(labelText: 'Confirm Password'),
                   obscureText: true,
                 ),
                 const SizedBox(height: 16),
@@ -74,20 +100,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ElevatedButton(
-                  onPressed: _controller.isLoading ? null : _login,
+                  onPressed: _controller.isLoading ? null : _register,
                   child: _controller.isLoading
                       ? const SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Login'),
+                      : const Text('Create Account'),
                 ),
-                const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => context.go('/register'),
-                  child: const Text("Don't have an account? Register"),
-                ),//ลงทะเบียน
+                  onPressed: () => context.go('/login'),
+                  child: const Text('Already have an account? Login'),
+                ),
               ],
             ),
           ),
