@@ -5,12 +5,9 @@
 <title>AB LEARNING — High-Fidelity Mockups</title>
 <style>
 :root{
-  --primary:#4338CA; --secondary:#7C3AED; --accent:#0EA5E9;
+  --primary:#4F46E5; --secondary:#7C3AED; --accent:#06B6D4;
   --success:#22C55E; --warning:#F59E0B; --error:#EF4444;
   --bg:#F8FAFC; --text:#0F172A; --text2:#64748B;
-  --pill-success-bg:#DCFCE7; --pill-warn-bg:#FEF3C7; --pill-error-bg:#FEE2E2;
-  --btn-primary-bg:#4338CA; --btn-outline-border:#4338CA;
-  --card-border:#EEF0F4;
   --r-card:16px; --r-btn:12px; --r-in:10px; --r-badge:999px;
   --font: 'Inter','Noto Sans Thai',-apple-system,sans-serif;
 }
@@ -31,7 +28,7 @@ body{background:#EEF0F5;color:var(--text);}
 .toolbar .toggle button{border:none;background:none;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);}
 .toolbar .toggle button.active{background:var(--primary);color:#fff;}
 .stage{display:flex;justify-content:center;}
-.frame-m{width:375px;height:812px;background:#fff;border-radius:36px;border:8px solid #111;overflow-y:auto;box-shadow:0 20px 50px rgba(15,23,42,.25);}
+.frame-m{width:375px;height:812px;background:#fff;border-radius:36px;border:8px solid #111;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(15,23,42,.25);}
 .frame-d{width:1280px;max-width:100%;min-height:800px;background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;box-shadow:0 20px 50px rgba(15,23,42,.15);}
 /* shared components */
 .scr{background:var(--bg);min-height:100%;}
@@ -1556,29 +1553,265 @@ usermgmt: {
 };
 
 let current = 'splash', device = 'm';
+
+/* ============================================================
+   NAVIGATION ENGINE
+   Adds working chrome (bottom nav / sidebar) and click-through
+   CTAs across all 43 screens WITHOUT rewriting each screen's
+   markup — chrome is composed at render time, and interactions
+   are handled via one delegated click listener.
+   ============================================================ */
+
+const LEARNER_TABS = [
+  ['🏠','Home','home'], ['🔎','Explore','explore'], ['🎓','Learn','curriculum'],
+  ['💬','Community','communityhome'], ['👤','Profile','profile']
+];
+const LEARNER_SIDEBAR = [
+  ['Home','home'],['Explore','explore'],['My Learning','curriculum'],['Live','livelist'],
+  ['Community','communityhome'],['AI Tutor','aitutor'],['Career','career'],
+  ['Portfolio','portfolio'],['Jobs','jobs'],['Wallet','wallet'],['Settings','profile']
+];
+const INSTRUCTOR_SIDEBAR = [
+  ['Dashboard','instructor'],['My Courses','mycourses'],['Course Builder','coursebuilder'],
+  ['Revenue','instructorrevenue'],['Reviews',null],['Settings','profile']
+];
+const CORP_SIDEBAR = [
+  ['Dashboard','corp'],['Employees','employees'],['Learning Paths','learningpath'],
+  ['Reports',null],['Settings','profile']
+];
+const EMPLOYER_SIDEBAR = [
+  ['Dashboard','employerdash'],['Jobs',null],['Applications',null],['Talent Search',null]
+];
+const ADMIN_SIDEBAR = [
+  ['Dashboard','admin'],['Users','usermgmt'],['Course Moderation','moderation'],
+  ['Payments','paymentmgmt'],['Reports',null],['Content',null],['Settings','profile']
+];
+const ROLE_SIDEBARS = {
+  learner: LEARNER_SIDEBAR, instructor: INSTRUCTOR_SIDEBAR,
+  corp: CORP_SIDEBAR, employer: EMPLOYER_SIDEBAR, admin: ADMIN_SIDEBAR
+};
+
+/* role + which sidebar/tab item should be highlighted for each screen.
+   'immersive' screens render exactly as authored, with zero added chrome. */
+const SCREEN_META = {
+  splash:{role:'immersive'}, onboarding:{role:'immersive'}, login:{role:'immersive'},
+  register:{role:'immersive'}, otp:{role:'immersive'}, interests:{role:'immersive'},
+  forgot:{role:'immersive'},
+  home:{role:'learner', tab:'home', side:'home'},
+  explore:{role:'learner', tab:'explore', side:'explore'},
+  search:{role:'learner', tab:'explore', side:'explore'},
+  course:{role:'learner', tab:'learn', side:'curriculum'},
+  curriculum:{role:'learner', tab:'learn', side:'curriculum'},
+  player:{role:'immersive'},
+  quiz:{role:'immersive'},
+  quizresult:{role:'learner', tab:'learn', side:'curriculum'},
+  certificate:{role:'learner', tab:'learn', side:'curriculum'},
+  livelist:{role:'learner', tab:'home', side:'livelist'},
+  liveroom:{role:'immersive'},
+  communityhome:{role:'learner', tab:'community', side:'communityhome'},
+  createpost:{role:'learner', tab:'community', side:'communityhome'},
+  aitutor:{role:'learner', tab:'home', side:'aitutor'},
+  skillassess:{role:'immersive'},
+  skillresult:{role:'learner', tab:'profile', side:'career'},
+  career:{role:'learner', tab:'profile', side:'career'},
+  portfolio:{role:'learner', tab:'profile', side:'portfolio'},
+  jobs:{role:'learner', tab:'profile', side:'jobs'},
+  jobapply:{role:'learner', tab:'profile', side:'jobs'},
+  wallet:{role:'learner', tab:'profile', side:'wallet'},
+  gamification:{role:'learner', tab:'profile', side:null},
+  profile:{role:'learner', tab:'profile', side:'profile'},
+  instructor:{role:'instructor', side:'instructor'},
+  mycourses:{role:'instructor', side:'mycourses'},
+  createcourse:{role:'immersive'},
+  coursebuilder:{role:'immersive'},
+  instructorrevenue:{role:'instructor', side:'instructorrevenue'},
+  corp:{role:'corp', side:'corp'},
+  employees:{role:'corp', side:'employees'},
+  learningpath:{role:'corp', side:'learningpath'},
+  employerdash:{role:'employer', side:'employerdash'},
+  admin:{role:'admin', side:'admin'},
+  moderation:{role:'admin', side:'moderation'},
+  paymentmgmt:{role:'admin', side:'paymentmgmt'},
+  usermgmt:{role:'admin', side:'usermgmt'}
+};
+
+function learnerBottomNavHtml(activeTab){
+  return `<div class="bottomnav">` + LEARNER_TABS.map(([icon,label,key])=>
+    `<div class="it${key===activeTab?' active':''}" style="cursor:pointer;" onclick="nav('${key}')">${icon}<span>${label}</span></div>`
+  ).join('') + `</div>`;
+}
+
+function roleChipNavHtml(role, activeKey){
+  const items = ROLE_SIDEBARS[role] || [];
+  return `<div style="display:flex;gap:8px;overflow-x:auto;padding:12px 16px;background:#fff;border-bottom:1px solid var(--border,#EEF0F4);">` +
+    items.map(([label,key])=>{
+      const clickable = key ? `onclick="nav('${key}')" style="cursor:pointer;"` : `onclick="toast('เร็วๆ นี้')" style="cursor:pointer;"`;
+      return `<span class="chip${key===activeKey?' active':''}" ${clickable}>${label}</span>`;
+    }).join('') + `</div>`;
+}
+
+function sidebarHtml(role, activeKey){
+  const items = ROLE_SIDEBARS[role] || [];
+  return `<div class="sidebar-d"><div class="logo">AB LEARNING</div>` +
+    items.map(([label,key])=>{
+      const click = key ? `onclick="nav('${key}')"` : `onclick="toast('เร็วๆ นี้')"`;
+      return `<a ${click} style="cursor:pointer;" class="${key===activeKey?'active':''}">${label}</a>`;
+    }).join('') + `</div>`;
+}
+
+/* Toast — gives every click feedback, even actions with no dedicated
+   destination screen in this prototype (Approve, Export, Save Draft...). */
+function toast(msg){
+  let el = document.getElementById('ab-toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'ab-toast';
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#0F172A;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;opacity:0;transition:opacity .2s, transform .2s;pointer-events:none;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform='translateX(-50%) translateY(0)'; });
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(-50%) translateY(20px)'; }, 1600);
+}
+
+/* Per-screen overrides for button text that would otherwise collide
+   with a different meaning elsewhere (checked before the generic rules). */
+const CTA_OVERRIDES = {
+  onboarding: { 'Next':'login', 'Skip':'login' },
+  quizresult: { 'เรียนต่อ':'certificate' },
+  career: { 'เริ่มเรียนต่อ':'player', 'ดูตำแหน่งงานที่เกี่ยวข้อง':'jobs' },
+  skillresult: { 'Build My Learning Path':'career' },
+  certificate: { 'Add to Portfolio':'portfolio' },
+  jobapply: { 'Apply Now': null }
+};
+
+/* Generic keyword rules — evaluated after CTA_OVERRIDES, before the
+   default toast fallback. Broad on purpose so wording drift doesn't
+   break navigation. */
+const CTA_RULES = [
+  [/ซื้อคอร์ส|Buy Now/i, ()=>'player'],
+  [/^Log in$/i, ()=>'home'],
+  [/Create Account/i, ()=>'otp'],
+  [/^ยืนยัน$/i, ()=>'interests'],
+  [/Start Learning/i, ()=>'home'],
+  [/Send Reset Link/i, ()=>{ toast('ส่งลิงก์รีเซ็ตแล้ว (จำลอง)'); return 'login'; }],
+  [/^(Google|Facebook|LINE)$/i, ()=>'home'],
+  [/ถาม AI Tutor/i, ()=>'aitutor'],
+  [/Quiz Me/i, ()=>'quiz'],
+  [/Career Advice/i, ()=>'career'],
+  [/^Join$/i, ()=>'liveroom'],
+  [/^Register$/i, ()=>'livelist'],
+  [/\+ Create Post/i, ()=>'createpost'],
+  [/^Publish$/i, ()=>{ toast('เผยแพร่โพสต์แล้ว (จำลอง)'); return 'communityhome'; }],
+  [/Add to Portfolio/i, ()=>'portfolio'],
+  [/\+ Create Course/i, ()=>'createcourse'],
+  [/^(Continue|Save Draft)$/i, (s)=> s==='createcourse' ? 'coursebuilder' : null],
+  [/^(Preview|Save)$/i, ()=>null],
+];
+
+function resolveDestination(text, screen){
+  text = text.trim();
+  if(CTA_OVERRIDES[screen] && text in CTA_OVERRIDES[screen]) return CTA_OVERRIDES[screen][text];
+  for(const [re, fn] of CTA_RULES){
+    if(re.test(text)) return fn(screen);
+  }
+  return undefined; // no rule matched at all
+}
+
+/* Screens where a plain `.card` click has one obvious, consistent
+   destination (lesson rows, job cards, live cards...). */
+const CARD_CLICK_MAP = {
+  course:'curriculum', curriculum:'player', explore:'course', search:'course',
+  livelist:'liveroom', jobs:'jobapply', mycourses:'coursebuilder'
+};
+
+function nav(key){
+  if(!screens[key]) return;
+  current = key;
+  document.querySelectorAll('.rail button').forEach(x=>x.classList.toggle('active', x.dataset.s===key));
+  render();
+  document.getElementById('stage').scrollTop = 0;
+}
+
 function render(){
   document.getElementById('scr-title').textContent = titles[current];
   const stage = document.getElementById('stage');
+  const meta = SCREEN_META[current] || {role:'immersive'};
+  const raw = screens[current];
+
   if(device==='m'){
-    stage.innerHTML = `<div class="frame-m">${screens[current].m}</div>`;
+    let inner;
+    if(meta.role === 'immersive'){
+      inner = raw.m;
+    } else if(meta.role === 'learner'){
+      inner = raw.m.includes('class="bottomnav"')
+        ? raw.m
+        : `<div style="flex:1;min-height:0;overflow-y:auto;">${raw.m}</div>${learnerBottomNavHtml(meta.tab)}`;
+    } else {
+      inner = `<div style="flex:1;min-height:0;overflow-y:auto;">${roleChipNavHtml(meta.role, meta.side)}${raw.m}</div>`;
+    }
+    stage.innerHTML = `<div class="frame-m">${inner}</div>`;
   } else {
-    stage.innerHTML = `<div class="frame-d">${screens[current].d}</div>`;
+    let inner;
+    if(meta.role === 'immersive' || raw.d.includes('sidebar-d')){
+      inner = raw.d; // already full-custom, or ships its own (static) sidebar
+    } else {
+      inner = `<div style="display:flex;min-height:800px;">${sidebarHtml(meta.role, meta.side)}<div style="flex:1;overflow-y:auto;">${raw.d}</div></div>`;
+    }
+    stage.innerHTML = `<div class="frame-d">${inner}</div>`;
+    // Wire up onclick on any sidebar this screen shipped statically (pre-existing markup).
+    if(meta.role !== 'immersive' && raw.d.includes('sidebar-d')){
+      const items = ROLE_SIDEBARS[meta.role] || [];
+      stage.querySelectorAll('.sidebar-d a').forEach(a=>{
+        const text = a.textContent.trim().toLowerCase();
+        const match = items.find(([label]) => label.toLowerCase() === text);
+        if(match){
+          a.style.cursor = 'pointer';
+          const dest = match[1];
+          a.onclick = () => dest ? nav(dest) : toast('เร็วๆ นี้');
+        }
+      });
+    }
   }
 }
+
 function setDevice(d){
   device = d;
   document.getElementById('tg-m').classList.toggle('active', d==='m');
   document.getElementById('tg-d').classList.toggle('active', d==='d');
   render();
 }
+
 document.querySelectorAll('.rail button').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    document.querySelectorAll('.rail button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    current = b.dataset.s;
-    render();
-  });
+  b.addEventListener('click', ()=> nav(b.dataset.s));
 });
+
+/* ---- One delegated click handler drives every interactive element
+   across all 43 screens: buttons, course cards, and screen-scoped
+   generic cards. Anything without a clear destination still responds
+   with a toast, so nothing is ever a dead click. ---- */
+document.getElementById('stage').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(btn){
+    const text = btn.textContent.trim();
+    const dest = resolveDestination(text, current);
+    if(dest) return nav(dest);
+    if(dest === undefined) return toast(`จำลองการทำงาน: ${text}`);
+    return; // dest === null → an explicit no-nav rule already toasted (or intentionally silent)
+  }
+
+  const courseCard = e.target.closest('.ccard');
+  if(courseCard){
+    return courseCard.querySelector('.pill-live') ? nav('liveroom') : nav('course');
+  }
+
+  const genericCard = e.target.closest('.card');
+  if(genericCard && CARD_CLICK_MAP[current]){
+    return nav(CARD_CLICK_MAP[current]);
+  }
+});
+
 render();
 </script>
 </body>

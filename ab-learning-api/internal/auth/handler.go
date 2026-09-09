@@ -1,42 +1,69 @@
 package auth
 
 import (
-	"encoding/json"
 	"net/http"
 
-	"github.com/ablearning/api/pkg/httpx"
+	"github.com/ablearning/ab-learning-api/internal/platform"
 )
 
-type Controller struct {
+type Handler struct {
 	service *Service
 }
 
-func NewController(service *Service) *Controller {
-	return &Controller{service: service}
+func NewHandler(service *Service) *Handler {
+	return &Handler{service: service}
 }
 
-func RegisterRoutes(mux *http.ServeMux) {
-	controller := NewController(NewService(NewRepository()))
-	mux.HandleFunc("/api/v1/auth/login", controller.Login)
+// RegisterRoutes wires this domain's endpoints onto mux, matching
+// 05-openapi.yaml exactly. `protected` is a middleware chain that requires
+// a valid JWT (see internal/platform.RequireAuth) — used for /me.
+func (h *Handler) RegisterRoutes(mux *http.ServeMux, protected func(http.Handler) http.Handler) {
+	mux.HandleFunc("POST /api/v1/auth/login", h.login)
+	mux.HandleFunc("POST /api/v1/auth/register", h.register)
+	mux.Handle("GET /api/v1/me", protected(http.HandlerFunc(h.me)))
 }
 
-func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
-		return
-	}
-
+func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": "invalid body"})
+	if err := platform.DecodeJSON(r, &req); err != nil {
+		platform.WriteError(w, err)
 		return
 	}
 
-	resp, err := c.service.Login(req)
+	result, err := h.service.Login(r.Context(), req)
 	if err != nil {
-		httpx.JSON(w, http.StatusUnauthorized, map[string]string{"error": err.Error()})
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, result)
+}
+
+func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
+	var req RegisterRequest
+	if err := platform.DecodeJSON(r, &req); err != nil {
+		platform.WriteError(w, err)
 		return
 	}
 
-	httpx.JSON(w, http.StatusOK, resp)
+	user, err := h.service.Register(r.Context(), req)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusCreated, user)
+}
+
+func (h *Handler) me(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
+		return
+	}
+
+	user, err := h.service.Me(r.Context(), userID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, user)
 }

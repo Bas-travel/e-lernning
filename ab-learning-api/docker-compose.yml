@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev_pw
+      MYSQL_DATABASE: ab_learning
+      MYSQL_USER: ab_app
+      MYSQL_PASSWORD: ab_app_pw
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Official MySQL image auto-runs every .sql file in this directory,
+      # in filename order, ONLY on first boot (empty data dir). That's why
+      # 04-schema.sql is copied here as 01_schema.sql and seed.sql as
+      # 02_seed.sql — see db/init/.
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_dev_pw"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PORT: "8080"
+      DB_DSN: "ab_app:ab_app_pw@tcp(mysql:3306)/ab_learning?parseTime=true&charset=utf8mb4"
+      JWT_SECRET: "dev-secret-change-me"
+      ALLOWED_ORIGIN: "*"
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
