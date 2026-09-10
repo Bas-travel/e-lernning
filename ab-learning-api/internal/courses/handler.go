@@ -2,65 +2,32 @@ package courses
 
 import (
 	"net/http"
-	"strconv"
+	"strings"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/pkg/httpx"
 )
 
-type Handler struct {
-	service *Service
+type Course struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
 }
 
-func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+func RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/v1/courses", listCourses)
+	mux.HandleFunc("/api/v1/courses/", courseByID)
 }
 
-// RegisterRoutes wires public (no-auth) endpoints — browsing the catalog
-// doesn't require a session, matching the GUEST role in the source spec.
-func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /api/v1/courses", h.list)
-	mux.HandleFunc("GET /api/v1/courses/{id}", h.get)
-	mux.HandleFunc("GET /api/v1/search", h.search)
+func listCourses(w http.ResponseWriter, r *http.Request) {
+	courses := []Course{{ID: "c001", Title: "Go Backend Professional"}, {ID: "c002", Title: "Flutter Professional"}}
+	httpx.JSON(w, http.StatusOK, courses)
 }
 
-func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
-	page, _ := strconv.Atoi(q.Get("page"))
-	limit, _ := strconv.Atoi(q.Get("limit"))
-
-	list, err := h.service.List(r.Context(), ListParams{
-		Category: q.Get("category"),
-		Level:    q.Get("level"),
-		Page:     page,
-		Limit:    limit,
-	})
-	if err != nil {
-		platform.WriteError(w, err)
+func courseByID(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/api/v1/courses/")
+	if id == "" {
+		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": "missing id"})
 		return
 	}
-	platform.WriteJSON(w, http.StatusOK, list)
-}
-
-func (h *Handler) search(w http.ResponseWriter, r *http.Request) {
-	results, err := h.service.Search(r.Context(), r.URL.Query().Get("q"))
-	if err != nil {
-		platform.WriteError(w, err)
-		return
-	}
-	platform.WriteJSON(w, http.StatusOK, results)
-}
-
-func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
-	if err != nil {
-		platform.WriteError(w, platform.ErrValidation("id must be a number"))
-		return
-	}
-
-	course, err := h.service.Get(r.Context(), id)
-	if err != nil {
-		platform.WriteError(w, err)
-		return
-	}
-	platform.WriteJSON(w, http.StatusOK, course)
+	c := Course{ID: id, Title: "Course " + id}
+	httpx.JSON(w, http.StatusOK, c)
 }

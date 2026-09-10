@@ -7,57 +7,18 @@ class VideoPlayerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lessonLabel = _lessonMap[lessonId] ?? 'Lesson Preview';
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Lesson Player')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(title: const Text('Video Player')),
+      body: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: double.infinity,
-              height: 220,
-              decoration: BoxDecoration(
-                color: Colors.black87,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: Icon(Icons.play_circle_fill, color: Colors.white, size: 96),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              lessonLabel,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text('18 min • Beginner-friendly • Includes practice notes'),
-            const SizedBox(height: 20),
-            const Text(
-              'This lesson introduces the core concept, shows the workflow live, and gives a short problem-solving exercise to reinforce the session.',
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                child: const Text('Continue Watching'),
-              ),
-            ),
+            const Icon(Icons.play_circle_fill, size: 96),
+            const SizedBox(height: 12),
+            Text('Playing lesson: $lessonId'),
           ],
         ),
       ),
     );
   }
-
-  static const Map<String, String> _lessonMap = {
-    'go-rest-foundations': 'REST Foundations',
-    'go-layered-architecture': 'Layered Architecture',
-    'go-middleware-validation': 'Middleware and Validation',
-    'flutter-app-architecture': 'App Architecture',
-    'flutter-navigation-routes': 'Navigation and Routes',
-    'flutter-state-ui-patterns': 'State and UI Patterns',
-  };
 }

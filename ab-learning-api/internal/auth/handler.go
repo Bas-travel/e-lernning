@@ -1,69 +1,38 @@
 package auth
 
 import (
+	"encoding/json"
 	"net/http"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/pkg/httpx"
 )
 
-type Handler struct {
-	service *Service
+type loginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+type loginResponse struct {
+	Token string `json:"token"`
 }
 
-// RegisterRoutes wires this domain's endpoints onto mux, matching
-// 05-openapi.yaml exactly. `protected` is a middleware chain that requires
-// a valid JWT (see internal/platform.RequireAuth) — used for /me.
-func (h *Handler) RegisterRoutes(mux *http.ServeMux, protected func(http.Handler) http.Handler) {
-	mux.HandleFunc("POST /api/v1/auth/login", h.login)
-	mux.HandleFunc("POST /api/v1/auth/register", h.register)
-	mux.Handle("GET /api/v1/me", protected(http.HandlerFunc(h.me)))
+func RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/api/v1/auth/login", Login)
 }
 
-func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
-	var req LoginRequest
-	if err := platform.DecodeJSON(r, &req); err != nil {
-		platform.WriteError(w, err)
+func Login(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		return
 	}
 
-	result, err := h.service.Login(r.Context(), req)
-	if err != nil {
-		platform.WriteError(w, err)
-		return
-	}
-	platform.WriteJSON(w, http.StatusOK, result)
-}
-
-func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
-	var req RegisterRequest
-	if err := platform.DecodeJSON(r, &req); err != nil {
-		platform.WriteError(w, err)
+	var req loginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": "invalid body"})
 		return
 	}
 
-	user, err := h.service.Register(r.Context(), req)
-	if err != nil {
-		platform.WriteError(w, err)
-		return
-	}
-	platform.WriteJSON(w, http.StatusCreated, user)
-}
-
-func (h *Handler) me(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
-	if !ok {
-		platform.WriteError(w, platform.ErrUnauthorized)
-		return
-	}
-
-	user, err := h.service.Me(r.Context(), userID)
-	if err != nil {
-		platform.WriteError(w, err)
-		return
-	}
-	platform.WriteJSON(w, http.StatusOK, user)
+	// Prototype stub: accept any credentials
+	resp := loginResponse{Token: "stub-access-token"}
+	httpx.JSON(w, http.StatusOK, resp)
 }
