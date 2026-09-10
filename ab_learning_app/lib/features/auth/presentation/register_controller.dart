@@ -60,8 +60,4 @@ Future<String?> register({
   }
 }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

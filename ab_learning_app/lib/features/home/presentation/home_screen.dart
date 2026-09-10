@@ -525,10 +525,10 @@ class _TopRow extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text('สวัสดี, คุณอนันต์ 👋',
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
                 SizedBox(height: 3),
