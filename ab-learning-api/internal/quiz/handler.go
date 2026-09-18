@@ -3,69 +3,107 @@ package quiz
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
-	"github.com/ablearning/api/pkg/httpx"
+	"github.com/ablearning/ab-learning-api/internal/platform"
 )
 
-type Controller struct {
+// Handler exposes the quiz domain. Every route is authenticated: a grade is
+// always written against the caller's own user ID.
+type Handler struct {
 	service *Service
 }
 
-func NewController(service *Service) *Controller {
-	return &Controller{service: service}
+func NewHandler(service *Service) *Handler {
+	return &Handler{service: service}
 }
 
-func RegisterRoutes(mux *http.ServeMux) {
-	repo := NewRepository()
-	repo.SaveQuiz(Quiz{
-		ID:       "q001",
-		CourseID: "c001",
-		Title:    "Go Backend Fundamentals",
-		Questions: []Question{
-			{ID: "q1", Text: "What is Go commonly used for?", Options: []string{"Frontend UI", "Backend services", "Graphic design", "Database schema only"}, Correct: "Backend services", Explain: "Go is widely used for performant backend services and APIs."},
-			{ID: "q2", Text: "Which keyword is used to declare a function?", Options: []string{"func", "fn", "function", "def"}, Correct: "func", Explain: "Functions in Go are declared with the func keyword."},
-		},
-	})
-
-	controller := NewController(NewService(repo))
-	mux.HandleFunc("/api/v1/quizzes/", controller.QuizHandler)
+func (h *Handler) RegisterRoutes(mux *http.ServeMux, protected func(http.Handler) http.Handler) {
+	mux.Handle("GET /api/v1/quizzes/{id}", protected(http.HandlerFunc(h.getQuiz)))
+	mux.Handle("POST /api/v1/quizzes/{id}/submit", protected(http.HandlerFunc(h.submit)))
+	mux.Handle("GET /api/v1/quizzes/{id}/attempts", protected(http.HandlerFunc(h.history)))
+	mux.Handle("GET /api/v1/courses/{id}/quiz", protected(http.HandlerFunc(h.getCourseQuiz)))
 }
 
-func (c *Controller) QuizHandler(w http.ResponseWriter, r *http.Request) {
-	path := strings.Trim(strings.TrimPrefix(r.URL.Path, "/api/v1/quizzes/"), "/")
-	if path == "" {
-		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": "quiz not found"})
+// getQuiz implements GET /quizzes/{id} (screen 14).
+func (h *Handler) getQuiz(w http.ResponseWriter, r *http.Request) {
+	quizID, err := platform.ParseID(r.PathValue("id"), "quiz")
+	if err != nil {
+		platform.WriteError(w, err)
 		return
 	}
 
-	if r.Method == http.MethodGet {
-		quiz, err := c.service.GetQuiz(path)
-		if err != nil {
-			httpx.JSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
-			return
-		}
-		httpx.JSON(w, http.StatusOK, quiz)
+	quiz, err := h.service.GetQuiz(r.Context(), quizID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, quiz)
+}
+
+// getCourseQuiz implements GET /courses/{id}/quiz — the course detail
+// screen's "Practice" entry point, so the client never has to guess a quiz
+// ID it was never told.
+func (h *Handler) getCourseQuiz(w http.ResponseWriter, r *http.Request) {
+	courseID, err := platform.ParseID(r.PathValue("id"), "course")
+	if err != nil {
+		platform.WriteError(w, err)
 		return
 	}
 
-	if r.Method == http.MethodPost {
-		var payload struct {
-			Answers map[string]string `json:"answers"`
-		}
-		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": "invalid body"})
-			return
-		}
+	quiz, err := h.service.GetCourseQuiz(r.Context(), courseID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, quiz)
+}
 
-		attempt, err := c.service.SubmitQuiz(path, payload.Answers)
-		if err != nil {
-			httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
-			return
-		}
-		httpx.JSON(w, http.StatusOK, attempt)
+// submit implements POST /quizzes/{id}/submit (screen 15).
+func (h *Handler) submit(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
 		return
 	}
 
-	httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+	quizID, err := platform.ParseID(r.PathValue("id"), "quiz")
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+
+	var req SubmitRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		platform.WriteError(w, platform.ErrValidation("Request body is malformed."))
+		return
+	}
+
+	result, err := h.service.Submit(r.Context(), userID, quizID, req.Answers)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, result)
+}
+
+// history implements GET /quizzes/{id}/attempts.
+func (h *Handler) history(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
+		return
+	}
+
+	quizID, err := platform.ParseID(r.PathValue("id"), "quiz")
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+
+	attempts, err := h.service.History(r.Context(), userID, quizID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, attempts)
 }

@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ablearning/api/pkg/httpx"
+	// "github.com/ablearning/api/pkg/httpx"
+	"github.com/ablearning/ab-learning-api/pkg/httpx"
 )
 
 type Controller struct {

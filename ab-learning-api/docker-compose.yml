@@ -8,7 +8,7 @@ services:
       MYSQL_USER: ab_app
       MYSQL_PASSWORD: ab_app_pw
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       # Official MySQL image auto-runs every .sql file in this directory,

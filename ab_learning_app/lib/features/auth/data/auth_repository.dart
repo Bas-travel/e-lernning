@@ -1,54 +1,42 @@
-import 'package:dio/dio.dart';
+import '../../../core/network/api_client.dart';
+import '../../../core/storage/token_storage.dart';
+import '../models/auth_result.dart';
 
+/// Wraps [ApiClient] calls for the Authentication domain (screens 01–07)
+/// and persists tokens on success. Screens never call [ApiClient] directly
+/// — only through a repository like this one — so token persistence and
+/// error mapping live in exactly one place.
 class AuthRepository {
-  AuthRepository({Dio? client}) : _client = client ?? Dio(BaseOptions(baseUrl: 'http://localhost:8080'));
-  final Dio _client;
+  AuthRepository({
+    required ApiClient apiClient,
+    required TokenStorage tokenStorage,
+  })  : _apiClient = apiClient,
+        _tokenStorage = tokenStorage;
 
-  Future<Map<String, dynamic>> login({
-    required String email,
+  final ApiClient _apiClient;
+  final TokenStorage _tokenStorage;
+
+  /// POST /api/v1/auth/login (screen 03)
+  Future<AuthResult> login({
+    required String identifier,
     required String password,
   }) async {
-    final response = await _client.post(
-      '/api/v1/auth/login',
-      data: {
-        'identifier': email,
-        'password': password,
-      },
+    final Map<String, dynamic> json = await _apiClient.login(
+      identifier: identifier,
+      password: password,
     );
-    if (response.statusCode != 200) {
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        error: 'Authentication failed',
-      );
-    }
-    return Map<String, dynamic>.from(response.data as Map);
+    final AuthResult result = AuthResult.fromJson(json);
+    await _tokenStorage.saveTokens(
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    );
+    return result;
   }
 
-  Future<Map<String, dynamic>> register({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String password,
-    String phone = '',
-  }) async {
-    final response = await _client.post(
-      '/api/v1/auth/register',
-      data: {
-        'first_name': firstName,
-        'last_name': lastName,
-        'email': email,
-        'phone': phone,
-        'password': password,
-      },
-    );
-    if (response.statusCode != 201) {
-      throw DioException(
-        requestOptions: response.requestOptions,
-        response: response,
-        error: 'Registration failed',
-      );
-    }
-    return Map<String, dynamic>.from(response.data as Map);
+  Future<void> logout() => _tokenStorage.clear();
+
+  Future<bool> hasSession() async {
+    final String? token = await _tokenStorage.readAccessToken();
+    return token != null && token.isNotEmpty;
   }
 }

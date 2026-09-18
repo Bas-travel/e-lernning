@@ -29,29 +29,14 @@ const baseSelect = `
 	JOIN categories cat ON cat.id = c.category_id
 `
 
-//	func scanCourse(scanner interface{ Scan(...any) error }) (Course, error) {
-//		var c Course
-//		var discount sql.NullFloat64
-//		err := scanner.Scan(&c.ID, &c.Title, &c.Slug, &c.Description, &c.ThumbnailURL,
-//			&c.Price, &discount, &c.RatingAvg, &c.StudentCount, &c.Level, &c.Status,
-//			&c.InstructorName, &c.CategoryName)
-//		if discount.Valid {
-//			c.DiscountPrice = &discount.Float64
-//		}
-//		return c, err
-//	}
 func scanCourse(scanner interface{ Scan(...any) error }) (Course, error) {
 	var c Course
 	var discount sql.NullFloat64
-	var thumbnail sql.NullString
-	err := scanner.Scan(&c.ID, &c.Title, &c.Slug, &c.Description, &thumbnail,
+	err := scanner.Scan(&c.ID, &c.Title, &c.Slug, &c.Description, &c.ThumbnailURL,
 		&c.Price, &discount, &c.RatingAvg, &c.StudentCount, &c.Level, &c.Status,
 		&c.InstructorName, &c.CategoryName)
 	if discount.Valid {
 		c.DiscountPrice = &discount.Float64
-	}
-	if thumbnail.Valid {
-		c.ThumbnailURL = &thumbnail.String
 	}
 	return c, err
 }

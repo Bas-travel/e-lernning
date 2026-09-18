@@ -114,3 +114,32 @@ func RoleFromContext(ctx context.Context) (string, bool) {
 	role, ok := ctx.Value(userRoleKey).(string)
 	return role, ok
 }
+
+// ---- RBAC ----
+
+// RequireRole must sit AFTER RequireAuth in the chain (it reads the role
+// RequireAuth already put on the context) and rejects with 403 FORBIDDEN
+// if the caller's role isn't one of allowed. Use like:
+//
+//	mux.Handle("GET /api/v1/admin/dashboard",
+//	    requireAuth(platform.RequireRole("ADMIN")(http.HandlerFunc(h.dashboard))))
+func RequireRole(allowed ...string) func(http.Handler) http.Handler {
+	allowedSet := make(map[string]struct{}, len(allowed))
+	for _, r := range allowed {
+		allowedSet[r] = struct{}{}
+	}
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			role, ok := RoleFromContext(r.Context())
+			if !ok {
+				WriteError(w, ErrUnauthorized)
+				return
+			}
+			if _, ok := allowedSet[role]; !ok {
+				WriteError(w, ErrForbidden)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}

@@ -31,6 +31,7 @@ func NewAppError(status int, code, message string) *AppError {
 var (
 	ErrValidation   = func(msg string) *AppError { return NewAppError(http.StatusBadRequest, "VALIDATION_ERROR", msg) }
 	ErrUnauthorized = NewAppError(http.StatusUnauthorized, "UNAUTHORIZED", "Your session has expired. Please log in again.")
+	ErrForbidden    = NewAppError(http.StatusForbidden, "FORBIDDEN", "Your account doesn't have access to this.")
 	ErrInvalidCreds = NewAppError(http.StatusUnauthorized, "INVALID_CREDENTIALS", "Email/phone or password is incorrect.")
 	ErrNotFound     = func(msg string) *AppError { return NewAppError(http.StatusNotFound, "NOT_FOUND", msg) }
 	ErrConflict     = func(msg string) *AppError { return NewAppError(http.StatusConflict, "CONFLICT", msg) }

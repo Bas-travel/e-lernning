@@ -27,8 +27,9 @@ func Load() Config {
 	loadDotEnv(".env")
 
 	return Config{
-		Port:  getEnv("PORT", "8080"),
-		DBDSN: getEnv("DB_DSN", "ab_app:ab_app_pw@tcp(127.0.0.1:3307)/ab_learning?parseTime=true&charset=utf8mb4"), JWTSecret: getEnv("JWT_SECRET", "dev-secret-change-me"),
+		Port:            getEnv("PORT", "8080"),
+		DBDSN:           getEnv("DB_DSN", "ab_app:ab_app_pw@tcp(127.0.0.1:3306)/ab_learning?parseTime=true&charset=utf8mb4"),
+		JWTSecret:       getEnv("JWT_SECRET", "dev-secret-change-me"),
 		AccessTokenTTL:  15 * time.Minute,
 		RefreshTokenTTL: 30 * 24 * time.Hour,
 		AllowedOrigin:   getEnv("ALLOWED_ORIGIN", "*"),

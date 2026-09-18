@@ -3,83 +3,148 @@ package learning
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
-	"github.com/ablearning/api/pkg/httpx"
+	"github.com/ablearning/ab-learning-api/internal/platform"
 )
 
-type Controller struct {
+// Handler exposes the learning domain over HTTP. Every route is
+// authenticated: enrollment and progress are always scoped to the caller's
+// own user ID taken from the verified token, never from the request body.
+type Handler struct {
 	service *Service
 }
 
-func NewController(service *Service) *Controller {
-	return &Controller{service: service}
+func NewHandler(service *Service) *Handler {
+	return &Handler{service: service}
 }
 
-func RegisterRoutes(mux *http.ServeMux) {
-	controller := NewController(NewService(NewRepository()))
-	mux.HandleFunc("/api/v1/me/courses", controller.GetMyCoursesHandler)
-	// Keep course catalog routes owned by the courses domain. Learning state lives
-	// under enrollments, matching the public API contract and avoiding route overlap.
-	mux.HandleFunc("/api/v1/enrollments/", controller.EnrollmentHandler)
+func (h *Handler) RegisterRoutes(mux *http.ServeMux, protected func(http.Handler) http.Handler) {
+	mux.Handle("GET /api/v1/me/courses", protected(http.HandlerFunc(h.listMyCourses)))
+	mux.Handle("POST /api/v1/enrollments", protected(http.HandlerFunc(h.enroll)))
+	mux.Handle("GET /api/v1/enrollments/{id}", protected(http.HandlerFunc(h.getEnrollment)))
+	mux.Handle("GET /api/v1/lessons/{id}", protected(http.HandlerFunc(h.getLesson)))
+	mux.Handle("POST /api/v1/lessons/{id}/progress", protected(http.HandlerFunc(h.saveLessonProgress)))
 }
 
-func (c *Controller) GetMyCoursesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+// listMyCourses implements GET /me/courses (screen "My Learning").
+func (h *Handler) listMyCourses(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
 		return
 	}
 
-	httpx.JSON(w, http.StatusOK, c.service.GetMyCourses())
+	courses, err := h.service.ListMyCourses(r.Context(), userID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, courses)
 }
 
-func (c *Controller) EnrollmentHandler(w http.ResponseWriter, r *http.Request) {
-	path := strings.Trim(strings.TrimPrefix(r.URL.Path, "/api/v1/enrollments/"), "/")
-	if path == "" {
-		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": "course not found"})
+// enroll implements POST /enrollments. It answers 201 for a new enrollment
+// and 200 when the learner already had one, so clients can retry safely.
+func (h *Handler) enroll(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
 		return
 	}
 
-	segments := strings.Split(path, "/")
-	courseID := segments[0]
-	if len(segments) > 1 && segments[1] == "enroll" {
-		switch r.Method {
-		case http.MethodPost:
-			enrollment, err := c.service.Enroll(courseID)
-			if err != nil {
-				httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
-				return
-			}
-			httpx.JSON(w, http.StatusCreated, enrollment)
-		default:
-			httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
-		}
+	var req EnrollRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		platform.WriteError(w, platform.ErrValidation("Request body is malformed."))
 		return
 	}
 
-	switch r.Method {
-	case http.MethodPost:
-		var payload struct {
-			Progress float64 `json:"progress"`
-		}
-		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": "invalid body"})
-			return
-		}
-
-		updated, err := c.service.UpdateProgress(courseID, payload.Progress)
-		if err != nil {
-			httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
-			return
-		}
-		httpx.JSON(w, http.StatusOK, updated)
-	case http.MethodGet:
-		if enrollment, exists := c.service.repo.GetEnrollment(courseID); exists {
-			httpx.JSON(w, http.StatusOK, enrollment)
-			return
-		}
-		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": "enrollment not found"})
-	default:
-		httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+	// The token is authoritative. A body that names a different user is an
+	// attempt to enroll somebody else, which is refused rather than ignored.
+	if req.UserID != 0 && req.UserID != userID {
+		platform.WriteError(w, platform.ErrForbidden("You can only enroll your own account."))
+		return
 	}
+
+	enrollment, created, err := h.service.Enroll(r.Context(), userID, req.CourseID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+
+	status := http.StatusOK
+	if created {
+		status = http.StatusCreated
+	}
+	platform.WriteJSON(w, status, enrollment)
+}
+
+// getEnrollment implements GET /enrollments/{id}.
+func (h *Handler) getEnrollment(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
+		return
+	}
+
+	enrollmentID, err := platform.ParseID(r.PathValue("id"), "enrollment")
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+
+	enrollment, err := h.service.GetEnrollment(r.Context(), userID, enrollmentID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, enrollment)
+}
+
+// getLesson implements GET /lessons/{id} (screens 12–13).
+func (h *Handler) getLesson(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
+		return
+	}
+
+	lessonID, err := platform.ParseID(r.PathValue("id"), "lesson")
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+
+	lesson, err := h.service.GetLesson(r.Context(), userID, lessonID)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, lesson)
+}
+
+// saveLessonProgress implements POST /lessons/{id}/progress (screen 13).
+func (h *Handler) saveLessonProgress(w http.ResponseWriter, r *http.Request) {
+	userID, ok := platform.UserIDFromContext(r.Context())
+	if !ok {
+		platform.WriteError(w, platform.ErrUnauthorized)
+		return
+	}
+
+	lessonID, err := platform.ParseID(r.PathValue("id"), "lesson")
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+
+	var req SaveProgressRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		platform.WriteError(w, platform.ErrValidation("Request body is malformed."))
+		return
+	}
+
+	result, err := h.service.SaveLessonProgress(r.Context(), userID, lessonID, req)
+	if err != nil {
+		platform.WriteError(w, err)
+		return
+	}
+	platform.WriteJSON(w, http.StatusOK, result)
 }

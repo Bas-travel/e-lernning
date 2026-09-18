@@ -7,10 +7,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ablearning/ab-learning-api/internal/admin"
 	"github.com/ablearning/ab-learning-api/internal/auth"
 	"github.com/ablearning/ab-learning-api/internal/config"
+	"github.com/ablearning/ab-learning-api/internal/corporate"
 	"github.com/ablearning/ab-learning-api/internal/courses"
+	"github.com/ablearning/ab-learning-api/internal/employer"
 	"github.com/ablearning/ab-learning-api/internal/home"
+	"github.com/ablearning/ab-learning-api/internal/instructor"
 	"github.com/ablearning/ab-learning-api/internal/platform"
 	"github.com/ablearning/ab-learning-api/pkg/jwtx"
 )
@@ -49,6 +53,39 @@ func main() {
 	coursesRepo := courses.NewRepository(db)
 	coursesService := courses.NewService(coursesRepo)
 	courses.NewHandler(coursesService).RegisterRoutes(mux)
+
+	// ---- Phase 2: one role-guarded domain per remaining role. Each guard
+	// chain is requireAuth (verify the JWT) THEN RequireRole (check the
+	// role inside that JWT matches). Wrong role -> 403 FORBIDDEN, not a
+	// silent redirect — the Flutter app decides what to show for that. ----
+
+	instructorGuard := func(h http.Handler) http.Handler {
+		return requireAuth(platform.RequireRole("INSTRUCTOR")(h))
+	}
+	instructorRepo := instructor.NewRepository(db)
+	instructorService := instructor.NewService(instructorRepo)
+	instructor.NewHandler(instructorService).RegisterRoutes(mux, instructorGuard)
+
+	corpGuard := func(h http.Handler) http.Handler {
+		return requireAuth(platform.RequireRole("CORP_ADMIN", "CORP_MANAGER")(h))
+	}
+	corpRepo := corporate.NewRepository(db)
+	corpService := corporate.NewService(corpRepo)
+	corporate.NewHandler(corpService).RegisterRoutes(mux, corpGuard)
+
+	employerGuard := func(h http.Handler) http.Handler {
+		return requireAuth(platform.RequireRole("EMPLOYER")(h))
+	}
+	employerRepo := employer.NewRepository(db)
+	employerService := employer.NewService(employerRepo)
+	employer.NewHandler(employerService).RegisterRoutes(mux, employerGuard)
+
+	adminGuard := func(h http.Handler) http.Handler {
+		return requireAuth(platform.RequireRole("ADMIN")(h))
+	}
+	adminRepo := admin.NewRepository(db)
+	adminService := admin.NewService(adminRepo)
+	admin.NewHandler(adminService).RegisterRoutes(mux, adminGuard)
 
 	var handler http.Handler = mux
 	handler = platform.CORS(cfg.AllowedOrigin)(handler)

@@ -1,70 +1,109 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/presentation/register_screen.dart';
-import '../../features/auth/presentation/splash_screen.dart';
-import '../../features/auth/presentation/onboarding_screen.dart';
+import '../../features/admin/presentation/admin_dashboard_screen.dart';
+import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/corporate/presentation/corporate_dashboard_screen.dart';
+import '../../features/employer/presentation/employer_dashboard_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
-import '../../features/course/presentation/course_catalog_screen.dart';
-import '../../features/course/presentation/course_detail_screen.dart';
-import '../../features/course/presentation/video_player_screen.dart';
-import '../../features/course/presentation/quiz_screen.dart';
-import '../../features/course/presentation/quiz_result_screen.dart';
-import '../../features/course/presentation/certificate_screen.dart';
-import '../../features/future/presentation/future_workspace_screen.dart';
+import '../../features/instructor/presentation/instructor_dashboard_screen.dart';
+import '../navigation/role_menus.dart';
 
-class AppRouter {
-  late final GoRouter router;
+/// One route per screen ID from `01-screens-spec.md`, now covering every
+/// role's landing screen (03 Login, 08 Home, 31 Instructor, 36 Corporate,
+/// 39 Employer, 40 Admin) — add the rest as each feature is built,
+/// following the same `features/<name>/presentation/` pattern.
+///
+/// ROLE GUARDING: `redirect` runs on every navigation attempt (including
+/// deep links and browser back/forward on web) and enforces two rules:
+///   1. No session -> always bounced to /login.
+///   2. A session that doesn't own the route it's trying to reach -> bounced
+///      to ITS OWN home route, not /login. A Learner typing /admin into the
+///      address bar on web should land on their own Home, not see a blank
+///      screen or an error — this mirrors the Go backend's 403 behavior
+///      (valid session, wrong role) rather than a 401 (no session).
+///
+/// NOTE: this reads `authControllerProvider` once per navigation attempt,
+/// which is enough here because every screen that changes auth state
+/// (login, logout) explicitly calls `context.go(...)` right after. For a
+/// fully reactive redirect (e.g. auto-bouncing the instant a token expires
+/// mid-session), wire a `GoRouterRefreshStream` off
+/// `authControllerProvider.stream` and pass it as `refreshListenable` below.
+final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: '/login',
+    debugLogDiagnostics: true,
+    redirect: (BuildContext context, GoRouterState state) {
+      final AuthState auth = ref.read(authControllerProvider);
+      final String location = state.matchedLocation;
+      final bool isLoggingIn = location == '/login';
 
-  AppRouter() {
-    router = GoRouter(
-      initialLocation: '/',
-      routes: <GoRoute>[
-        GoRoute(path: '/', builder: (c, s) => const SplashScreen()),
-        GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
-        GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
-        // GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
-        GoRoute(path: '/register', builder: (c, s) => const RegisterScreen()),
-        GoRoute(path: '/home', builder: (c, s) => const HomeScreen()),
-        GoRoute(path: '/courses', builder: (c, s) => const CourseCatalogScreen()),
-        GoRoute(path: '/course/:id', builder: (c, s) {
-          final id = s.pathParameters['id'] ?? '';
-          return CourseDetailScreen(courseId: id);
-        }),
-        GoRoute(path: '/player/:id', builder: (c, s) {
-          final id = s.pathParameters['id'] ?? '';
-          return VideoPlayerScreen(lessonId: id);
-        }),
-        GoRoute(path: '/quiz/:id', builder: (c, s) {
-          final id = s.pathParameters['id'] ?? 'q001';
-          return QuizScreen(quizId: id);
-        }),
-        GoRoute(
-          path: '/quiz-result',
-          builder: (c, s) {
-            final score = int.tryParse(s.uri.queryParameters['score'] ?? '0') ?? 0;
-            final total = int.tryParse(s.uri.queryParameters['total'] ?? '1') ?? 1;
-            final percentage = int.tryParse(s.uri.queryParameters['percentage'] ?? '0') ?? 0;
-            return QuizResultScreen(score: score, total: total, percentage: percentage);
-          },
-        ),
-        GoRoute(
-          path: '/certificate/:courseName',
-          builder: (c, s) {
-            final courseName = s.pathParameters['courseName'] ?? 'Course';
-            return CertificateScreen(courseName: courseName.replaceAll('-', ' '));
-          },
-        ),
-        GoRoute(path: '/ai-tutor', builder: (c, s) => const FutureWorkspaceScreen(area: 'ai')),
-        GoRoute(path: '/skill-assessment', builder: (c, s) => const FutureWorkspaceScreen(area: 'assessment')),
-        GoRoute(path: '/career-path', builder: (c, s) => const FutureWorkspaceScreen(area: 'career')),
-        GoRoute(path: '/portfolio', builder: (c, s) => const FutureWorkspaceScreen(area: 'portfolio')),
-        GoRoute(path: '/jobs', builder: (c, s) => const FutureWorkspaceScreen(area: 'jobs')),
-        GoRoute(path: '/corporate', builder: (c, s) => const FutureWorkspaceScreen(area: 'corporate')),
-        GoRoute(path: '/admin', builder: (c, s) => const FutureWorkspaceScreen(area: 'admin')),
-        GoRoute(path: '/wallet', builder: (c, s) => const FutureWorkspaceScreen(area: 'wallet')),
-        GoRoute(path: '/settings', builder: (c, s) => const FutureWorkspaceScreen(area: 'settings')),
-        GoRoute(path: '/profile', builder: (c, s) => const FutureWorkspaceScreen(area: 'profile')),
-      ],
-    );
-  }
-}
+      if (!auth.isAuthenticated) {
+        return isLoggingIn ? null : '/login';
+      }
+
+      // Authenticated. Never let a logged-in user sit on /login.
+      final String home = homeRouteForRole(auth.role);
+      if (isLoggingIn) return home;
+
+      // Role ownership check: each top-level route belongs to exactly one
+      // role's home. A session whose role doesn't own the section it's
+      // requesting gets redirected to its own home instead.
+      const Map<String, AppRole> routeOwner = <String, AppRole>{
+        '/home': AppRole.learner,
+        '/instructor': AppRole.instructor,
+        '/employer': AppRole.employer,
+        '/admin': AppRole.admin,
+        // '/corporate' intentionally omitted: both CORP_ADMIN and
+        // CORP_MANAGER own it, checked separately below.
+      };
+      if (location == '/corporate') {
+        final bool corpOwnsIt =
+            auth.role == AppRole.corpAdmin || auth.role == AppRole.corpManager;
+        if (!corpOwnsIt) return home;
+      } else {
+        final AppRole? owner = routeOwner[location];
+        if (owner != null && owner != auth.role) return home;
+      }
+
+      return null;
+    },
+    routes: <RouteBase>[
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/home',
+        name: 'home',
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/instructor',
+        name: 'instructor',
+        builder: (context, state) => const InstructorDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/corporate',
+        name: 'corporate',
+        builder: (context, state) => const CorporateDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/employer',
+        name: 'employer',
+        builder: (context, state) => const EmployerDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/admin',
+        name: 'admin',
+        builder: (context, state) => const AdminDashboardScreen(),
+      ),
+      // Next up, following 01-screens-spec.md build order:
+      // GoRoute(path: '/explore', ...)          // screen 09
+      // GoRoute(path: '/course/:id', ...)       // screen 11
+      // GoRoute(path: '/ai-tutor', ...)         // screen 21
+    ],
+  );
+});
