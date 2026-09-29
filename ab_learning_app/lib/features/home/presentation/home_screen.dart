@@ -1,134 +1,233 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/utils/responsive.dart';
-import '../../../core/widgets/app_button.dart';
-import '../application/home_controller.dart';
-import '../models/home_feed.dart';
-import 'widgets/desktop_home_layout.dart';
-import 'widgets/mobile_home_layout.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/radius.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/role_switcher_sheet.dart';
+import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
 
-/// Screen 08 — Home.
-/// Fetches `homeFeedProvider` and renders one of the 5 required states
-/// (Loading / Empty / Error / Success — Disabled/Offline not relevant here)
-/// before delegating to [MobileHomeLayout] or [DesktopHomeLayout].
-///
-/// NOTE on chrome: unlike the Phase 2 role dashboards
-/// (`features/{instructor,corporate,employer,admin}/`), this screen does
-/// NOT use `RoleScaffold` — it predates it and already has its own richer
-/// chrome (personalized greeting, search/notification/coin/avatar icons)
-/// matching `02-hifi-mockups.html`'s Home mockup more closely than
-/// `RoleScaffold`'s generic `AppBar` would. Both nav systems point at the
-/// same routes, so this is a cosmetic inconsistency, not a functional one
-/// — worth reconciling (likely by giving `RoleScaffold` an optional custom
-/// top-bar slot) before adding more Learner screens, so screens 09+ don't
-/// have to choose between the two patterns.
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<HomeFeed> feedAsync = ref.watch(homeFeedProvider);
+  Widget build(BuildContext context) {
+    final continueLearning =
+        MockRepository.enrolledCourses.where((c) => c.progress < 1.0).toList();
+    final recommended = MockRepository.courses
+        .where((c) => c.completedLessons == 0 && c.progress == 0)
+        .toList();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: feedAsync.when(
-          loading: () => const _HomeLoading(),
-          error: (Object error, StackTrace _) => _HomeError(
-            onRetry: () => ref.invalidate(homeFeedProvider),
+      appBar: AppBar(
+        title: const Text('AB LEARNING'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Switch role',
+            onPressed: () => showRoleSwitcherSheet(context),
           ),
-          data: (HomeFeed feed) {
-            if (feed.recommended.isEmpty && feed.continueLearning.isEmpty) {
-              return const _HomeEmpty();
-            }
-            return RefreshIndicator(
-              onRefresh: () => ref.refresh(homeFeedProvider.future),
-              child: ResponsiveBuilder(
-                mobile: (_) => MobileHomeLayout(feed: feed),
-                desktop: (_) => DesktopHomeLayout(feed: feed),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
+          const SizedBox(width: 4),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text('Welcome back, Learner! 👋', style: AppTypography.h1),
+          const SizedBox(height: 4),
+          Text(
+            'Pick up where you left off, or start something new.',
+            style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 16),
+
+          // Hero AI prompt card.
+          InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            onTap: () => context.push('/tutor'),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.secondary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AppRadius.card),
               ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _HomeLoading extends StatelessWidget {
-  const _HomeLoading();
-
-  @override
-  Widget build(BuildContext context) {
-    // Simple skeleton — swap for shimmer package if desired later.
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: List<Widget>.generate(
-        4,
-        (_) => Container(
-          height: 96,
-          margin: const EdgeInsets.only(bottom: 14),
-          decoration: BoxDecoration(
-            color: AppColors.border.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HomeError extends StatelessWidget {
-  const _HomeError({required this.onRetry});
-
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const Icon(Icons.wifi_off_rounded, size: 40, color: AppColors.textSecondary),
-            const SizedBox(height: 12),
-            const Text('โหลดข้อมูลไม่สำเร็จ', style: AppTypography.h2),
-            const SizedBox(height: 6),
-            const Text(
-              'ตรวจสอบการเชื่อมต่อของคุณแล้วลองอีกครั้ง',
-              style: AppTypography.caption,
-              textAlign: TextAlign.center,
+              child: Row(
+                children: [
+                  const Icon(Icons.auto_awesome, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'What do you want to achieve today?',
+                          style: AppTypography.h2.copyWith(color: Colors.white, fontSize: 15),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Ask your AI Tutor for a plan',
+                          style: AppTypography.caption.copyWith(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.white),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
-            SecondaryButton(label: 'ลองอีกครั้ง', onPressed: onRetry, fullWidth: false),
+          ),
+
+          if (continueLearning.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _SectionHeader(
+              title: 'Continue Learning',
+              onSeeAll: () => context.push('/my-learning'),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 176,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: continueLearning.length,
+                itemBuilder: (context, i) => _HomeCourseCard(course: continueLearning[i]),
+              ),
+            ),
           ],
-        ),
+
+          const SizedBox(height: 24),
+          const Text('Browse Categories', style: AppTypography.h2),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: MockRepository.categories.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, i) {
+                final category = MockRepository.categories[i];
+                return ActionChip(
+                  label: Text(category),
+                  onPressed: () => context.push('/explore'),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 24),
+          _SectionHeader(title: 'Recommended for you', onSeeAll: () => context.push('/explore')),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 176,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: recommended.length,
+              itemBuilder: (context, i) => _HomeCourseCard(course: recommended[i]),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
       ),
     );
   }
 }
 
-class _HomeEmpty extends StatelessWidget {
-  const _HomeEmpty();
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback onSeeAll;
+
+  const _SectionHeader({required this.title, required this.onSeeAll});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: AppTypography.h2),
+        TextButton(onPressed: onSeeAll, child: const Text('See all')),
+      ],
+    );
+  }
+}
+
+class _HomeCourseCard extends StatelessWidget {
+  final Course course;
+
+  const _HomeCourseCard({required this.course});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Color(int.parse('FF${course.coverColorHex}', radix: 16));
+    final showProgress = course.progress > 0;
+
+    return GestureDetector(
+      onTap: () => context.push('/course/${course.id}'),
+      child: Container(
+        width: 200,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(Icons.explore_outlined, size: 40, color: AppColors.textSecondary),
-            SizedBox(height: 12),
-            Text('ยังไม่มีคอร์สแนะนำ', style: AppTypography.h2),
-            SizedBox(height: 6),
-            Text(
-              'ไปที่ Explore เพื่อเลือกคอร์สแรกของคุณ',
-              style: AppTypography.caption,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 84,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
+              ),
+              alignment: Alignment.center,
+              child: Icon(Icons.play_circle_fill, color: color, size: 32),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    course.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.h2.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    course.instructor,
+                    style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                  ),
+                  const SizedBox(height: 8),
+                  if (showProgress) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.badge),
+                      child: LinearProgressIndicator(
+                        value: course.progress,
+                        minHeight: 6,
+                        backgroundColor: AppColors.cardBorder,
+                        valueColor: AlwaysStoppedAnimation(color),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${(course.progress * 100).round()}% complete',
+                      style: AppTypography.micro.copyWith(color: AppColors.textSecondary),
+                    ),
+                  ] else
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: AppColors.warning, size: 14),
+                        const SizedBox(width: 4),
+                        Text(course.rating.toStringAsFixed(1), style: AppTypography.caption),
+                      ],
+                    ),
+                ],
+              ),
             ),
           ],
         ),

@@ -1,123 +1,134 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/navigation/role_menus.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/async_state_view.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/radius.dart';
+import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
-import '../../../core/widgets/role_scaffold.dart';
-import '../application/employer_controller.dart';
-import '../models/employer_dashboard.dart';
+import '../../../core/widgets/role_switcher_sheet.dart';
+import '../../../data/mock/mock_repository.dart';
 
-/// Screen 39 — Employer Dashboard. Reachable by EMPLOYER accounts only;
-/// data is scoped to the `employers` row linked to that account.
-class EmployerDashboardScreen extends ConsumerWidget {
+/// Screen 39 — Employer Dashboard.
+class EmployerDashboardScreen extends StatelessWidget {
   const EmployerDashboardScreen({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<EmployerDashboard> dashboard =
-        ref.watch(employerDashboardProvider);
-    final AsyncValue<List<TopApplicant>> applicants =
-        ref.watch(topApplicantsProvider);
+  static const _talent = [
+    _Talent('Napat S.', 'Frontend Engineer', '4.9'),
+    _Talent('Kanya P.', 'Data Analyst', '4.7'),
+    _Talent('Wichai T.', 'UX Designer', '4.8'),
+  ];
 
-    return RoleScaffold(
-      role: AppRole.employer,
-      activeRoute: '/employer',
-      title: 'Employer Dashboard',
-      child: AsyncStateView<EmployerDashboard>(
-        value: dashboard,
-        onRetry: () => ref.invalidate(employerDashboardProvider),
-        data: (context, d) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(d.companyName, style: AppTypography.h1),
-              const SizedBox(height: 4),
-              const Text('Talent Marketplace Overview', style: AppTypography.caption),
-              const SizedBox(height: 16),
-              KpiRow(cards: <KpiCard>[
-                KpiCard(label: 'Open Jobs', value: '${d.openJobs}'),
-                KpiCard(label: 'Applications', value: '${d.totalApplications}'),
-                KpiCard(label: 'Shortlisted', value: '${d.shortlistedCount}'),
-                KpiCard(label: 'Hired', value: '${d.hiredCount}'),
-              ]),
-              const SizedBox(height: 24),
-              const Text('Recommended Talent', style: AppTypography.h2),
-              const SizedBox(height: 12),
-              applicants.when(
-                loading: () => const SizedBox(
-                  height: 72,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                error: (Object e, StackTrace _) => const Text(
-                  'โหลดรายชื่อผู้สมัครไม่สำเร็จ',
-                  style: AppTypography.caption,
-                ),
-                data: (List<TopApplicant> list) {
-                  if (list.isEmpty) {
-                    return const Text('ยังไม่มีผู้สมัครในขณะนี้', style: AppTypography.caption);
-                  }
-                  return Column(
-                    children: list
-                        .map((TopApplicant a) => Container(
-                              margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppColors.border),
-                              ),
-                              child: Row(
-                                children: <Widget>[
-                                  CircleAvatar(
-                                    radius: 18,
-                                    backgroundColor: AppColors.primary,
-                                    child: Text(
-                                      a.name.isNotEmpty ? a.name[0].toUpperCase() : '?',
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(a.name,
-                                            style: AppTypography.body
-                                                .copyWith(fontWeight: FontWeight.w600)),
-                                        Text('${a.headline} · ${a.jobTitle}',
-                                            style: AppTypography.caption),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFDCFCE7),
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: Text(
-                                      'Match ${a.matchScore.toStringAsFixed(0)}%',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF166534),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ))
-                        .toList(),
-                  );
-                },
-              ),
-            ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Employer Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Switch role',
+            onPressed: () => showRoleSwitcherSheet(context),
           ),
-        ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const KpiRow(stats: MockRepository.employerKpis),
+          const SizedBox(height: 20),
+          const Text('Recommended Talent', style: AppTypography.h2),
+          const SizedBox(height: 12),
+          ..._talent.map(
+            (t) => Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppRadius.card),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(backgroundColor: AppColors.primary.withValues(alpha: 0.15), child: const Icon(Icons.person, color: AppColors.primary)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.name, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
+                        Text(t.role, style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, size: 14, color: AppColors.warning),
+                      const SizedBox(width: 2),
+                      Text(t.rating, style: AppTypography.caption),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text('Skill Trends', style: AppTypography.h2),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Full charts arrive with Phase 3 backend wiring.', style: AppTypography.caption),
+                SizedBox(height: 8),
+                _TrendBar(label: 'Cloud / DevOps', percent: 0.82),
+                _TrendBar(label: 'Data Analysis', percent: 0.68),
+                _TrendBar(label: 'UI/UX Design', percent: 0.55),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Talent {
+  final String name;
+  final String role;
+  final String rating;
+
+  const _Talent(this.name, this.role, this.rating);
+}
+
+class _TrendBar extends StatelessWidget {
+  final String label;
+  final double percent;
+
+  const _TrendBar({required this.label, required this.percent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTypography.caption),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.badge),
+            child: LinearProgressIndicator(
+              value: percent,
+              minHeight: 6,
+              backgroundColor: AppColors.cardBorder,
+              valueColor: const AlwaysStoppedAnimation(AppColors.accent),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,70 +1,135 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/navigation/role_menus.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/widgets/async_state_view.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/radius.dart';
+import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
-import '../../../core/widgets/role_scaffold.dart';
-import '../application/instructor_controller.dart';
-import '../models/instructor_dashboard.dart';
+import '../../../core/widgets/role_switcher_sheet.dart';
+import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
 
-/// Screen 31 — Instructor Dashboard. Only reachable by an INSTRUCTOR
-/// account (see `app_router.dart`'s guard) and the data itself is scoped
-/// server-side to that instructor's own courses — there is no client-side
-/// filtering happening here, the backend simply never returns anyone
-/// else's numbers.
-class InstructorDashboardScreen extends ConsumerWidget {
+/// Screen 31 — Instructor Dashboard.
+class InstructorDashboardScreen extends StatelessWidget {
   const InstructorDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<InstructorDashboard> dashboard =
-        ref.watch(instructorDashboardProvider);
+  Widget build(BuildContext context) {
+    final courses = MockRepository.courses.take(3).toList();
 
-    return RoleScaffold(
-      role: AppRole.instructor,
-      activeRoute: '/instructor',
-      title: 'Instructor Dashboard',
-      child: AsyncStateView<InstructorDashboard>(
-        value: dashboard,
-        onRetry: () => ref.invalidate(instructorDashboardProvider),
-        data: (context, d) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              KpiRow(cards: <KpiCard>[
-                KpiCard(label: 'Courses', value: '${d.courseCount}'),
-                KpiCard(label: 'Total Students', value: _formatCount(d.totalStudents)),
-                KpiCard(label: 'Avg. Rating', value: d.avgRating.toStringAsFixed(1)),
-              ]),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Instructor Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Switch role',
+            onPressed: () => showRoleSwitcherSheet(context),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const KpiRow(stats: MockRepository.instructorKpis),
+          const SizedBox(height: 20),
+          const Text('Quick Actions', style: AppTypography.h2),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _QuickAction(
+                  icon: Icons.add_circle_outline,
+                  label: 'Create Course',
+                  onTap: () => context.push('/instructor/create-course'),
                 ),
-                child: Row(
-                  children: <Widget>[
-                    const Icon(Icons.add_circle_outline, color: AppColors.primary),
-                    const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text('สร้างคอร์สใหม่ — เร็วๆ นี้ (screen 33)'),
-                    ),
-                  ],
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickAction(
+                  icon: Icons.podcasts_outlined,
+                  label: 'Go Live',
+                  onTap: () => context.push('/instructor/go-live'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _QuickAction(
+                  icon: Icons.payments_outlined,
+                  label: 'Revenue',
+                  onTap: () => context.push('/instructor/revenue'),
                 ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Course Performance', style: AppTypography.h2),
+              TextButton(
+                onPressed: () => context.push('/instructor/courses'),
+                child: const Text('See all'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Column(
+              children: courses
+                  .map((c) => ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Color(int.parse('FF${c.coverColorHex}', radix: 16)).withValues(alpha: 0.15),
+                          child: Icon(Icons.menu_book_rounded, color: Color(int.parse('FF${c.coverColorHex}', radix: 16))),
+                        ),
+                        title: Text(c.title, style: AppTypography.body),
+                        subtitle: Text(
+                          '${c.students} students · ★ ${c.rating.toStringAsFixed(1)}',
+                          style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                        ),
+                        trailing: const Icon(Icons.chevron_right, size: 18),
+                        onTap: () => context.push('/instructor/courses'),
+                      ))
+                  .toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  String _formatCount(int n) {
-    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
-    return '$n';
+class _QuickAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _QuickAction({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.primary),
+            const SizedBox(height: 6),
+            Text(label, style: AppTypography.caption, textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,62 +1,47 @@
-// package courses
-
-// // Course maps to the `courses` table (see db/schema, 04-schema.sql) joined
-// // with its instructor and category for display purposes.
-// type Course struct {
-// 	ID          int64  `json:"id"`
-// 	Title       string `json:"title"`
-// 	Slug        string `json:"slug"`
-// 	Description string `json:"description"`
-// 	// ThumbnailURL   string   `json:"thumbnailUrl"`
-// 	ThumbnailURL   *string  `json:"thumbnailUrl,omitempty"`
-// 	Price          float64  `json:"price"`
-// 	DiscountPrice  *float64 `json:"discountPrice,omitempty"`
-// 	RatingAvg      float64  `json:"ratingAvg"`
-// 	StudentCount   int      `json:"studentCount"`
-// 	Level          string   `json:"level"`
-// 	Status         string   `json:"status"`
-// 	InstructorName string   `json:"instructorName"`
-// 	CategoryName   string   `json:"categoryName"`
-// }
-
-// // ListParams filters GET /api/v1/courses (screen 09 — Explore).
-// type ListParams struct {
-// 	Category string
-// 	Level    string
-// 	Page     int
-// 	Limit    int
-// }
-
-// // Lesson represents a single video/content unit inside a course curriculum.
-// type Lesson struct {
-// 	ID       string `json:"id"`
-// 	Title    string `json:"title"`
-// 	Duration string `json:"duration"`
-// }
-
+// Package courses serves the public (published-only) course catalog.
 package courses
 
-// Course maps to the `courses` table (see db/schema, 04-schema.sql)
-// joined with its instructor and category for display purposes.
-type Course struct {
-	ID             int64    `json:"id"`
-	Title          string   `json:"title"`
-	Slug           string   `json:"slug"`
-	Description    string   `json:"description"`
-	ThumbnailURL   *string  `json:"thumbnailUrl,omitempty"`
-	Price          float64  `json:"price"`
-	DiscountPrice  *float64 `json:"discountPrice,omitempty"`
-	RatingAvg      float64  `json:"ratingAvg"`
-	StudentCount   int      `json:"studentCount"`
-	Level          string   `json:"level"`
-	Status         string   `json:"status"`
-	InstructorName string   `json:"instructorName"`
-	CategoryName   string   `json:"categoryName"`
+type InstructorRef struct {
+	ID          int64  `json:"id"`
+	DisplayName string `json:"display_name"`
 }
 
-// Lesson represents a single video/content unit inside a course curriculum.
+// Course mirrors the `Course` schema in 05-openapi.yaml.
+type Course struct {
+	ID            int64         `json:"id"`
+	Title         string        `json:"title"`
+	Slug          string        `json:"slug"`
+	Description   string        `json:"description"`
+	ThumbnailURL  string        `json:"thumbnail_url"`
+	Price         float64       `json:"price"`
+	DiscountPrice *float64      `json:"discount_price"`
+	RatingAvg     float64       `json:"rating_avg"`
+	StudentCount  int           `json:"student_count"`
+	Level         string        `json:"level"`
+	Status        string        `json:"status"`
+	Category      string        `json:"category"`
+	Instructor    InstructorRef `json:"instructor"`
+}
+
 type Lesson struct {
-	ID       string `json:"id"`
-	Title    string `json:"title"`
-	Duration string `json:"duration"`
+	ID              int64  `json:"id"`
+	Title           string `json:"title"`
+	Type            string `json:"type"`
+	DurationSeconds int    `json:"duration_seconds"`
+	VideoURL        string `json:"video_url"`
+	IsPreview       bool   `json:"is_preview"`
+}
+
+type Section struct {
+	ID      int64    `json:"id"`
+	Title   string   `json:"title"`
+	Lessons []Lesson `json:"lessons"`
+}
+
+type ListFilter struct {
+	Category string
+	Level    string
+	Query    string
+	Limit    int
+	Offset   int
 }

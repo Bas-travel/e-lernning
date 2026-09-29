@@ -1,99 +1,92 @@
-// Command api is the AB Learning backend's entrypoint. It wires config,
-// the MySQL pool, JWT manager, and every domain's handler onto one
-// net/http.ServeMux, then serves it.
 package main
 
 import (
+	"context"
+	"errors"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/ablearning/ab-learning-api/internal/admin"
-	"github.com/ablearning/ab-learning-api/internal/auth"
-	"github.com/ablearning/ab-learning-api/internal/config"
-	"github.com/ablearning/ab-learning-api/internal/corporate"
-	"github.com/ablearning/ab-learning-api/internal/courses"
-	"github.com/ablearning/ab-learning-api/internal/employer"
-	"github.com/ablearning/ab-learning-api/internal/home"
-	"github.com/ablearning/ab-learning-api/internal/instructor"
-	"github.com/ablearning/ab-learning-api/internal/platform"
-	"github.com/ablearning/ab-learning-api/pkg/jwtx"
+	"github.com/ablearning/api/internal/admin"
+	"github.com/ablearning/api/internal/auth"
+	"github.com/ablearning/api/internal/config"
+	"github.com/ablearning/api/internal/corporate"
+	"github.com/ablearning/api/internal/courses"
+	"github.com/ablearning/api/internal/database"
+	"github.com/ablearning/api/internal/employer"
+	"github.com/ablearning/api/internal/httpx"
+	"github.com/ablearning/api/internal/instructor"
+	"github.com/ablearning/api/internal/middleware"
 )
 
 func main() {
 	cfg := config.Load()
 
-	db, err := platform.NewMySQL(cfg.DBDSN)
+	if err := database.Migrate(cfg.DBDSN, cfg.MigrationsDir); err != nil {
+		log.Fatalf("migrate: %v", err)
+	}
+	db, err := database.Open(cfg.DBDSN)
 	if err != nil {
 		log.Fatalf("database: %v", err)
 	}
 	defer db.Close()
-	log.Println("connected to MySQL")
 
-	jwtManager := jwtx.NewManager(cfg.JWTSecret, cfg.AccessTokenTTL)
-	requireAuth := platform.RequireAuth(jwtManager)
+	if cfg.SeedDev {
+		if cfg.Env == "production" {
+			log.Fatal("SEED_DEV must not be enabled in production")
+		}
+		if err := database.SeedDev(db); err != nil {
+			log.Fatalf("seed: %v", err)
+		}
+	}
 
 	mux := http.NewServeMux()
+	guard := middleware.Guard{Secret: cfg.JWTSecret}
 
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
-		platform.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	mux.HandleFunc("GET /api/v1/health", func(w http.ResponseWriter, r *http.Request) {
+		if err := db.PingContext(r.Context()); err != nil {
+			httpx.Error(w, http.StatusServiceUnavailable, "database unavailable")
+			return
+		}
+		httpx.JSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 
-	// Each domain owns its own routes — see internal/<domain>/handler.go.
-	// Adding a new domain (e.g. quizzes) means: write its own
-	// model/dto/repository/service/handler.go following this exact
-	// pattern, then add two lines here.
-	authRepo := auth.NewRepository(db)
-	authService := auth.NewService(authRepo, jwtManager)
-	auth.NewHandler(authService).RegisterRoutes(mux, requireAuth)
+	auth.Register(mux, guard, auth.NewService(auth.NewRepository(db), cfg.JWTSecret))
+	courses.Register(mux, courses.NewService(courses.NewRepository(db)))
+	instructor.Register(mux, guard, instructor.NewService(instructor.NewRepository(db)), instructor.Uploader{
+		Dir: cfg.UploadDir, MaxVideo: cfg.MaxVideoMB << 20, MaxImage: 5 << 20,
+	})
+	admin.Register(mux, guard, admin.NewService(admin.NewRepository(db)))
+	corporate.Register(mux, guard, corporate.NewService(corporate.NewRepository(db)))
+	employer.Register(mux, guard, db)
 
-	homeRepo := home.NewRepository(db)
-	homeService := home.NewService(homeRepo)
-	home.NewHandler(homeService).RegisterRoutes(mux, requireAuth)
+	// Uploaded media (Phase 3 local storage; Phase 4 moves to a video CDN).
+	_ = os.MkdirAll(cfg.UploadDir, 0o755)
+	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/",
+		http.FileServer(instructor.NoListFS{FS: http.Dir(cfg.UploadDir)})))
 
-	coursesRepo := courses.NewRepository(db)
-	coursesService := courses.NewService(coursesRepo)
-	courses.NewHandler(coursesService).RegisterRoutes(mux)
-
-	// ---- Phase 2: one role-guarded domain per remaining role. Each guard
-	// chain is requireAuth (verify the JWT) THEN RequireRole (check the
-	// role inside that JWT matches). Wrong role -> 403 FORBIDDEN, not a
-	// silent redirect — the Flutter app decides what to show for that. ----
-
-	instructorGuard := func(h http.Handler) http.Handler {
-		return requireAuth(platform.RequireRole("INSTRUCTOR")(h))
+	srv := &http.Server{
+		Addr:              ":" + cfg.Port,
+		Handler:           middleware.Common(cfg.CORSAllowOrigin, mux),
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       0, // large video uploads
+		IdleTimeout:       60 * time.Second,
 	}
-	instructorRepo := instructor.NewRepository(db)
-	instructorService := instructor.NewService(instructorRepo)
-	instructor.NewHandler(instructorService).RegisterRoutes(mux, instructorGuard)
 
-	corpGuard := func(h http.Handler) http.Handler {
-		return requireAuth(platform.RequireRole("CORP_ADMIN", "CORP_MANAGER")(h))
-	}
-	corpRepo := corporate.NewRepository(db)
-	corpService := corporate.NewService(corpRepo)
-	corporate.NewHandler(corpService).RegisterRoutes(mux, corpGuard)
+	go func() {
+		log.Printf("AB LEARNING API listening on :%s (env=%s)", cfg.Port, cfg.Env)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
+	}()
 
-	employerGuard := func(h http.Handler) http.Handler {
-		return requireAuth(platform.RequireRole("EMPLOYER")(h))
-	}
-	employerRepo := employer.NewRepository(db)
-	employerService := employer.NewService(employerRepo)
-	employer.NewHandler(employerService).RegisterRoutes(mux, employerGuard)
-
-	adminGuard := func(h http.Handler) http.Handler {
-		return requireAuth(platform.RequireRole("ADMIN")(h))
-	}
-	adminRepo := admin.NewRepository(db)
-	adminService := admin.NewService(adminRepo)
-	admin.NewHandler(adminService).RegisterRoutes(mux, adminGuard)
-
-	var handler http.Handler = mux
-	handler = platform.CORS(cfg.AllowedOrigin)(handler)
-	handler = platform.Logging(handler)
-	handler = platform.Recover(handler)
-
-	log.Printf("AB Learning API listening on :%s", cfg.Port)
-	if err := http.ListenAndServe(":"+cfg.Port, handler); err != nil {
-		log.Fatalf("server: %v", err)
-	}
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	<-stop
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	_ = srv.Shutdown(ctx)
 }

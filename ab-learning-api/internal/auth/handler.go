@@ -1,69 +1,81 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/internal/httpx"
+	"github.com/ablearning/api/internal/middleware"
 )
 
-type Handler struct {
-	service *Service
-}
+type Handler struct{ svc *Service }
 
-func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
-}
-
-// RegisterRoutes wires this domain's endpoints onto mux, matching
-// 05-openapi.yaml exactly. `protected` is a middleware chain that requires
-// a valid JWT (see internal/platform.RequireAuth) — used for /me.
-func (h *Handler) RegisterRoutes(mux *http.ServeMux, protected func(http.Handler) http.Handler) {
+func Register(mux *http.ServeMux, guard middleware.Guard, svc *Service) {
+	h := &Handler{svc: svc}
 	mux.HandleFunc("POST /api/v1/auth/login", h.login)
 	mux.HandleFunc("POST /api/v1/auth/register", h.register)
-	mux.Handle("GET /api/v1/me", protected(http.HandlerFunc(h.me)))
+	mux.HandleFunc("POST /api/v1/auth/refresh", h.refresh)
+	mux.Handle("GET /api/v1/me", guard.Require(h.me))
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
-	if err := platform.DecodeJSON(r, &req); err != nil {
-		platform.WriteError(w, err)
+	if err := httpx.Decode(w, r, &req); err != nil {
+		httpx.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	result, err := h.service.Login(r.Context(), req)
-	if err != nil {
-		platform.WriteError(w, err)
-		return
+	resp, err := h.svc.Login(req)
+	switch {
+	case errors.Is(err, ErrInvalidCredentials):
+		httpx.Error(w, http.StatusUnauthorized, err.Error())
+	case errors.Is(err, ErrAccountInactive):
+		httpx.Error(w, http.StatusForbidden, err.Error())
+	case err != nil:
+		httpx.Error(w, http.StatusInternalServerError, "internal error")
+	default:
+		httpx.JSON(w, http.StatusOK, resp)
 	}
-	platform.WriteJSON(w, http.StatusOK, result)
 }
 
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
-	if err := platform.DecodeJSON(r, &req); err != nil {
-		platform.WriteError(w, err)
+	if err := httpx.Decode(w, r, &req); err != nil {
+		httpx.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	u, err := h.svc.Register(req)
+	switch {
+	case errors.Is(err, ErrValidation):
+		httpx.Error(w, http.StatusUnprocessableEntity, err.Error())
+	case errors.Is(err, ErrEmailTaken):
+		httpx.Error(w, http.StatusConflict, err.Error())
+	case err != nil:
+		httpx.Error(w, http.StatusInternalServerError, "internal error")
+	default:
+		httpx.JSON(w, http.StatusCreated, u)
+	}
+}
 
-	user, err := h.service.Register(r.Context(), req)
-	if err != nil {
-		platform.WriteError(w, err)
+func (h *Handler) refresh(w http.ResponseWriter, r *http.Request) {
+	var req RefreshRequest
+	if err := httpx.Decode(w, r, &req); err != nil {
+		httpx.Error(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	platform.WriteJSON(w, http.StatusCreated, user)
+	resp, err := h.svc.Refresh(req.RefreshToken)
+	if err != nil {
+		httpx.Error(w, http.StatusUnauthorized, "invalid refresh token")
+		return
+	}
+	httpx.JSON(w, http.StatusOK, resp)
 }
 
 func (h *Handler) me(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
-	if !ok {
-		platform.WriteError(w, platform.ErrUnauthorized)
-		return
-	}
-
-	user, err := h.service.Me(r.Context(), userID)
+	p, _ := middleware.PrincipalFrom(r.Context())
+	u, err := h.svc.Me(p.UserID)
 	if err != nil {
-		platform.WriteError(w, err)
+		httpx.Error(w, http.StatusNotFound, "user not found")
 		return
 	}
-	platform.WriteJSON(w, http.StatusOK, user)
+	httpx.JSON(w, http.StatusOK, u)
 }

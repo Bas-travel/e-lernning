@@ -1,27 +1,55 @@
-# e-lernning
-new06092569
-
->>>>>>> 86d2ddaa793f5184fd815a859db90057726a8c50
 # AB LEARNING — Prototype V1 (scaffold)
 
 [![CI](https://github.com/ablearning/ab-learning/actions/workflows/ci.yml/badge.svg)](https://github.com/ablearning/ab-learning/actions/workflows/ci.yml) [![Codecov](https://codecov.io/gh/ablearning/ab-learning/branch/main/graph/badge.svg)](https://codecov.io/gh/ablearning/ab-learning)
 
-This workspace contains initial scaffolding for the AB LEARNING prototype described in `01-screens-spec.md`.
+This workspace contains scaffolding + Phase 1 (learning foundation) screens for
+the AB LEARNING prototype described in `01-screens-spec.md` and
+`developer-handoff/01-implementation-overview.md`.
 
-What I added in this step:
-- `ab_learning_app/` Flutter app scaffold (minimal `pubspec.yaml`, `lib/main.dart`, `lib/app.dart`, theme tokens)
-- `ab-learning-api/` Go API scaffold (minimal `go.mod`, `cmd/api/main.go`)
-- Top-level `README.md` and `.gitignore`
+## What's in this workspace
+- `ab_learning_app/` — Flutter app: auth flow, Home, Explore, Course Detail,
+  Curriculum, Lesson Player, Quiz + Quiz Result, My Learning, and an AI Tutor
+  chat shell. Currently backed by in-memory mock data
+  (`lib/data/mock/mock_repository.dart`) so the full flow can be demoed
+  without the backend running.
+- `ab-learning-api/` — Go API scaffold (`auth`, `courses` modules so far).
 
-Next steps:
-- Scaffold the Flutter app screens and routing (Step 2)
-- Scaffold the Go backend modules and basic handlers (Step 3)
+## Phase status
+- **Phase 1 — learning foundation:** UI complete on mock data (Home, Explore,
+  Course Detail, Curriculum, Lesson flow, Quiz/Result, My Learning, AI Tutor
+  shell). Not yet wired to the Go API.
+- **Phase 2 — business & operations:** not started (Instructor dashboard,
+  Course management, Corporate dashboards, User management, Payment views).
+- **Phase 3 — scale & reporting:** not started.
 
-Run notes:
-- Flutter files are starter templates; run `flutter pub get` inside `ab_learning_app` to fetch deps.
-- Go server is a minimal stub; run `go run ./cmd/api` inside `ab-learning-api` to start the stub server.
 
-Badge: CI status badge updated for `ablearning/ab-learning`.
+## Backend status (Phase 3)
+Go API (`ab-learning-api/`) now runs on MySQL with JWT auth + role-based access:
+- **Instructor:** courses CRUD, sections/lessons, image/video upload (MIME-sniffed, local storage), submit for review, dashboard, revenue
+- **Admin:** course moderation (approve/reject), user management (edit/suspend), payments + refunds, dashboard
+- **Corporate:** dashboard, employee management (admin-only writes), learning paths
+- **Employer:** dashboard
+
+Run locally:
+```bash
+cd ab-learning-api
+cp .env.example .env            # then export the vars (or set them in your shell)
+SEED_DEV=true JWT_SECRET=$(openssl rand -hex 32) go run ./cmd/api
+```
+Demo logins (dev seed, password `Password123!`): `learner@`, `instructor@`, `corpadmin@`, `corpmanager@`, `employer@`, `admin@` + `ablearning.co`.
+
+**Not yet done in Phase 3:** the Flutter app still uses `MockRepository` — screens are not wired to this API yet.
+
+## Next steps
+- Wire Phase 1 screens to real `ab-learning-api` endpoints (see `api/openapi.yaml`)
+  in place of `MockRepository`.
+- Expand Go API with the endpoints Phase 1 screens expect (courses curriculum,
+  lesson progress, quiz submission, AI tutor).
+- Begin Phase 2 screens once Phase 1 is API-backed.
+
+## Run notes
+- Flutter: `cd ab_learning_app && flutter pub get && flutter run`
+- Go API: `cd ab-learning-api && go run ./cmd/api`
 
 ## Codecov token (CI)
 
@@ -58,7 +86,3 @@ gh secret set CODECOV_TOKEN --body "<your-codecov-token>" --repo ablearning/ab-l
 	```
 
 วางบรรทัดที่ต้องการใน `README.md` และอย่าใส่ token แบบสาธารณะในไฟล์ — ใช้ GitHub secrets/Codecov settings แทน.
-<<<<<<< HEAD
-<!-- >>>>>>> 320bc5e (chore(design): update design tokens and sync theme) -->
-=======
->>>>>>> 86d2ddaa793f5184fd815a859db90057726a8c50

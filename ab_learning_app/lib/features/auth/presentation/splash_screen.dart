@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
+      // For prototype navigate to onboarding
       context.go('/onboarding');
     });
   }

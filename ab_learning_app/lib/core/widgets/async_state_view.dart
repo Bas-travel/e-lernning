@@ -47,7 +47,7 @@ class _DashboardLoading extends StatelessWidget {
             width: 160,
             height: 76,
             decoration: BoxDecoration(
-              color: AppColors.border.withOpacity(0.5),
+              color: AppColors.border.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(16),
             ),
           ),

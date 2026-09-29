@@ -23,7 +23,7 @@ class DesktopHomeLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        _Sidebar(activeItem: 'Home', items: _navItems),
+        const _Sidebar(activeItem: 'Home', items: _navItems),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),

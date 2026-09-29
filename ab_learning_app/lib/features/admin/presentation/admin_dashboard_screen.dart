@@ -1,150 +1,114 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/navigation/role_menus.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/async_state_view.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/radius.dart';
+import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
-import '../../../core/widgets/role_scaffold.dart';
-import '../application/admin_controller.dart';
-import '../models/admin_dashboard.dart';
+import '../../../core/widgets/role_switcher_sheet.dart';
+import '../../../data/mock/mock_repository.dart';
 
-/// Screen 40 — Admin Dashboard, plus an inline slice of screen 41's
-/// moderation queue. ADMIN-only; not scoped to any single account.
-class AdminDashboardScreen extends ConsumerWidget {
+/// Screen 40 — Admin Dashboard.
+class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<AdminDashboard> dashboard = ref.watch(adminDashboardProvider);
-    final AsyncValue<List<PendingCourse>> pending = ref.watch(pendingCoursesProvider);
-
-    return RoleScaffold(
-      role: AppRole.admin,
-      activeRoute: '/admin',
-      title: 'Admin Dashboard',
-      child: AsyncStateView<AdminDashboard>(
-        value: dashboard,
-        onRetry: () => ref.invalidate(adminDashboardProvider),
-        data: (context, d) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              KpiRow(cards: <KpiCard>[
-                KpiCard(label: 'Total Users', value: '${d.totalUsers}'),
-                KpiCard(label: 'Instructors', value: '${d.totalInstructors}'),
-                KpiCard(label: 'Courses', value: '${d.totalCourses}'),
-                KpiCard(label: 'Revenue', value: '฿${d.totalRevenue.toStringAsFixed(0)}'),
-                KpiCard(label: 'Pending', value: '${d.pendingModeration}'),
-              ]),
-              const SizedBox(height: 24),
-              const Text('Course Moderation Queue', style: AppTypography.h2),
-              const SizedBox(height: 12),
-              pending.when(
-                loading: () => const SizedBox(
-                  height: 72,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                error: (Object e, StackTrace _) => const Text(
-                  'โหลดคิวตรวจสอบไม่สำเร็จ',
-                  style: AppTypography.caption,
-                ),
-                data: (List<PendingCourse> courses) {
-                  if (courses.isEmpty) {
-                    return const Text('ไม่มีคอร์สรอตรวจสอบในขณะนี้ ✓',
-                        style: AppTypography.caption);
-                  }
-                  return Column(
-                    children: courses
-                        .map((PendingCourse c) => _PendingCourseRow(course: c))
-                        .toList(),
-                  );
-                },
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.swap_horiz),
+            tooltip: 'Switch role',
+            onPressed: () => showRoleSwitcherSheet(context),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const KpiRow(stats: MockRepository.adminKpis),
+          const SizedBox(height: 24),
+          const Text('Quick Menu', style: AppTypography.h2),
+          const SizedBox(height: 12),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 2.2,
+            children: [
+              _MenuTile(
+                icon: Icons.people_alt_outlined,
+                label: 'User Management',
+                onTap: () => context.push('/admin/users'),
+              ),
+              _MenuTile(
+                icon: Icons.fact_check_outlined,
+                label: 'Course Moderation',
+                onTap: () => context.push('/admin/moderation'),
+              ),
+              _MenuTile(
+                icon: Icons.receipt_long_outlined,
+                label: 'Payments',
+                onTap: () => context.push('/admin/payments'),
+              ),
+              _MenuTile(
+                icon: Icons.settings_outlined,
+                label: 'Settings',
+                onTap: () => context.push('/admin/settings'),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 24),
+          const Text('Platform Growth', style: AppTypography.h2),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: Text(
+              'Revenue, user growth, and course sales charts arrive once '
+              '/admin/dashboard is wired to the real API in Phase 3.',
+              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _PendingCourseRow extends ConsumerStatefulWidget {
-  const _PendingCourseRow({required this.course});
-  final PendingCourse course;
+class _MenuTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
-  @override
-  ConsumerState<_PendingCourseRow> createState() => _PendingCourseRowState();
-}
-
-class _PendingCourseRowState extends ConsumerState<_PendingCourseRow> {
-  bool _approving = false;
-
-  Future<void> _approve() async {
-    setState(() => _approving = true);
-    try {
-      await ref.read(adminActionsProvider).approveCourse(widget.course.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('อนุมัติ "${widget.course.title}" แล้ว')),
-        );
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('อนุมัติไม่สำเร็จ ลองอีกครั้ง'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _approving = false);
-    }
-    // Row disappears on its own next frame once pendingCoursesProvider
-    // refetches (see AdminActions.approveCourse) — no manual removal here.
-  }
+  const _MenuTile({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(widget.course.title,
-                    style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
-                Text('${widget.course.instructorName} · ${widget.course.category}',
-                    style: AppTypography.caption),
-              ],
-            ),
-          ),
-          OutlinedButton(
-            onPressed: _approving ? null : () {},
-            child: const Text('Preview'),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: _approving ? null : _approve,
-            child: _approving
-                ? const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                  )
-                : const Text('Approve'),
-          ),
-        ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Expanded(child: Text(label, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600))),
+          ],
+        ),
       ),
     );
   }

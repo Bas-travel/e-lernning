@@ -1,109 +1,183 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/mock/models.dart';
 import '../../features/admin/presentation/admin_dashboard_screen.dart';
-import '../../features/auth/application/auth_controller.dart';
+import '../../features/ai_tutor/presentation/ai_tutor_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/onboarding_screen.dart';
+import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/corporate/presentation/corporate_dashboard_screen.dart';
+import '../../features/course/presentation/course_detail_screen.dart';
+import '../../features/course/presentation/curriculum_screen.dart';
+import '../../features/course/presentation/video_player_screen.dart';
 import '../../features/employer/presentation/employer_dashboard_screen.dart';
-import '../../features/home/presentation/home_screen.dart';
+import '../../features/explore/presentation/explore_screen.dart';
 import '../../features/instructor/presentation/instructor_dashboard_screen.dart';
-import '../navigation/role_menus.dart';
+import '../../features/instructor/presentation/instructor_revenue_screen.dart';
+import '../../features/instructor/presentation/my_courses_screen.dart';
+import '../../features/my_learning/presentation/my_learning_screen.dart';
+import '../../features/quiz/presentation/quiz_result_screen.dart';
+import '../../features/quiz/presentation/quiz_screen.dart';
+import '../widgets/coming_soon_screen.dart';
+import '../widgets/main_shell.dart';
 
-/// One route per screen ID from `01-screens-spec.md`, now covering every
-/// role's landing screen (03 Login, 08 Home, 31 Instructor, 36 Corporate,
-/// 39 Employer, 40 Admin) — add the rest as each feature is built,
-/// following the same `features/<name>/presentation/` pattern.
-///
-/// ROLE GUARDING: `redirect` runs on every navigation attempt (including
-/// deep links and browser back/forward on web) and enforces two rules:
-///   1. No session -> always bounced to /login.
-///   2. A session that doesn't own the route it's trying to reach -> bounced
-///      to ITS OWN home route, not /login. A Learner typing /admin into the
-///      address bar on web should land on their own Home, not see a blank
-///      screen or an error — this mirrors the Go backend's 403 behavior
-///      (valid session, wrong role) rather than a 401 (no session).
-///
-/// NOTE: this reads `authControllerProvider` once per navigation attempt,
-/// which is enough here because every screen that changes auth state
-/// (login, logout) explicitly calls `context.go(...)` right after. For a
-/// fully reactive redirect (e.g. auto-bouncing the instant a token expires
-/// mid-session), wire a `GoRouterRefreshStream` off
-/// `authControllerProvider.stream` and pass it as `refreshListenable` below.
-final Provider<GoRouter> appRouterProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
-    initialLocation: '/login',
-    debugLogDiagnostics: true,
-    redirect: (BuildContext context, GoRouterState state) {
-      final AuthState auth = ref.read(authControllerProvider);
-      final String location = state.matchedLocation;
-      final bool isLoggingIn = location == '/login';
+class AppRouter {
+  late final GoRouter router;
 
-      if (!auth.isAuthenticated) {
-        return isLoggingIn ? null : '/login';
-      }
+  AppRouter() {
+    router = GoRouter(
+      initialLocation: '/',
+      routes: <GoRoute>[
+        GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
+        GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
+        GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
 
-      // Authenticated. Never let a logged-in user sit on /login.
-      final String home = homeRouteForRole(auth.role);
-      if (isLoggingIn) return home;
+        // --- Learner (bottom-nav shell: Home / Explore / My Learning / AI Tutor)
+        GoRoute(path: '/home', builder: (context, state) => const MainShell()),
+        GoRoute(path: '/explore', builder: (context, state) => const ExploreScreen()),
+        GoRoute(path: '/my-learning', builder: (context, state) => const MyLearningScreen()),
 
-      // Role ownership check: each top-level route belongs to exactly one
-      // role's home. A session whose role doesn't own the section it's
-      // requesting gets redirected to its own home instead.
-      const Map<String, AppRole> routeOwner = <String, AppRole>{
-        '/home': AppRole.learner,
-        '/instructor': AppRole.instructor,
-        '/employer': AppRole.employer,
-        '/admin': AppRole.admin,
-        // '/corporate' intentionally omitted: both CORP_ADMIN and
-        // CORP_MANAGER own it, checked separately below.
-      };
-      if (location == '/corporate') {
-        final bool corpOwnsIt =
-            auth.role == AppRole.corpAdmin || auth.role == AppRole.corpManager;
-        if (!corpOwnsIt) return home;
-      } else {
-        final AppRole? owner = routeOwner[location];
-        if (owner != null && owner != auth.role) return home;
-      }
+        GoRoute(
+          path: '/course/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return CourseDetailScreen(courseId: id);
+          },
+          routes: [
+            GoRoute(
+              path: 'curriculum',
+              builder: (context, state) {
+                final id = state.pathParameters['id'] ?? '';
+                return CurriculumScreen(courseId: id);
+              },
+            ),
+          ],
+        ),
 
-      return null;
-    },
-    routes: <RouteBase>[
-      GoRoute(
-        path: '/login',
-        name: 'login',
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/instructor',
-        name: 'instructor',
-        builder: (context, state) => const InstructorDashboardScreen(),
-      ),
-      GoRoute(
-        path: '/corporate',
-        name: 'corporate',
-        builder: (context, state) => const CorporateDashboardScreen(),
-      ),
-      GoRoute(
-        path: '/employer',
-        name: 'employer',
-        builder: (context, state) => const EmployerDashboardScreen(),
-      ),
-      GoRoute(
-        path: '/admin',
-        name: 'admin',
-        builder: (context, state) => const AdminDashboardScreen(),
-      ),
-      // Next up, following 01-screens-spec.md build order:
-      // GoRoute(path: '/explore', ...)          // screen 09
-      // GoRoute(path: '/course/:id', ...)       // screen 11
-      // GoRoute(path: '/ai-tutor', ...)         // screen 21
-    ],
-  );
-});
+        GoRoute(
+          path: '/player/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return VideoPlayerScreen(lessonId: id);
+          },
+        ),
+
+        GoRoute(
+          path: '/quiz/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id'] ?? '';
+            return QuizScreen(lessonId: id);
+          },
+        ),
+
+        GoRoute(
+          path: '/quiz-result',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>? ?? const {};
+            return QuizResultScreen(
+              result: extra['result'] as QuizAttemptResult,
+              questions: extra['questions'] as List<QuizQuestion>,
+              lessonId: extra['lessonId'] as String,
+            );
+          },
+        ),
+
+        GoRoute(
+          path: '/tutor',
+          builder: (context, state) {
+            final contextTitle = state.extra as String?;
+            return AiTutorScreen(contextTitle: contextTitle ?? 'your learning journey');
+          },
+        ),
+
+        // --- Instructor (Phase 2: RBAC + Role Shell) ------------------------
+        GoRoute(path: '/instructor', builder: (context, state) => const InstructorDashboardScreen()),
+        GoRoute(path: '/instructor/courses', builder: (context, state) => const MyCoursesScreen()),
+        GoRoute(path: '/instructor/revenue', builder: (context, state) => const InstructorRevenueScreen()),
+        GoRoute(
+          path: '/instructor/create-course',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'Create Course',
+            description:
+                'The 4-step course wizard and full Course Builder (with real '
+                'video upload) are being built in Phase 3.',
+            icon: Icons.video_call_outlined,
+          ),
+        ),
+        GoRoute(
+          path: '/instructor/go-live',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'Go Live',
+            description: 'Live session hosting (WebRTC) is planned for a later phase.',
+            phaseLabel: 'a later phase',
+            icon: Icons.podcasts_outlined,
+          ),
+        ),
+
+        // --- Corporate (Phase 2: RBAC + Role Shell) -------------------------
+        GoRoute(path: '/corporate', builder: (context, state) => const CorporateDashboardScreen()),
+        GoRoute(
+          path: '/corporate/employees',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'Employee Management',
+            description:
+                'Search, filters, bulk actions and CSV import for managing employees '
+                'are being built in Phase 3, wired to /api/v1/corporate/employees.',
+          ),
+        ),
+        GoRoute(
+          path: '/corporate/learning-paths',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'Learning Paths',
+            description:
+                'Creating and assigning learning paths to employees is being built '
+                'in Phase 3, wired to /api/v1/corporate/learning-paths.',
+          ),
+        ),
+
+        // --- Employer (Phase 2: RBAC + Role Shell) --------------------------
+        GoRoute(path: '/employer', builder: (context, state) => const EmployerDashboardScreen()),
+
+        // --- Admin (Phase 2: RBAC + Role Shell) -----------------------------
+        GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardScreen()),
+        GoRoute(
+          path: '/admin/users',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'User Management',
+            description:
+                'The full user table, role/status editing and suspend action are '
+                'being built in Phase 3, wired to /api/v1/admin/users.',
+          ),
+        ),
+        GoRoute(
+          path: '/admin/moderation',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'Course Moderation',
+            description:
+                'Reviewing pending courses with approve/reject actions is being '
+                'built in Phase 3, wired to /api/v1/admin/courses/pending.',
+          ),
+        ),
+        GoRoute(
+          path: '/admin/payments',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'Payment Management',
+            description:
+                'Transaction history, refunds and exports are being built in '
+                'Phase 3, wired to /api/v1/admin/payments — and to a real payment '
+                'gateway (e.g. Omise) in Phase 4.',
+          ),
+        ),
+        GoRoute(
+          path: '/admin/settings',
+          builder: (context, state) => const ComingSoonScreen(
+            title: 'Platform Settings',
+            description: 'Platform-wide configuration is planned for a later phase.',
+            phaseLabel: 'a later phase',
+            icon: Icons.settings_outlined,
+          ),
+        ),
+      ],
+    );
+  }
+}

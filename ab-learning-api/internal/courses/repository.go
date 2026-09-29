@@ -1,131 +1,140 @@
 package courses
 
 import (
-	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"strings"
+
+	"github.com/ablearning/api/internal/database"
 )
 
 var ErrNotFound = errors.New("course not found")
 
-type Repository struct {
-	db *sql.DB
-}
+type Repository struct{ db *sql.DB }
 
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{db: db}
-}
+func NewRepository(db *sql.DB) *Repository { return &Repository{db: db} }
 
-const baseSelect = `
-	SELECT c.id, c.title, c.slug, c.description, c.thumbnail_url, c.price,
-	       c.discount_price, c.rating_avg, c.student_count, c.level, c.status,
-	       COALESCE(p.first_name, u.email, ''), cat.name_en
+const courseSelect = `
+	SELECT c.id, c.title, c.slug, COALESCE(c.description,''), COALESCE(c.thumbnail_url,''),
+	       c.price, c.discount_price, c.rating_avg, c.student_count, c.level, c.status,
+	       cat.slug, i.id, TRIM(CONCAT(COALESCE(p.first_name,''),' ',COALESCE(p.last_name,'')))
 	FROM courses c
-	JOIN instructors ins ON ins.id = c.instructor_id
-	JOIN users u ON u.id = ins.user_id
-	LEFT JOIN profiles p ON p.user_id = u.id
 	JOIN categories cat ON cat.id = c.category_id
-`
+	JOIN instructors i ON i.id = c.instructor_id
+	LEFT JOIN profiles p ON p.user_id = i.user_id`
 
-func scanCourse(scanner interface{ Scan(...any) error }) (Course, error) {
+func scanCourse(sc interface{ Scan(...any) error }) (Course, error) {
 	var c Course
 	var discount sql.NullFloat64
-	err := scanner.Scan(&c.ID, &c.Title, &c.Slug, &c.Description, &c.ThumbnailURL,
-		&c.Price, &discount, &c.RatingAvg, &c.StudentCount, &c.Level, &c.Status,
-		&c.InstructorName, &c.CategoryName)
+	err := sc.Scan(&c.ID, &c.Title, &c.Slug, &c.Description, &c.ThumbnailURL, &c.Price, &discount,
+		&c.RatingAvg, &c.StudentCount, &c.Level, &c.Status, &c.Category, &c.Instructor.ID, &c.Instructor.DisplayName)
 	if discount.Valid {
-		c.DiscountPrice = &discount.Float64
+		v := discount.Float64
+		c.DiscountPrice = &v
 	}
 	return c, err
 }
 
-// List implements GET /api/v1/courses (screen 09 — Explore) with optional
-// category/level filters and simple offset pagination.
-func (repo *Repository) List(ctx context.Context, params ListParams) ([]Course, error) {
-	query := baseSelect + ` WHERE c.status = 'published'`
-	args := []any{}
-
-	if params.Category != "" {
-		query += ` AND cat.slug = ?`
-		args = append(args, params.Category)
+func (r *Repository) List(f ListFilter) ([]Course, error) {
+	where := []string{"c.status = 'published'"}
+	var args []any
+	if f.Category != "" {
+		where = append(where, "cat.slug = ?")
+		args = append(args, f.Category)
 	}
-	if params.Level != "" {
-		query += ` AND c.level = ?`
-		args = append(args, params.Level)
+	if f.Level != "" {
+		where = append(where, "c.level = ?")
+		args = append(args, f.Level)
 	}
-
-	if params.Page < 1 {
-		params.Page = 1
+	if f.Query != "" {
+		where = append(where, "(c.title LIKE ? OR c.description LIKE ?)")
+		args = append(args, database.Like(f.Query), database.Like(f.Query))
 	}
-	if params.Limit < 1 || params.Limit > 100 {
-		params.Limit = 20
-	}
-	offset := (params.Page - 1) * params.Limit
-
-	query += ` ORDER BY c.created_at DESC LIMIT ? OFFSET ?`
-	args = append(args, params.Limit, offset)
-
-	rows, err := repo.db.QueryContext(ctx, query, args...)
+	args = append(args, f.Limit, f.Offset)
+	rows, err := r.db.Query(courseSelect+" WHERE "+strings.Join(where, " AND ")+
+		" ORDER BY c.student_count DESC, c.id DESC LIMIT ? OFFSET ?", args...)
 	if err != nil {
-		return nil, fmt.Errorf("list courses: %w", err)
+		return nil, err
 	}
 	defer rows.Close()
-
-	var out []Course
+	out := []Course{}
 	for rows.Next() {
 		c, err := scanCourse(rows)
 		if err != nil {
-			return nil, fmt.Errorf("scan course row: %w", err)
+			return nil, err
 		}
 		out = append(out, c)
-	}
-	if out == nil {
-		out = []Course{}
 	}
 	return out, rows.Err()
 }
 
-// Search implements GET /api/v1/search?q= (screen 10) — a simple LIKE
-// match on title; swap for full-text search (or an external index) once
-// the catalog is large enough for it to matter.
-func (repo *Repository) Search(ctx context.Context, q string, limit int) ([]Course, error) {
-	if limit < 1 {
-		limit = 20
-	}
-	rows, err := repo.db.QueryContext(ctx, baseSelect+`
-		WHERE c.status = 'published' AND c.title LIKE ?
-		ORDER BY c.rating_avg DESC
-		LIMIT ?
-	`, "%"+strings.TrimSpace(q)+"%", limit)
-	if err != nil {
-		return nil, fmt.Errorf("search courses: %w", err)
-	}
-	defer rows.Close()
-
-	var out []Course
-	for rows.Next() {
-		c, err := scanCourse(rows)
-		if err != nil {
-			return nil, fmt.Errorf("scan course row: %w", err)
-		}
-		out = append(out, c)
-	}
-	if out == nil {
-		out = []Course{}
-	}
-	return out, rows.Err()
-}
-
-func (repo *Repository) FindByID(ctx context.Context, id int64) (Course, error) {
-	row := repo.db.QueryRowContext(ctx, baseSelect+` WHERE c.id = ?`, id)
-	c, err := scanCourse(row)
+func (r *Repository) Get(id int64) (Course, error) {
+	c, err := scanCourse(r.db.QueryRow(courseSelect+" WHERE c.id = ? AND c.status = 'published'", id))
 	if errors.Is(err, sql.ErrNoRows) {
 		return Course{}, ErrNotFound
 	}
+	return c, err
+}
+
+func (r *Repository) Curriculum(courseID int64) ([]Section, error) {
+	rows, err := r.db.Query(`
+		SELECT s.id, s.title, l.id, l.title, l.type, l.duration_seconds, COALESCE(l.video_url,''), l.is_preview
+		FROM course_sections s
+		LEFT JOIN lessons l ON l.section_id = s.id
+		WHERE s.course_id = ?
+		ORDER BY s.sort_order, s.id, l.sort_order, l.id`, courseID)
 	if err != nil {
-		return Course{}, fmt.Errorf("find course: %w", err)
+		return nil, err
 	}
-	return c, nil
+	defer rows.Close()
+	sections := []Section{}
+	idx := map[int64]int{}
+	for rows.Next() {
+		var sid int64
+		var stitle string
+		var lid sql.NullInt64
+		var ltitle, ltype, lurl sql.NullString
+		var dur sql.NullInt64
+		var preview sql.NullBool
+		if err := rows.Scan(&sid, &stitle, &lid, &ltitle, &ltype, &dur, &lurl, &preview); err != nil {
+			return nil, err
+		}
+		i, ok := idx[sid]
+		if !ok {
+			sections = append(sections, Section{ID: sid, Title: stitle, Lessons: []Lesson{}})
+			i = len(sections) - 1
+			idx[sid] = i
+		}
+		if lid.Valid {
+			sections[i].Lessons = append(sections[i].Lessons, Lesson{
+				ID: lid.Int64, Title: ltitle.String, Type: ltype.String,
+				DurationSeconds: int(dur.Int64), VideoURL: lurl.String, IsPreview: preview.Bool,
+			})
+		}
+	}
+	return sections, rows.Err()
+}
+
+type Category struct {
+	ID     int64  `json:"id"`
+	NameTH string `json:"name_th"`
+	NameEN string `json:"name_en"`
+	Slug   string `json:"slug"`
+}
+
+func (r *Repository) Categories() ([]Category, error) {
+	rows, err := r.db.Query(`SELECT id, name_th, name_en, slug FROM categories ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []Category{}
+	for rows.Next() {
+		var c Category
+		if err := rows.Scan(&c.ID, &c.NameTH, &c.NameEN, &c.Slug); err != nil {
+			return nil, err
+		}
+		out = append(out, c)
+	}
+	return out, rows.Err()
 }
