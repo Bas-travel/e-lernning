@@ -9,16 +9,16 @@ import (
 )
 
 type Config struct {
-	Env             string // dev | staging | production
-	Port            string
-	DBDSN           string
-	JWTSecret       string
-	UploadDir       string
-	MaxVideoMB      int64
-	MigrationsDir   string
-	SeedDev         bool
-	CORSAllowOrigin string
-	RateLimitRequests int
+	Env                string // dev | staging | production
+	Port               string
+	DBDSN              string
+	JWTSecret          string
+	UploadDir          string
+	MaxVideoMB         int64
+	MigrationsDir      string
+	SeedDev            bool
+	CORSAllowOrigin    string
+	RateLimitRequests  int
 	RateLimitWindowSec int64
 }
 
@@ -31,16 +31,16 @@ func Load() Config {
 		dsnDefault = ""
 	}
 	c := Config{
-		Env:             env,
-		Port:            get("PORT", "8080"),
-		DBDSN:           get("DB_DSN", dsnDefault),
-		JWTSecret:       os.Getenv("JWT_SECRET"),
-		UploadDir:       get("UPLOAD_DIR", "./uploads"),
-		MaxVideoMB:      getInt("MAX_VIDEO_MB", 500),
-		MigrationsDir:   get("MIGRATIONS_DIR", "db/migrations"),
-		SeedDev:         get("SEED_DEV", "false") == "true",
-		CORSAllowOrigin: get("CORS_ALLOW_ORIGIN", corsDefault),
-		RateLimitRequests: int(getInt("RATE_LIMIT_REQUESTS", 120)),
+		Env:                env,
+		Port:               get("PORT", "8080"),
+		DBDSN:              get("DB_DSN", dsnDefault),
+		JWTSecret:          os.Getenv("JWT_SECRET"),
+		UploadDir:          get("UPLOAD_DIR", "./uploads"),
+		MaxVideoMB:         getInt("MAX_VIDEO_MB", 500),
+		MigrationsDir:      get("MIGRATIONS_DIR", "db/migrations"),
+		SeedDev:            get("SEED_DEV", "false") == "true",
+		CORSAllowOrigin:    get("CORS_ALLOW_ORIGIN", corsDefault),
+		RateLimitRequests:  int(getInt("RATE_LIMIT_REQUESTS", 120)),
 		RateLimitWindowSec: getInt("RATE_LIMIT_WINDOW_SECONDS", 60),
 	}
 	if c.JWTSecret == "" {

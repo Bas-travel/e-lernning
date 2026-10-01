@@ -4,12 +4,12 @@ import "testing"
 
 func TestValidateRequiresProductionSecretsAndOrigins(t *testing.T) {
 	valid := Config{
-		Env:             "production",
-		DBDSN:           "app:secret@tcp(db:3306)/ablearning?parseTime=true",
-		JWTSecret:       "01234567890123456789012345678901",
-		CORSAllowOrigin: "https://app.example.com",
-		MaxVideoMB:      500,
-		RateLimitRequests: 120,
+		Env:                "production",
+		DBDSN:              "app:secret@tcp(db:3306)/ablearning?parseTime=true",
+		JWTSecret:          "01234567890123456789012345678901",
+		CORSAllowOrigin:    "https://app.example.com",
+		MaxVideoMB:         500,
+		RateLimitRequests:  120,
 		RateLimitWindowSec: 60,
 	}
 	if err := valid.Validate(); err != nil {

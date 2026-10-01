@@ -42,11 +42,11 @@ func TestGetReturnsNotFoundForMissingCourse(t *testing.T) {
 	}
 	defer db.Close()
 
-	mock.ExpectQuery(regexp.QuoteMeta(courseSelect+" WHERE c.id = ? AND c.status = 'published'")) .
+	mock.ExpectQuery(regexp.QuoteMeta(courseSelect + " WHERE c.id = ? AND c.status = 'published'")).
 		WithArgs(int64(404)).WillReturnRows(sqlmock.NewRows([]string{
-			"id", "title", "slug", "description", "thumbnail_url", "price", "discount_price",
-			"rating_avg", "student_count", "level", "status", "category", "instructor_id", "instructor_name",
-		}))
+		"id", "title", "slug", "description", "thumbnail_url", "price", "discount_price",
+		"rating_avg", "student_count", "level", "status", "category", "instructor_id", "instructor_name",
+	}))
 
 	service := NewService(NewRepository(db))
 	_, err = service.Get(404)
