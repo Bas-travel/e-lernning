@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/internal/platform"
 )
 
 // Handler exposes the learning domain over HTTP. Every route is
@@ -60,7 +60,7 @@ func (h *Handler) enroll(w http.ResponseWriter, r *http.Request) {
 	// The token is authoritative. A body that names a different user is an
 	// attempt to enroll somebody else, which is refused rather than ignored.
 	if req.UserID != 0 && req.UserID != userID {
-		platform.WriteError(w, platform.ErrForbidden("You can only enroll your own account."))
+		platform.WriteError(w, platform.Forbidden("You can only enroll your own account."))
 		return
 	}
 

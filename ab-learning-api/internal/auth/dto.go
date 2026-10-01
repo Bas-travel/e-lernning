@@ -37,12 +37,13 @@ type AuthTokenResponse struct {
 }
 
 func toUserResponse(u User) UserResponse {
+	avatarURL := u.AvatarURL
 	return UserResponse{
 		ID:        u.ID,
 		Email:     u.Email,
-		Role:      u.RoleCode,
+		Role:      u.Role,
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
-		AvatarURL: u.AvatarURL,
+		AvatarURL: &avatarURL,
 	}
 }

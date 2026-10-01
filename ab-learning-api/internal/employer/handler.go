@@ -3,7 +3,7 @@ package employer
 import (
 	"net/http"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/internal/platform"
 )
 
 type Handler struct {

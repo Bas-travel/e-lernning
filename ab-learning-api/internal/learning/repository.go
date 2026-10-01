@@ -51,6 +51,32 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
+func (r *Repository) IsEnrolled(ctx context.Context, userID, courseID int64) (bool, error) {
+	_, err := r.FindEnrollmentByUserAndCourse(ctx, userID, courseID)
+	if errors.Is(err, ErrEnrollmentNotFound) {
+		return false, nil
+	}
+	return err == nil, err
+}
+
+func (r *Repository) HasPaidForCourse(ctx context.Context, userID, courseID int64) (bool, error) {
+	var paid bool
+	err := r.db.QueryRowContext(ctx, `
+		SELECT EXISTS (
+			SELECT 1
+			FROM orders o
+			JOIN order_items oi ON oi.order_id = o.id
+			JOIN payments p ON p.order_id = o.id
+			WHERE o.user_id = ? AND oi.course_id = ?
+			  AND o.status = 'paid' AND p.status = 'success'
+		)
+	`, userID, courseID).Scan(&paid)
+	if err != nil {
+		return false, fmt.Errorf("check course purchase: %w", err)
+	}
+	return paid, nil
+}
+
 const enrollmentCols = `
 	e.id, e.user_id, e.course_id, e.progress_pct, e.status,
 	e.last_lesson_id, e.enrolled_at, e.completed_at

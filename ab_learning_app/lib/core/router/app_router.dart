@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/mock/models.dart';
 import '../../features/admin/presentation/admin_dashboard_screen.dart';
@@ -20,6 +21,8 @@ import '../../features/quiz/presentation/quiz_result_screen.dart';
 import '../../features/quiz/presentation/quiz_screen.dart';
 import '../widgets/coming_soon_screen.dart';
 import '../widgets/main_shell.dart';
+
+final appRouterProvider = Provider<GoRouter>((ref) => AppRouter().router);
 
 class AppRouter {
   late final GoRouter router;

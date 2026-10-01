@@ -65,6 +65,27 @@ class MockApiClient implements ApiClient {
   }
 
   @override
+  Future<Map<String, dynamic>> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) async {
+    await Future<void>.delayed(_latency);
+    if (firstName.trim().isEmpty || lastName.trim().isEmpty || !email.contains('@') || password.length < 8) {
+      throw const ApiException(code: 'VALIDATION_ERROR', message: 'Please enter valid registration details.');
+    }
+    return <String, dynamic>{
+      'id': 0,
+      'email': email.trim().toLowerCase(),
+      'role': 'LEARNER',
+      'first_name': firstName.trim(),
+      'last_name': lastName.trim(),
+      'avatar_url': null,
+    };
+  }
+
+  @override
   Future<Map<String, dynamic>> getHome() async {
     await Future<void>.delayed(_latency);
 

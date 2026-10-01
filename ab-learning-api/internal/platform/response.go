@@ -35,6 +35,8 @@ var (
 	ErrInvalidCreds = NewAppError(http.StatusUnauthorized, "INVALID_CREDENTIALS", "Email/phone or password is incorrect.")
 	ErrNotFound     = func(msg string) *AppError { return NewAppError(http.StatusNotFound, "NOT_FOUND", msg) }
 	ErrConflict     = func(msg string) *AppError { return NewAppError(http.StatusConflict, "CONFLICT", msg) }
+	Forbidden       = func(msg string) *AppError { return NewAppError(http.StatusForbidden, "FORBIDDEN", msg) }
+	PaymentRequired = func(msg string) *AppError { return NewAppError(http.StatusPaymentRequired, "PAYMENT_REQUIRED", msg) }
 	ErrInternal     = NewAppError(http.StatusInternalServerError, "INTERNAL_ERROR", "Something went wrong. Please try again.")
 )
 

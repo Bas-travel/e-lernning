@@ -5,7 +5,7 @@ import (
 	"errors"
 	"math"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/internal/platform"
 )
 
 // Store is the persistence contract this service needs. Declaring it here
@@ -105,7 +105,7 @@ func (s *Service) Enroll(ctx context.Context, userID, courseID int64) (Enrollmen
 			return EnrollmentResponse{}, false, err
 		}
 		if !paid {
-			return EnrollmentResponse{}, false, platform.ErrPaymentRequired("Purchase this course before enrolling.")
+			return EnrollmentResponse{}, false, platform.PaymentRequired("Purchase this course before enrolling.")
 		}
 	}
 
@@ -157,7 +157,7 @@ func (s *Service) GetLesson(ctx context.Context, userID, lessonID int64) (Lesson
 
 	enrollment, err := s.store.FindEnrollmentByUserAndCourse(ctx, userID, lesson.CourseID)
 	if errors.Is(err, ErrEnrollmentNotFound) {
-		return LessonResponse{}, platform.ErrForbidden("Enroll in this course to watch this lesson.")
+		return LessonResponse{}, platform.Forbidden("Enroll in this course to watch this lesson.")
 	}
 	if err != nil {
 		return LessonResponse{}, err
@@ -202,7 +202,7 @@ func (s *Service) SaveLessonProgress(ctx context.Context, userID, lessonID int64
 
 	enrollment, err := s.store.FindEnrollmentByUserAndCourse(ctx, userID, lesson.CourseID)
 	if errors.Is(err, ErrEnrollmentNotFound) {
-		return LessonProgressResult{}, platform.ErrForbidden("Enroll in this course to track progress.")
+		return LessonProgressResult{}, platform.Forbidden("Enroll in this course to track progress.")
 	}
 	if err != nil {
 		return LessonProgressResult{}, err

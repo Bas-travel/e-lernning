@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/internal/platform"
 )
 
 // ---- Fakes ----

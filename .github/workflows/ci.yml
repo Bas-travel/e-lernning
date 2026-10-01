@@ -10,13 +10,16 @@ jobs:
   backend:
     name: Backend — Lint & Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ab-learning-api
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: '1.22.x'
 
       - name: Cache Go modules
         uses: actions/cache@v4
@@ -76,16 +79,19 @@ jobs:
   frontend:
     name: Frontend — Analyze & Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ab_learning_app
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0'
+          flutter-version: '3.44.2'
 
       - name: Set flutter version env
-        run: echo "FLUTTER_VERSION=3.13.0" >> $GITHUB_ENV
+        run: echo "FLUTTER_VERSION=3.44.2" >> $GITHUB_ENV
 
       - name: Flutter pub get
         run: flutter pub get
@@ -101,15 +107,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: flutter-coverage
-          path: coverage/lcov.info
+          path: ab_learning_app/coverage/lcov.info
 
       - name: Compute frontend coverage percent
         if: always()
         run: |
           LCOV_FILE=""
-          if [ -f ab_learning_app/coverage/lcov.info ]; then
-            LCOV_FILE=ab_learning_app/coverage/lcov.info
-          elif [ -f coverage/lcov.info ]; then
+          if [ -f coverage/lcov.info ]; then
             LCOV_FILE=coverage/lcov.info
           fi
           if [ -n "$LCOV_FILE" ]; then

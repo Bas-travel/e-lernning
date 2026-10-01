@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/internal/platform"
 )
 
 // ---- Fake store ----

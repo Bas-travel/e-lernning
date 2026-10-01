@@ -18,6 +18,14 @@ abstract class ApiClient {
     required String password,
   });
 
+  /// POST /api/v1/auth/register
+  Future<Map<String, dynamic>> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  });
+
   /// GET /api/v1/home
   Future<Map<String, dynamic>> getHome();
 

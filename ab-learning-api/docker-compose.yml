@@ -30,9 +30,12 @@ services:
         condition: service_healthy
     environment:
       PORT: "8080"
+      APP_ENV: "dev"
       DB_DSN: "ab_app:ab_app_pw@tcp(mysql:3306)/ab_learning?parseTime=true&charset=utf8mb4"
-      JWT_SECRET: "dev-secret-change-me"
-      ALLOWED_ORIGIN: "*"
+      JWT_SECRET: "dev-only-insecure-secret-change-me"
+      CORS_ALLOW_ORIGIN: "http://localhost:3000"
+      RATE_LIMIT_REQUESTS: "120"
+      RATE_LIMIT_WINDOW_SECONDS: "60"
     ports:
       - "8080:8080"
 

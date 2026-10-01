@@ -1,7 +1,5 @@
 package employer
 
-// Dashboard mirrors screen 39's KPI cards for an Employer's own job
-// postings and applicant pipeline.
 type Dashboard struct {
 	CompanyName       string `json:"company_name"`
 	OpenJobs          int    `json:"open_jobs"`

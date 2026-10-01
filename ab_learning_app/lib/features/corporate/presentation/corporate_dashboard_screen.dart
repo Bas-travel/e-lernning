@@ -6,6 +6,7 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
 import '../../../core/widgets/role_switcher_sheet.dart';
 import '../../../data/mock/current_user.dart';
+import '../../../data/mock/models.dart';
 import '../../../data/mock/mock_repository.dart';
 
 /// Screen 36 — Corporate Dashboard.

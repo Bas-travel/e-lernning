@@ -13,6 +13,7 @@ func Register(mux *http.ServeMux, svc *Service) {
 	h := &Handler{svc: svc}
 	mux.HandleFunc("GET /api/v1/categories", h.categories)
 	mux.HandleFunc("GET /api/v1/courses", h.list)
+	mux.HandleFunc("GET /api/v1/search", h.list)
 	mux.HandleFunc("GET /api/v1/courses/{id}", h.get)
 	mux.HandleFunc("GET /api/v1/courses/{id}/curriculum", h.curriculum)
 }

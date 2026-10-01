@@ -62,6 +62,29 @@ class DioApiClient implements ApiClient {
   }
 
   @override
+  Future<Map<String, dynamic>> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final Response<Map<String, dynamic>> response = await _dio.post(
+        '/auth/register',
+        data: <String, dynamic>{
+          'first_name': firstName,
+          'last_name': lastName,
+          'email': email,
+          'password': password,
+        },
+      );
+      return response.data ?? <String, dynamic>{};
+    } on DioException catch (e) {
+      throw _mapDioError(e);
+    }
+  }
+
+  @override
   Future<Map<String, dynamic>> getHome() async {
     try {
       final Response<Map<String, dynamic>> response =

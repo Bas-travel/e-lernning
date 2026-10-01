@@ -98,13 +98,29 @@ class Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (Color bg, Color fg) = switch (variant) {
-      PillVariant.success => (const Color(0xFFDCFCE7), const Color(0xFF166534)),
-      PillVariant.warning => (const Color(0xFFFEF3C7), const Color(0xFF92400E)),
-      PillVariant.error => (const Color(0xFFFEE2E2), const Color(0xFF991B1B)),
-      PillVariant.live => (const Color(0xFFCFFAFE), const Color(0xFF0E7490)),
-      PillVariant.neutral => (AppColors.border, AppColors.textSecondary),
-    };
+    late final Color bg;
+    late final Color fg;
+    switch (variant) {
+      case PillVariant.success:
+        bg = const Color(0xFFDCFCE7);
+        fg = const Color(0xFF166534);
+        break;
+      case PillVariant.warning:
+        bg = const Color(0xFFFEF3C7);
+        fg = const Color(0xFF92400E);
+        break;
+      case PillVariant.error:
+        bg = const Color(0xFFFEE2E2);
+        fg = const Color(0xFF991B1B);
+        break;
+      case PillVariant.live:
+        bg = const Color(0xFFCFFAFE);
+        fg = const Color(0xFF0E7490);
+        break;
+      case PillVariant.neutral:
+        bg = AppColors.border;
+        fg = AppColors.textSecondary;
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(

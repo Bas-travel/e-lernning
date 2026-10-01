@@ -6,7 +6,6 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
 import '../../../core/widgets/role_switcher_sheet.dart';
 import '../../../data/mock/mock_repository.dart';
-import '../../../data/mock/models.dart';
 
 /// Screen 31 — Instructor Dashboard.
 class InstructorDashboardScreen extends StatelessWidget {

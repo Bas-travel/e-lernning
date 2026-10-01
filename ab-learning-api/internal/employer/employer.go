@@ -24,7 +24,7 @@ type Candidate struct {
 	Job        string  `json:"job"`
 }
 
-type Dashboard struct {
+type LegacyDashboard struct {
 	Company    string      `json:"company"`
 	KPIs       []KPI       `json:"kpis"`
 	TopMatches []Candidate `json:"top_matches"`
@@ -47,9 +47,9 @@ func Register(mux *http.ServeMux, guard middleware.Guard, db *sql.DB) {
 	}, middleware.RoleEmployer))
 }
 
-func load(r *http.Request, db *sql.DB, userID int64) (Dashboard, error) {
+func load(r *http.Request, db *sql.DB, userID int64) (LegacyDashboard, error) {
 	ctx := r.Context()
-	var d Dashboard
+	var d LegacyDashboard
 	var empID int64
 	if err := db.QueryRowContext(ctx, `SELECT id, company_name FROM employers WHERE user_id = ?`, userID).Scan(&empID, &d.Company); err != nil {
 		return d, err

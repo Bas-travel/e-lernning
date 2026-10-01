@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	// "github.com/ablearning/api/pkg/httpx"
-	"github.com/ablearning/ab-learning-api/pkg/httpx"
+	"github.com/ablearning/api/pkg/httpx"
 )
 
 func RegisterRoutes(mux *http.ServeMux) {

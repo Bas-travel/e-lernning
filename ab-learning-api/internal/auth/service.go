@@ -38,15 +38,15 @@ func (s *Service) tokens(u userRow) (AuthTokenResponse, error) {
 	if err != nil {
 		return AuthTokenResponse{}, err
 	}
-	return AuthTokenResponse{AccessToken: access, RefreshToken: refresh, User: u.User}, nil
+	return AuthTokenResponse{AccessToken: access, RefreshToken: refresh, User: toUserResponse(u.User)}, nil
 }
 
 func (s *Service) Login(req LoginRequest) (AuthTokenResponse, error) {
-	email := strings.ToLower(strings.TrimSpace(req.Email))
-	if email == "" || req.Password == "" {
+	identifier := strings.ToLower(strings.TrimSpace(req.Identifier))
+	if identifier == "" || req.Password == "" {
 		return AuthTokenResponse{}, ErrInvalidCredentials
 	}
-	u, err := s.repo.ByEmail(email)
+	u, err := s.repo.ByEmail(identifier)
 	if err != nil {
 		// Same error for unknown user and wrong password (no user enumeration).
 		return AuthTokenResponse{}, ErrInvalidCredentials

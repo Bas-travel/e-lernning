@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ablearning/ab-learning-api/internal/platform"
+	"github.com/ablearning/api/internal/platform"
 )
 
 // Store is the persistence contract the grading rules need.
@@ -87,7 +87,7 @@ func (s *Service) Submit(ctx context.Context, userID, quizID int64, answers map[
 			return AttemptResultResponse{}, err
 		}
 		if !enrolled {
-			return AttemptResultResponse{}, platform.ErrForbidden("Enroll in this course before taking its quiz.")
+			return AttemptResultResponse{}, platform.Forbidden("Enroll in this course before taking its quiz.")
 		}
 	}
 
