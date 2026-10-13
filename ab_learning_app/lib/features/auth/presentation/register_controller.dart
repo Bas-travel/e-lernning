@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../core/network/api_exception.dart';
 import '../data/auth_repository.dart';
 
 class RegisterController extends ChangeNotifier {
@@ -32,32 +33,36 @@ class RegisterController extends ChangeNotifier {
   //   }
   // }
 
-Future<String?> register({
-  required String firstName,
-  required String lastName,
-  required String email,
-  required String password,
-}) async {
-  isLoading = true;
-  errorMessage = null;
-  notifyListeners();
+  Future<String?> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
 
-  try {
-    await _repository.register(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: password,
-    );
-    isLoading = false;
-    notifyListeners();
-    return null;
-  } catch (e) {
-    isLoading = false;
-    errorMessage = 'Registration failed. Please check your details and try again.';
-    notifyListeners();
-    return errorMessage;
+    try {
+      await _repository.register(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+      );
+      isLoading = false;
+      notifyListeners();
+      return null;
+    } on ApiException catch (error) {
+      isLoading = false;
+      errorMessage = error.message;
+      notifyListeners();
+      return errorMessage;
+    } catch (_) {
+      isLoading = false;
+      errorMessage = 'สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
+      notifyListeners();
+      return errorMessage;
+    }
   }
-}
-
 }

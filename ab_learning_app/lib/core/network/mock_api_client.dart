@@ -20,23 +20,42 @@ class MockApiClient implements ApiClient {
   /// development instead of flashing instantly.
   static const Duration _latency = Duration(milliseconds: 700);
 
-  static final Map<String, Map<String, dynamic>> _seedUsers = <String, Map<String, dynamic>>{
+  static final Map<String, Map<String, dynamic>> _seedUsers =
+      <String, Map<String, dynamic>>{
     'learner@ablearning.com': <String, dynamic>{
-      'id': 3, 'role': 'LEARNER', 'first_name': 'Anan', 'last_name': 'Suksawat',
+      'id': 3,
+      'role': 'LEARNER',
+      'first_name': 'Anan',
+      'last_name': 'Suksawat',
     },
     'krit@ablearning.com': <String, dynamic>{
-      'id': 1, 'role': 'INSTRUCTOR', 'first_name': 'Krit', 'last_name': 'Anantasin',
+      'id': 1,
+      'role': 'INSTRUCTOR',
+      'first_name': 'Krit',
+      'last_name': 'Anantasin',
     },
     'corp@ablearning.com': <String, dynamic>{
-      'id': 4, 'role': 'CORP_ADMIN', 'first_name': 'Siriwan', 'last_name': 'Kittipong',
+      'id': 4,
+      'role': 'CORP_ADMIN',
+      'first_name': 'Siriwan',
+      'last_name': 'Kittipong',
     },
     'employer@ablearning.com': <String, dynamic>{
-      'id': 5, 'role': 'EMPLOYER', 'first_name': 'Pakorn', 'last_name': 'Srisawat',
+      'id': 5,
+      'role': 'EMPLOYER',
+      'first_name': 'Pakorn',
+      'last_name': 'Srisawat',
     },
     'admin@ablearning.com': <String, dynamic>{
-      'id': 6, 'role': 'ADMIN', 'first_name': 'System', 'last_name': 'Administrator',
+      'id': 6,
+      'role': 'ADMIN',
+      'first_name': 'System',
+      'last_name': 'Administrator',
     },
   };
+  static final Map<String, Map<String, dynamic>> _registeredUsers = {};
+  static final Map<String, String> _registeredPasswords = {};
+  static int _nextRegisteredUserId = 100;
 
   @override
   Future<Map<String, dynamic>> login({
@@ -45,8 +64,13 @@ class MockApiClient implements ApiClient {
   }) async {
     await Future<void>.delayed(_latency);
 
-    final Map<String, dynamic>? seed = _seedUsers[identifier.trim().toLowerCase()];
-    if (seed == null || password != 'password123') {
+    final normalizedEmail = identifier.trim().toLowerCase();
+    final Map<String, dynamic>? seed =
+        _seedUsers[normalizedEmail] ?? _registeredUsers[normalizedEmail];
+    final isValidPassword = _registeredPasswords.containsKey(normalizedEmail)
+        ? _registeredPasswords[normalizedEmail] == password
+        : password == 'password123';
+    if (seed == null || !isValidPassword) {
       throw ApiException.invalidCredentials();
     }
 
@@ -72,12 +96,32 @@ class MockApiClient implements ApiClient {
     required String password,
   }) async {
     await Future<void>.delayed(_latency);
-    if (firstName.trim().isEmpty || lastName.trim().isEmpty || !email.contains('@') || password.length < 8) {
-      throw const ApiException(code: 'VALIDATION_ERROR', message: 'Please enter valid registration details.');
+    if (firstName.trim().isEmpty ||
+        lastName.trim().isEmpty ||
+        !email.contains('@') ||
+        password.length < 8) {
+      throw const ApiException(
+          code: 'VALIDATION_ERROR',
+          message: 'Please enter valid registration details.');
     }
+    final normalizedEmail = email.trim().toLowerCase();
+    if (_seedUsers.containsKey(normalizedEmail) ||
+        _registeredUsers.containsKey(normalizedEmail)) {
+      throw const ApiException(
+          code: 'EMAIL_ALREADY_EXISTS',
+          message: 'อีเมลนี้มีบัญชีแล้ว กรุณาเข้าสู่ระบบ');
+    }
+    final id = _nextRegisteredUserId++;
+    _registeredUsers[normalizedEmail] = <String, dynamic>{
+      'id': id,
+      'role': 'LEARNER',
+      'first_name': firstName.trim(),
+      'last_name': lastName.trim(),
+    };
+    _registeredPasswords[normalizedEmail] = password;
     return <String, dynamic>{
-      'id': 0,
-      'email': email.trim().toLowerCase(),
+      'id': id,
+      'email': normalizedEmail,
       'role': 'LEARNER',
       'first_name': firstName.trim(),
       'last_name': lastName.trim(),

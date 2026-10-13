@@ -13,9 +13,21 @@ class CurrentUser {
   static String email = 'learner@ablearning.co';
 
   static void loginAs(UserRole newRole) {
-    role = newRole;
-    name = role.label;
-    email = '${role.name}@ablearning.co';
+    loginWith(
+      role: newRole,
+      name: newRole.label,
+      email: '${newRole.name}@ablearning.co',
+    );
+  }
+
+  static void loginWith({
+    required UserRole role,
+    required String name,
+    required String email,
+  }) {
+    CurrentUser.role = role;
+    CurrentUser.name = name;
+    CurrentUser.email = email;
   }
 
   static void logout() {

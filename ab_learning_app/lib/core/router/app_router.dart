@@ -5,6 +5,7 @@ import '../../data/mock/models.dart';
 import '../../features/admin/presentation/admin_dashboard_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
+import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/corporate/presentation/corporate_dashboard_screen.dart';
 import '../../features/course/presentation/course_detail_screen.dart';
@@ -35,6 +36,9 @@ class AppRouter {
             builder: (context, state) => const OnboardingScreen()),
         GoRoute(
             path: '/login', builder: (context, state) => const LoginScreen()),
+        GoRoute(
+            path: '/register',
+            builder: (context, state) => const RegisterScreen()),
 
         // --- Learner (bottom-nav shell: Home / Explore / My Learning / AI Tutor)
         GoRoute(path: '/home', builder: (context, state) => const MainShell()),
@@ -45,11 +49,11 @@ class AppRouter {
             path: '/my-learning',
             builder: (context, state) => const MainShell(initialIndex: 2)),
         GoRoute(
-          path: '/community',
-          builder: (context, state) => const MainShell(initialIndex: 3)),
+            path: '/community',
+            builder: (context, state) => const MainShell(initialIndex: 3)),
         GoRoute(
-          path: '/profile',
-          builder: (context, state) => const MainShell(initialIndex: 5)),
+            path: '/profile',
+            builder: (context, state) => const MainShell(initialIndex: 5)),
 
         GoRoute(
           path: '/course/:id',
