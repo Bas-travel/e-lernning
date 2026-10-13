@@ -33,10 +33,12 @@ class CurriculumScreen extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '${course.completedLessons}/${course.totalLessons} lessons completed',
-            style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTypography.caption.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
-          for (final section in sections) _SectionAccordion(courseId: courseId, section: section),
+          for (final section in sections)
+            _SectionAccordion(courseId: courseId, section: section),
         ],
       ),
     );
@@ -58,13 +60,19 @@ class _SectionAccordion extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.card),
         border: Border.all(color: AppColors.cardBorder),
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: true,
-          title: Text(section.title, style: AppTypography.h2),
-          childrenPadding: const EdgeInsets.only(bottom: 4),
-          children: section.lessons.map((lesson) => _LessonRow(courseId: courseId, lesson: lesson)).toList(),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            initiallyExpanded: true,
+            title: Text(section.title, style: AppTypography.h2),
+            childrenPadding: const EdgeInsets.only(bottom: 4),
+            children: section.lessons
+                .map((lesson) => _LessonRow(courseId: courseId, lesson: lesson))
+                .toList(),
+          ),
         ),
       ),
     );
@@ -107,9 +115,12 @@ class _LessonRow extends StatelessWidget {
       leading: Icon(_icon, color: _iconColor()),
       title: Text(
         lesson.title,
-        style: AppTypography.body.copyWith(color: locked ? AppColors.textSecondary : AppColors.text),
+        style: AppTypography.body
+            .copyWith(color: locked ? AppColors.textSecondary : AppColors.text),
       ),
-      subtitle: Text(lesson.duration, style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+      subtitle: Text(lesson.duration,
+          style:
+              AppTypography.caption.copyWith(color: AppColors.textSecondary)),
       trailing: locked ? null : const Icon(Icons.chevron_right, size: 18),
       enabled: !locked,
       onTap: locked

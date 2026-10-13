@@ -3,20 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/mock/models.dart';
 import '../../features/admin/presentation/admin_dashboard_screen.dart';
-import '../../features/ai_tutor/presentation/ai_tutor_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/corporate/presentation/corporate_dashboard_screen.dart';
 import '../../features/course/presentation/course_detail_screen.dart';
 import '../../features/course/presentation/curriculum_screen.dart';
+import '../../features/course/presentation/payment_screen.dart';
 import '../../features/course/presentation/video_player_screen.dart';
 import '../../features/employer/presentation/employer_dashboard_screen.dart';
-import '../../features/explore/presentation/explore_screen.dart';
 import '../../features/instructor/presentation/instructor_dashboard_screen.dart';
 import '../../features/instructor/presentation/instructor_revenue_screen.dart';
 import '../../features/instructor/presentation/my_courses_screen.dart';
-import '../../features/my_learning/presentation/my_learning_screen.dart';
 import '../../features/quiz/presentation/quiz_result_screen.dart';
 import '../../features/quiz/presentation/quiz_screen.dart';
 import '../widgets/coming_soon_screen.dart';
@@ -32,13 +30,26 @@ class AppRouter {
       initialLocation: '/',
       routes: <GoRoute>[
         GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
-        GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
-        GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+        GoRoute(
+            path: '/onboarding',
+            builder: (context, state) => const OnboardingScreen()),
+        GoRoute(
+            path: '/login', builder: (context, state) => const LoginScreen()),
 
         // --- Learner (bottom-nav shell: Home / Explore / My Learning / AI Tutor)
         GoRoute(path: '/home', builder: (context, state) => const MainShell()),
-        GoRoute(path: '/explore', builder: (context, state) => const ExploreScreen()),
-        GoRoute(path: '/my-learning', builder: (context, state) => const MyLearningScreen()),
+        GoRoute(
+            path: '/explore',
+            builder: (context, state) => const MainShell(initialIndex: 1)),
+        GoRoute(
+            path: '/my-learning',
+            builder: (context, state) => const MainShell(initialIndex: 2)),
+        GoRoute(
+          path: '/community',
+          builder: (context, state) => const MainShell(initialIndex: 3)),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const MainShell(initialIndex: 5)),
 
         GoRoute(
           path: '/course/:id',
@@ -55,6 +66,13 @@ class AppRouter {
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: '/checkout/:id',
+          builder: (context, state) => PaymentScreen(
+            courseId: state.pathParameters['id'] ?? '',
+            courseTitle: state.extra as String?,
+          ),
         ),
 
         GoRoute(
@@ -89,14 +107,20 @@ class AppRouter {
           path: '/tutor',
           builder: (context, state) {
             final contextTitle = state.extra as String?;
-            return AiTutorScreen(contextTitle: contextTitle ?? 'your learning journey');
+            return MainShell(initialIndex: 4, tutorContext: contextTitle);
           },
         ),
 
         // --- Instructor (Phase 2: RBAC + Role Shell) ------------------------
-        GoRoute(path: '/instructor', builder: (context, state) => const InstructorDashboardScreen()),
-        GoRoute(path: '/instructor/courses', builder: (context, state) => const MyCoursesScreen()),
-        GoRoute(path: '/instructor/revenue', builder: (context, state) => const InstructorRevenueScreen()),
+        GoRoute(
+            path: '/instructor',
+            builder: (context, state) => const InstructorDashboardScreen()),
+        GoRoute(
+            path: '/instructor/courses',
+            builder: (context, state) => const MyCoursesScreen()),
+        GoRoute(
+            path: '/instructor/revenue',
+            builder: (context, state) => const InstructorRevenueScreen()),
         GoRoute(
           path: '/instructor/create-course',
           builder: (context, state) => const ComingSoonScreen(
@@ -111,14 +135,17 @@ class AppRouter {
           path: '/instructor/go-live',
           builder: (context, state) => const ComingSoonScreen(
             title: 'Go Live',
-            description: 'Live session hosting (WebRTC) is planned for a later phase.',
+            description:
+                'Live session hosting (WebRTC) is planned for a later phase.',
             phaseLabel: 'a later phase',
             icon: Icons.podcasts_outlined,
           ),
         ),
 
         // --- Corporate (Phase 2: RBAC + Role Shell) -------------------------
-        GoRoute(path: '/corporate', builder: (context, state) => const CorporateDashboardScreen()),
+        GoRoute(
+            path: '/corporate',
+            builder: (context, state) => const CorporateDashboardScreen()),
         GoRoute(
           path: '/corporate/employees',
           builder: (context, state) => const ComingSoonScreen(
@@ -139,10 +166,14 @@ class AppRouter {
         ),
 
         // --- Employer (Phase 2: RBAC + Role Shell) --------------------------
-        GoRoute(path: '/employer', builder: (context, state) => const EmployerDashboardScreen()),
+        GoRoute(
+            path: '/employer',
+            builder: (context, state) => const EmployerDashboardScreen()),
 
         // --- Admin (Phase 2: RBAC + Role Shell) -----------------------------
-        GoRoute(path: '/admin', builder: (context, state) => const AdminDashboardScreen()),
+        GoRoute(
+            path: '/admin',
+            builder: (context, state) => const AdminDashboardScreen()),
         GoRoute(
           path: '/admin/users',
           builder: (context, state) => const ComingSoonScreen(
@@ -175,7 +206,8 @@ class AppRouter {
           path: '/admin/settings',
           builder: (context, state) => const ComingSoonScreen(
             title: 'Platform Settings',
-            description: 'Platform-wide configuration is planned for a later phase.',
+            description:
+                'Platform-wide configuration is planned for a later phase.',
             phaseLabel: 'a later phase',
             icon: Icons.settings_outlined,
           ),

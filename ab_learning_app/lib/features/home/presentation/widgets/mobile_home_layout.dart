@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -51,6 +52,7 @@ class MobileHomeLayout extends StatelessWidget {
                     width: 230,
                     isLiveNow: live.isLiveNow,
                     startsInLabel: live.isLiveNow ? null : live.startsInLabel(),
+                    onTap: () => _showLiveDetails(context, live),
                   );
                 },
               ),
@@ -83,9 +85,11 @@ class _TopBar extends StatelessWidget {
               style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
           Row(
             children: <Widget>[
-              const Icon(Icons.search, size: 20, color: AppColors.textSecondary),
+              const Icon(Icons.search,
+                  size: 20, color: AppColors.textSecondary),
               const SizedBox(width: 14),
-              const Icon(Icons.notifications_none, size: 20, color: AppColors.textSecondary),
+              const Icon(Icons.notifications_none,
+                  size: 20, color: AppColors.textSecondary),
               const SizedBox(width: 14),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -94,10 +98,17 @@ class _TopBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.badge),
                 ),
                 child: const Text('🪙 2,450',
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF92400E))),
               ),
               const SizedBox(width: 14),
-              const CircleAvatar(radius: 15, backgroundColor: AppColors.primary, child: Text('A', style: TextStyle(color: Colors.white, fontSize: 12))),
+              const CircleAvatar(
+                  radius: 15,
+                  backgroundColor: AppColors.primary,
+                  child: Text('A',
+                      style: TextStyle(color: Colors.white, fontSize: 12))),
             ],
           ),
         ],
@@ -119,13 +130,17 @@ class _HeroPromptCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           const Text('วันนี้อยากพัฒนาอะไร?',
-              style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           const Text('ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ',
               style: TextStyle(color: Colors.white70, fontSize: 11.5)),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () =>
+                context.push('/tutor', extra: 'your learning journey'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.primary,
@@ -181,13 +196,36 @@ class _HorizontalCourseList extends StatelessWidget {
               price: course.price,
               progressPct: course.progressPct,
               gradient: course.thumbnailGradient,
-              onTap: () {
-                // TODO: context.push('/course/${course.id}') once screen 11 exists.
-              },
+              onTap: () => context.push('/course/c${course.id}'),
             );
           },
         ),
       ),
     );
   }
+}
+
+void _showLiveDetails(BuildContext context, LiveSummary live) {
+  showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(live.title),
+      content: Text('${live.instructorName} · ${live.startsInLabel()}'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('ปิด')),
+        FilledButton(
+          onPressed: () {
+            Navigator.pop(dialogContext);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('ตั้งการแจ้งเตือนสำหรับ Live นี้แล้ว')),
+            );
+          },
+          child: const Text('ตั้งการแจ้งเตือน'),
+        ),
+      ],
+    ),
+  );
 }

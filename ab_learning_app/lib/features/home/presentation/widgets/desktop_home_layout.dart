@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -15,8 +16,10 @@ class DesktopHomeLayout extends StatelessWidget {
   final HomeFeed feed;
 
   static const List<String> _navItems = <String>[
-    'Home', 'Explore', 'My Learning', 'Live', 'Community',
-    'AI Tutor', 'Career', 'Portfolio', 'Jobs', 'Wallet', 'Settings',
+    'Home',
+    'Explore',
+    'My Learning',
+    'AI Tutor',
   ];
 
   @override
@@ -75,26 +78,47 @@ class _Sidebar extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Text('AB LEARNING',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary)),
           ),
           const SizedBox(height: 10),
           for (final String item in items)
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Material(
-                color: item == activeItem ? const Color(0xFFEEF2FF) : Colors.transparent,
+                color: item == activeItem
+                    ? const Color(0xFFEEF2FF)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(8),
-                  onTap: () {},
+                  onTap: () {
+                    switch (item) {
+                      case 'Explore':
+                        context.go('/explore');
+                      case 'My Learning':
+                        context.go('/my-learning');
+                      case 'AI Tutor':
+                        context.go('/tutor');
+                      default:
+                        context.go('/home');
+                    }
+                  },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                     child: Text(
                       item,
                       style: TextStyle(
                         fontSize: 13,
-                        color: item == activeItem ? AppColors.primary : AppColors.textSecondary,
-                        fontWeight: item == activeItem ? FontWeight.w600 : FontWeight.w400,
+                        color: item == activeItem
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                        fontWeight: item == activeItem
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
                     ),
                   ),
@@ -121,14 +145,36 @@ class _TopRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text('สวัสดี, คุณ$greetingName 👋', style: AppTypography.h1),
-            const Text('มาต่อการเรียนรู้ของวันนี้กันเถอะ', style: AppTypography.caption),
+            const Text('มาต่อการเรียนรู้ของวันนี้กันเถอะ',
+                style: AppTypography.caption),
           ],
         ),
         Row(
           children: <Widget>[
-            const Icon(Icons.search, color: AppColors.textSecondary),
+            IconButton(
+              tooltip: 'ค้นหาคอร์ส',
+              onPressed: () => context.go('/explore'),
+              icon: const Icon(Icons.search, color: AppColors.textSecondary),
+            ),
             const SizedBox(width: 16),
-            const Icon(Icons.notifications_none, color: AppColors.textSecondary),
+            IconButton(
+              tooltip: 'การแจ้งเตือน',
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('ยังไม่มีการแจ้งเตือน'),
+                  content: const Text(
+                      'เมื่อมีข่าวสารเกี่ยวกับคอร์สของคุณ จะแสดงที่นี่'),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('ปิด'))
+                  ],
+                ),
+              ),
+              icon: const Icon(Icons.notifications_none,
+                  color: AppColors.textSecondary),
+            ),
             const SizedBox(width: 16),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -137,10 +183,16 @@ class _TopRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.badge),
               ),
               child: const Text('🪙 2,450',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF92400E))),
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF92400E))),
             ),
             const SizedBox(width: 16),
-            const CircleAvatar(radius: 16, backgroundColor: AppColors.primary, child: Text('A', style: TextStyle(color: Colors.white))),
+            const CircleAvatar(
+                radius: 16,
+                backgroundColor: AppColors.primary,
+                child: Text('A', style: TextStyle(color: Colors.white))),
           ],
         ),
       ],
@@ -171,7 +223,10 @@ class _HeroRow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const Text('วันนี้อยากพัฒนาอะไร?',
-                    style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600)),
                 const SizedBox(height: 6),
                 const Text(
                   'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณแบบเฉพาะบุคคล',
@@ -179,7 +234,8 @@ class _HeroRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () =>
+                      context.push('/tutor', extra: 'your learning journey'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primary,
@@ -202,9 +258,11 @@ class _HeroRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const Text('Career Path Progress', style: AppTypography.caption),
+                const Text('Career Path Progress',
+                    style: AppTypography.caption),
                 const SizedBox(height: 6),
-                Text('${careerProgressPct.toStringAsFixed(0)}%', style: AppTypography.h1),
+                Text('${careerProgressPct.toStringAsFixed(0)}%',
+                    style: AppTypography.h1),
                 const SizedBox(height: 6),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppRadius.badge),
@@ -212,7 +270,8 @@ class _HeroRow extends StatelessWidget {
                     value: careerProgressPct / 100,
                     minHeight: 6,
                     backgroundColor: AppColors.border,
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(AppColors.primary),
                   ),
                 ),
               ],
@@ -242,7 +301,7 @@ class _CourseGrid extends StatelessWidget {
               ratingAvg: course.ratingAvg,
               price: course.price,
               gradient: course.thumbnailGradient,
-              onTap: () {},
+              onTap: () => context.push('/course/c${course.id}'),
             ),
           )
           .toList(),
@@ -268,9 +327,35 @@ class _LiveGrid extends StatelessWidget {
               width: 250,
               isLiveNow: l.isLiveNow,
               startsInLabel: l.isLiveNow ? null : l.startsInLabel(),
+              onTap: () => _showLiveDetails(context, l),
             ),
           )
           .toList(),
     );
   }
+}
+
+void _showLiveDetails(BuildContext context, LiveSummary live) {
+  showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(live.title),
+      content: Text('${live.instructorName} · ${live.startsInLabel()}'),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('ปิด')),
+        FilledButton(
+          onPressed: () {
+            Navigator.pop(dialogContext);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('ตั้งการแจ้งเตือนสำหรับ Live นี้แล้ว')),
+            );
+          },
+          child: const Text('ตั้งการแจ้งเตือน'),
+        ),
+      ],
+    ),
+  );
 }

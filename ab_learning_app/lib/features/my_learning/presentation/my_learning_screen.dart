@@ -11,24 +11,26 @@ class MyLearningScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inProgress = MockRepository.enrolledCourses.where((c) => c.progress < 1.0).toList();
-    final completed = MockRepository.enrolledCourses.where((c) => c.progress >= 1.0).toList();
+    final inProgress =
+        MockRepository.enrolledCourses.where((c) => c.progress < 1.0).toList();
+    final completed =
+        MockRepository.enrolledCourses.where((c) => c.progress >= 1.0).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Learning')),
+      appBar: AppBar(title: const Text('การเรียนของฉัน')),
       body: MockRepository.enrolledCourses.isEmpty
           ? _EmptyState()
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 if (inProgress.isNotEmpty) ...[
-                  const Text('In Progress', style: AppTypography.h2),
+                  const Text('กำลังเรียน', style: AppTypography.h2),
                   const SizedBox(height: 10),
                   ...inProgress.map((c) => _EnrolledCourseCard(course: c)),
                   const SizedBox(height: 12),
                 ],
                 if (completed.isNotEmpty) ...[
-                  const Text('Completed', style: AppTypography.h2),
+                  const Text('เรียนจบแล้ว', style: AppTypography.h2),
                   const SizedBox(height: 10),
                   ...completed.map((c) => _EnrolledCourseCard(course: c)),
                 ],
@@ -47,19 +49,21 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.school_outlined, size: 48, color: AppColors.textSecondary),
+            const Icon(Icons.school_outlined,
+                size: 48, color: AppColors.textSecondary),
             const SizedBox(height: 12),
-            const Text('No enrolled courses yet', style: AppTypography.h2),
+            const Text('ยังไม่มีคอร์สที่ลงทะเบียน', style: AppTypography.h2),
             const SizedBox(height: 6),
             Text(
-              'Head over to Explore to start your first course.',
+              'ไปที่หน้าสำรวจเพื่อเลือกคอร์สแรกของคุณ',
               textAlign: TextAlign.center,
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTypography.body.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => context.go('/explore'),
-              child: const Text('Explore Courses'),
+              child: const Text('เลือกคอร์ส'),
             ),
           ],
         ),
@@ -98,18 +102,29 @@ class _EnrolledCourseCard extends StatelessWidget {
                   Container(
                     width: 36,
                     height: 36,
-                    decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
-                    child: Icon(Icons.menu_book_rounded, color: color, size: 18),
+                    decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.15),
+                        shape: BoxShape.circle),
+                    child:
+                        Icon(Icons.menu_book_rounded, color: color, size: 18),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(course.title, style: AppTypography.h2, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    child: Text(course.title,
+                        style: AppTypography.h2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
                   ),
                   if (isCompleted)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.pillSuccessBg, borderRadius: BorderRadius.circular(AppRadius.badge)),
-                      child: Text('Completed', style: AppTypography.micro.copyWith(color: AppColors.success)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: AppColors.pillSuccessBg,
+                          borderRadius: BorderRadius.circular(AppRadius.badge)),
+                      child: Text('เรียนจบแล้ว',
+                          style: AppTypography.micro
+                              .copyWith(color: AppColors.success)),
                     ),
                 ],
               ),
@@ -120,13 +135,15 @@ class _EnrolledCourseCard extends StatelessWidget {
                   value: course.progress,
                   minHeight: 6,
                   backgroundColor: AppColors.cardBorder,
-                  valueColor: AlwaysStoppedAnimation(isCompleted ? AppColors.success : AppColors.primary),
+                  valueColor: AlwaysStoppedAnimation(
+                      isCompleted ? AppColors.success : AppColors.primary),
                 ),
               ),
               const SizedBox(height: 6),
               Text(
-                '${course.completedLessons}/${course.totalLessons} lessons · ${(course.progress * 100).round()}%',
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                '${course.completedLessons}/${course.totalLessons} บทเรียน · ${(course.progress * 100).round()}%',
+                style: AppTypography.caption
+                    .copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),

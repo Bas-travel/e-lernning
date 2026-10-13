@@ -11,6 +11,7 @@ class App extends StatelessWidget {
 
     return MaterialApp.router(
       title: 'AB LEARNING',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         primaryColor: AppColors.primary,

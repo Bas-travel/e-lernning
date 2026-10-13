@@ -16,13 +16,14 @@ class VideoPlayerScreen extends StatefulWidget {
   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
 }
 
-class _VideoPlayerScreenState extends State<VideoPlayerScreen> with SingleTickerProviderStateMixin {
+class _VideoPlayerScreenState extends State<VideoPlayerScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -46,19 +47,26 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> with SingleTicker
     }
   }
 
+  void _showPreviewStatus() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('วิดีโอตัวอย่างของบทเรียนนี้ยังไม่พร้อมใช้งาน')),
+    );
+  }
+
   void _showCourseCompleteDialog() {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('🎉 All lessons complete!'),
-        content: const Text('Nice work — you\'ve finished every lesson in this section.'),
+        title: const Text('เรียนครบทุกบทแล้ว!'),
+        content: const Text('ยอดเยี่ยม คุณเรียนจบทุกบทในหลักสูตรนี้แล้ว'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop(); // close the dialog
               context.pop(); // back to curriculum
             },
-            child: const Text('Back to Curriculum'),
+            child: const Text('กลับไปยังหลักสูตร'),
           ),
         ],
       ),
@@ -68,7 +76,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final lesson = MockRepository.lessonById(widget.lessonId);
-    final title = lesson?.title ?? 'Lesson';
+    final title = lesson?.title ?? 'บทเรียน';
     final isLast = MockRepository.isLastLesson(widget.lessonId);
 
     return Scaffold(
@@ -79,8 +87,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> with SingleTicker
             aspectRatio: 16 / 9,
             child: Container(
               color: Colors.black87,
-              child: const Center(
-                child: Icon(Icons.play_circle_fill, color: Colors.white, size: 64),
+              child: Center(
+                child: IconButton(
+                  tooltip: 'เล่นตัวอย่างบทเรียน',
+                  onPressed: _showPreviewStatus,
+                  icon: const Icon(Icons.play_circle_fill,
+                      color: Colors.white, size: 64),
+                ),
               ),
             ),
           ),
@@ -93,7 +106,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> with SingleTicker
                 const SizedBox(height: 4),
                 Text(
                   lesson?.duration ?? '',
-                  style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                  style: AppTypography.caption
+                      .copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -104,37 +118,35 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> with SingleTicker
             unselectedLabelColor: AppColors.textSecondary,
             indicatorColor: AppColors.primary,
             tabs: const [
-              Tab(text: 'Resources'),
-              Tab(text: 'Notes'),
-              Tab(text: 'Discussion'),
+              Tab(text: 'เอกสาร'),
+              Tab(text: 'โน้ต'),
+              Tab(text: 'พูดคุย'),
+              Tab(text: 'Ask AI ✨'),
             ],
           ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: const [
-                _EmptyTabContent(
+              children: [
+                const _EmptyTabContent(
                   icon: Icons.attach_file,
-                  message: 'No downloadable resources for this lesson yet.',
+                  message: 'บทเรียนนี้ยังไม่มีเอกสารประกอบ',
                 ),
-                _EmptyTabContent(
+                const _EmptyTabContent(
                   icon: Icons.edit_note,
-                  message: 'Your notes for this lesson will show up here.',
+                  message: 'โน้ตของบทเรียนนี้จะแสดงที่นี่',
                 ),
-                _EmptyTabContent(
+                const _EmptyTabContent(
                   icon: Icons.forum_outlined,
-                  message: 'Be the first to start a discussion on this lesson.',
+                  message: 'เริ่มพูดคุยเกี่ยวกับบทเรียนนี้ได้ที่นี่',
+                ),
+                _AskTutorTab(
+                  onTap: () => context.push('/tutor', extra: title),
                 ),
               ],
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/tutor'),
-        icon: const Icon(Icons.auto_awesome),
-        label: const Text('Ask AI'),
-        backgroundColor: AppColors.secondary,
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -145,16 +157,55 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> with SingleTicker
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.btnPrimaryBg,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.button)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button)),
               ),
               onPressed: _completeAndAdvance,
-              icon: Icon(isLast ? Icons.flag : Icons.arrow_forward, color: Colors.white),
+              icon: Icon(isLast ? Icons.flag : Icons.arrow_forward,
+                  color: Colors.white),
               label: Text(
-                isLast ? 'Finish Course' : 'Next Lesson',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                isLast ? 'จบบทเรียน' : 'บทเรียนถัดไป',
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AskTutorTab extends StatelessWidget {
+  const _AskTutorTab({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.auto_awesome, size: 36, color: AppColors.primary),
+            const SizedBox(height: 10),
+            const Text('ถาม AI เกี่ยวกับบทเรียนนี้', style: AppTypography.h2),
+            const SizedBox(height: 8),
+            Text(
+              'รับคำอธิบายและตัวอย่างที่อ้างอิงจากบทเรียนที่กำลังเรียน',
+              textAlign: TextAlign.center,
+              style:
+                  AppTypography.body.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onTap,
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: const Text('เปิด AI Tutor'),
+            ),
+          ],
         ),
       ),
     );
@@ -180,7 +231,8 @@ class _EmptyTabContent extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+              style:
+                  AppTypography.body.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),

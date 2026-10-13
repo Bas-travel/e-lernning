@@ -43,7 +43,11 @@ class _QuizScreenState extends State<QuizScreen> {
 
     context.pushReplacement(
       '/quiz-result',
-      extra: {'result': result, 'questions': _questions, 'lessonId': widget.lessonId},
+      extra: {
+        'result': result,
+        'questions': _questions,
+        'lessonId': widget.lessonId
+      },
     );
   }
 
@@ -53,7 +57,7 @@ class _QuizScreenState extends State<QuizScreen> {
     final isLastQuestion = _index == _questions.length - 1;
 
     return Scaffold(
-      appBar: AppBar(title: Text(lesson?.title ?? 'Quiz')),
+      appBar: AppBar(title: Text(lesson?.title ?? 'แบบทดสอบ')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -61,7 +65,8 @@ class _QuizScreenState extends State<QuizScreen> {
           children: [
             Text(
               '${_index + 1}/${_questions.length}',
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.caption
+                  .copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 6),
             ClipRRect(
@@ -97,18 +102,29 @@ class _QuizScreenState extends State<QuizScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.primary.withValues(alpha: 0.08) : Colors.white,
+                        color: selected
+                            ? AppColors.primary.withValues(alpha: 0.08)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(AppRadius.card),
-                        border: Border.all(color: selected ? AppColors.primary : AppColors.cardBorder),
+                        border: Border.all(
+                            color: selected
+                                ? AppColors.primary
+                                : AppColors.cardBorder),
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                            color: selected ? AppColors.primary : AppColors.textSecondary,
+                            selected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_off,
+                            color: selected
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
                           ),
                           const SizedBox(width: 12),
-                          Expanded(child: Text(_current.options[i], style: AppTypography.body)),
+                          Expanded(
+                              child: Text(_current.options[i],
+                                  style: AppTypography.body)),
                         ],
                       ),
                     ),
@@ -123,11 +139,14 @@ class _QuizScreenState extends State<QuizScreen> {
                     child: OutlinedButton(
                       onPressed: () => setState(() => _index -= 1),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.btnOutlineBorder),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.button)),
+                        side:
+                            const BorderSide(color: AppColors.btnOutlineBorder),
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.button)),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      child: const Text('Previous'),
+                      child: const Text('ก่อนหน้า'),
                     ),
                   ),
                 if (_index > 0) const SizedBox(width: 12),
@@ -144,12 +163,15 @@ class _QuizScreenState extends State<QuizScreen> {
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.btnPrimaryBg,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.button)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.button)),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
-                      isLastQuestion ? 'Submit' : 'Next',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      isLastQuestion ? 'ส่งคำตอบ' : 'ถัดไป',
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

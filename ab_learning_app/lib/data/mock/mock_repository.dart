@@ -127,8 +127,23 @@ class MockRepository {
     ),
   ];
 
-  static List<Course> get enrolledCourses =>
-      courses.where((c) => c.completedLessons > 0 || c.progress > 0).toList();
+  static final Set<String> _additionalEnrolledCourseIds = <String>{};
+
+  static List<Course> get enrolledCourses => courses
+      .where((course) =>
+          course.completedLessons > 0 ||
+          course.progress > 0 ||
+          _additionalEnrolledCourseIds.contains(course.id))
+      .toList();
+
+  static bool isEnrolled(String courseId) =>
+      enrolledCourses.any((course) => course.id == courseId);
+
+  static void enrollInCourse(String courseId) {
+    if (courses.any((course) => course.id == courseId)) {
+      _additionalEnrolledCourseIds.add(courseId);
+    }
+  }
 
   static Course courseById(String id) =>
       courses.firstWhere((c) => c.id == id, orElse: () => courses.first);
@@ -147,11 +162,19 @@ class MockRepository {
     _LessonBlueprint(id: 'l1', title: 'Welcome & Setup', duration: '4:12'),
     _LessonBlueprint(id: 'l2', title: 'Environment Setup', duration: '9:40'),
     _LessonBlueprint(id: 'l3', title: 'Your First Widget', duration: '12:05'),
-    _LessonBlueprint(id: 'l4', title: 'State Management Basics', duration: '15:20'),
-    _LessonBlueprint(id: 'l5', title: 'Navigation & Routing', duration: '11:08'),
-    _LessonBlueprint(id: 'l6', title: 'Section Quiz', duration: '10 questions', hasQuiz: true),
-    _LessonBlueprint(id: 'l7', title: 'Connecting to an API', duration: '18:32'),
-    _LessonBlueprint(id: 'l8', title: 'Final Project Walkthrough', duration: '22:14'),
+    _LessonBlueprint(
+        id: 'l4', title: 'State Management Basics', duration: '15:20'),
+    _LessonBlueprint(
+        id: 'l5', title: 'Navigation & Routing', duration: '11:08'),
+    _LessonBlueprint(
+        id: 'l6',
+        title: 'Section Quiz',
+        duration: '10 questions',
+        hasQuiz: true),
+    _LessonBlueprint(
+        id: 'l7', title: 'Connecting to an API', duration: '18:32'),
+    _LessonBlueprint(
+        id: 'l8', title: 'Final Project Walkthrough', duration: '22:14'),
   ];
 
   static const Map<int, String> _sectionTitleByStartIndex = {
@@ -215,9 +238,14 @@ class MockRepository {
   /// last one in the curriculum.
   static LessonItem? nextLessonAfter(String lessonId) {
     final index = _lessonBlueprints.indexWhere((l) => l.id == lessonId);
-    if (index == -1 || index + 1 >= _lessonBlueprints.length) return null;
-    final next = _lessonBlueprints[index + 1];
-    return lessonById(next.id);
+    if (index == -1) return null;
+    for (var nextIndex = index + 1;
+        nextIndex < _lessonBlueprints.length;
+        nextIndex++) {
+      final next = _lessonBlueprints[nextIndex];
+      if (!_completedLessonIds.contains(next.id)) return lessonById(next.id);
+    }
+    return null;
   }
 
   static bool isLastLesson(String lessonId) =>
@@ -250,7 +278,8 @@ class MockRepository {
       correctIndex: 2,
     ),
     QuizQuestion(
-      question: 'In the AB LEARNING curriculum model, what unlocks the next lesson?',
+      question:
+          'In the AB LEARNING curriculum model, what unlocks the next lesson?',
       options: [
         'Paying an extra fee',
         'Completing the current lesson (and its quiz, if any)',
@@ -270,7 +299,8 @@ class MockRepository {
 
   static List<ChatMessage> initialTutorThread(String contextTitle) => [
         ChatMessage(
-          text: 'สวัสดีครับ! ผมคือ AI Tutor พร้อมช่วยเรื่อง "$contextTitle" ถามอะไรก็ได้เลยครับ',
+          text:
+              'สวัสดีครับ! ผมคือ AI Tutor พร้อมช่วยเรื่อง "$contextTitle" ถามอะไรก็ได้เลยครับ',
           fromUser: false,
         ),
       ];
@@ -344,7 +374,11 @@ class MockRepository {
     KpiStat(label: 'GMV', value: '฿4.8M'),
     KpiStat(label: 'Courses', value: '540'),
     KpiStat(label: 'Live Sessions', value: '12'),
-    KpiStat(label: 'Open Reports', value: '6', deltaIsPositive: false, deltaLabel: 'needs review'),
+    KpiStat(
+        label: 'Open Reports',
+        value: '6',
+        deltaIsPositive: false,
+        deltaLabel: 'needs review'),
   ];
 }
 

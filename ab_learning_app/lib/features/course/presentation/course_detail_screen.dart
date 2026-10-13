@@ -15,8 +15,9 @@ class CourseDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final course = MockRepository.courseById(courseId);
     final color = Color(int.parse('FF${course.coverColorHex}', radix: 16));
-    final isEnrolled = course.completedLessons > 0 || course.progress > 0;
-    final previewLessons = MockRepository.curriculumFor(courseId).first.lessons.take(3);
+    final isEnrolled = MockRepository.isEnrolled(courseId);
+    final previewLessons =
+        MockRepository.curriculumFor(courseId).first.lessons.take(3);
 
     return Scaffold(
       body: Stack(
@@ -36,14 +37,18 @@ class CourseDetailScreen extends StatelessWidget {
                         child: CircleAvatar(
                           backgroundColor: Colors.white,
                           child: IconButton(
-                            icon: const Icon(Icons.arrow_back, color: AppColors.text),
-                            onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
+                            icon: const Icon(Icons.arrow_back,
+                                color: AppColors.text),
+                            onPressed: () => context.canPop()
+                                ? context.pop()
+                                : context.go('/home'),
                           ),
                         ),
                       ),
                     ),
                     Center(
-                      child: Icon(Icons.play_circle_fill, color: color, size: 64),
+                      child:
+                          Icon(Icons.play_circle_fill, color: color, size: 64),
                     ),
                   ],
                 ),
@@ -53,24 +58,31 @@ class CourseDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(course.title, style: AppTypography.display.copyWith(fontSize: 22)),
+                    Text(course.title,
+                        style: AppTypography.display.copyWith(fontSize: 22)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.star, color: AppColors.warning, size: 16),
+                        const Icon(Icons.star,
+                            color: AppColors.warning, size: 16),
                         const SizedBox(width: 4),
-                        Text(course.rating.toStringAsFixed(1), style: AppTypography.body),
+                        Text(course.rating.toStringAsFixed(1),
+                            style: AppTypography.body),
                         const SizedBox(width: 8),
                         Text(
-                          '(${course.students} students)',
-                          style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                          '(${course.students} ผู้เรียน)',
+                          style: AppTypography.caption
+                              .copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        CircleAvatar(radius: 16, backgroundColor: color.withValues(alpha: 0.2), child: Icon(Icons.person, color: color, size: 18)),
+                        CircleAvatar(
+                            radius: 16,
+                            backgroundColor: color.withValues(alpha: 0.2),
+                            child: Icon(Icons.person, color: color, size: 18)),
                         const SizedBox(width: 8),
                         Text(course.instructor, style: AppTypography.body),
                       ],
@@ -78,7 +90,9 @@ class CourseDetailScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        Text(course.priceLabel, style: AppTypography.h1.copyWith(color: AppColors.primary)),
+                        Text(course.priceLabel,
+                            style: AppTypography.h1
+                                .copyWith(color: AppColors.primary)),
                         if (course.originalPriceLabel != null) ...[
                           const SizedBox(width: 8),
                           Text(
@@ -92,19 +106,19 @@ class CourseDetailScreen extends StatelessWidget {
                       ],
                     ),
                     const Divider(height: 32),
-
-                    const Text('Description', style: AppTypography.h2),
+                    const Text('รายละเอียดคอร์ส', style: AppTypography.h2),
                     const SizedBox(height: 8),
                     Text(
                       course.description.isEmpty
-                          ? 'No description available yet for this course.'
+                          ? 'ยังไม่มีรายละเอียดของคอร์สนี้'
                           : course.description,
-                      style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.body
+                          .copyWith(color: AppColors.textSecondary),
                     ),
                     const SizedBox(height: 20),
-
                     if (course.whatYouLearn.isNotEmpty) ...[
-                      const Text("What You'll Learn", style: AppTypography.h2),
+                      const Text('สิ่งที่คุณจะได้เรียนรู้',
+                          style: AppTypography.h2),
                       const SizedBox(height: 8),
                       ...course.whatYouLearn.map(
                         (item) => Padding(
@@ -112,23 +126,26 @@ class CourseDetailScreen extends StatelessWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                              const Icon(Icons.check_circle,
+                                  color: AppColors.success, size: 18),
                               const SizedBox(width: 8),
-                              Expanded(child: Text(item, style: AppTypography.body)),
+                              Expanded(
+                                  child: Text(item, style: AppTypography.body)),
                             ],
                           ),
                         ),
                       ),
                       const SizedBox(height: 12),
                     ],
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Curriculum', style: AppTypography.h2),
-                        TextButton(
-                          onPressed: () => context.push('/course/$courseId/curriculum'),
-                          child: const Text('View all'),
+                        const Text('หลักสูตร', style: AppTypography.h2),
+                        TextButton.icon(
+                          onPressed: () =>
+                              context.push('/course/$courseId/curriculum'),
+                          icon: const Icon(Icons.arrow_forward, size: 16),
+                          label: const Text('ดูทั้งหมด'),
                         ),
                       ],
                     ),
@@ -141,19 +158,34 @@ class CourseDetailScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: previewLessons
-                            .map((lesson) => ListTile(
-                                  leading: Icon(
-                                    lesson.state == LessonState.completed
-                                        ? Icons.check_circle
-                                        : Icons.play_circle_outline,
-                                    color: lesson.state == LessonState.completed
-                                        ? AppColors.success
-                                        : AppColors.primary,
-                                  ),
-                                  title: Text(lesson.title, style: AppTypography.body),
-                                  trailing: Text(
-                                    lesson.duration,
-                                    style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                            .map((lesson) => Material(
+                                  type: MaterialType.transparency,
+                                  child: ListTile(
+                                    leading: Icon(
+                                      lesson.state == LessonState.completed
+                                          ? Icons.check_circle
+                                          : Icons.play_circle_outline,
+                                      color:
+                                          lesson.state == LessonState.completed
+                                              ? AppColors.success
+                                              : AppColors.primary,
+                                    ),
+                                    title: Text(lesson.title,
+                                        style: AppTypography.body),
+                                    trailing: Text(
+                                      lesson.duration,
+                                      style: AppTypography.caption.copyWith(
+                                          color: AppColors.textSecondary),
+                                    ),
+                                    onTap: () {
+                                      if (!isEnrolled) {
+                                        _openCheckout(context, courseId, course.title);
+                                      } else if (lesson.hasQuiz) {
+                                        context.push('/quiz/${lesson.id}');
+                                      } else {
+                                        context.push('/player/${lesson.id}');
+                                      }
+                                    },
                                   ),
                                 ))
                             .toList(),
@@ -182,12 +214,19 @@ class CourseDetailScreen extends StatelessWidget {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.btnPrimaryBg,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.button)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.button)),
                     ),
-                    onPressed: () => context.push('/course/$courseId/curriculum'),
+                    onPressed: isEnrolled
+                        ? () => context.push('/course/$courseId/curriculum')
+                        : () => _openCheckout(context, courseId, course.title),
                     child: Text(
-                      isEnrolled ? 'Continue Learning' : 'Start Learning',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      isEnrolled
+                          ? 'เรียนต่อ'
+                          : 'ซื้อคอร์สนี้เลย — ${course.priceLabel}',
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -197,5 +236,9 @@ class CourseDetailScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _openCheckout(BuildContext context, String id, String title) {
+    context.push('/checkout/$id', extra: title);
   }
 }

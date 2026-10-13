@@ -26,7 +26,8 @@ class QuizResultScreen extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.modal)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppRadius.modal)),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.85,
@@ -54,21 +55,28 @@ class QuizResultScreen extends StatelessWidget {
                         Icon(
                           j == q.correctIndex
                               ? Icons.check_circle
-                              : (j == selected ? Icons.cancel : Icons.circle_outlined),
+                              : (j == selected
+                                  ? Icons.cancel
+                                  : Icons.circle_outlined),
                           size: 18,
                           color: j == q.correctIndex
                               ? AppColors.success
-                              : (j == selected ? AppColors.error : AppColors.textSecondary),
+                              : (j == selected
+                                  ? AppColors.error
+                                  : AppColors.textSecondary),
                         ),
                         const SizedBox(width: 8),
-                        Expanded(child: Text(q.options[j], style: AppTypography.body)),
+                        Expanded(
+                            child:
+                                Text(q.options[j], style: AppTypography.body)),
                       ],
                     ),
                   ),
                 if (!isCorrect)
                   Text(
                     'Your answer was incorrect.',
-                    style: AppTypography.caption.copyWith(color: AppColors.error),
+                    style:
+                        AppTypography.caption.copyWith(color: AppColors.error),
                   ),
               ],
             );
@@ -84,7 +92,8 @@ class QuizResultScreen extends StatelessWidget {
     final isPass = result.isPass;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Quiz Result'), automaticallyImplyLeading: false),
+      appBar: AppBar(
+          title: const Text('ผลแบบทดสอบ'), automaticallyImplyLeading: false),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -102,16 +111,19 @@ class QuizResultScreen extends StatelessWidget {
                       value: percent,
                       strokeWidth: 12,
                       backgroundColor: AppColors.cardBorder,
-                      valueColor: AlwaysStoppedAnimation(isPass ? AppColors.success : AppColors.error),
+                      valueColor: AlwaysStoppedAnimation(
+                          isPass ? AppColors.success : AppColors.error),
                     ),
                   ),
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('${(percent * 100).round()}%', style: AppTypography.display),
+                      Text('${(percent * 100).round()}%',
+                          style: AppTypography.display),
                       Text(
-                        '${result.correctCount}/${result.totalCount} correct',
-                        style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                        'ตอบถูก ${result.correctCount}/${result.totalCount} ข้อ',
+                        style: AppTypography.caption
+                            .copyWith(color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -128,7 +140,7 @@ class QuizResultScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.badge),
               ),
               child: Text(
-                isPass ? 'Passed' : 'Not Passed',
+                isPass ? 'ผ่าน' : 'ยังไม่ผ่าน',
                 style: AppTypography.caption.copyWith(
                   color: isPass ? AppColors.success : AppColors.error,
                   fontWeight: FontWeight.w600,
@@ -137,7 +149,7 @@ class QuizResultScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 28),
-          const Text('Skill Analysis', style: AppTypography.h2),
+          const Text('วิเคราะห์ทักษะ', style: AppTypography.h2),
           const SizedBox(height: 12),
           ...MockRepository.skillBreakdown.map(
             (skill) => Padding(
@@ -149,7 +161,8 @@ class QuizResultScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(skill.skill, style: AppTypography.body),
-                      Text('${(skill.percent * 100).round()}%', style: AppTypography.caption),
+                      Text('${(skill.percent * 100).round()}%',
+                          style: AppTypography.caption),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -160,7 +173,9 @@ class QuizResultScreen extends StatelessWidget {
                       minHeight: 8,
                       backgroundColor: AppColors.cardBorder,
                       valueColor: AlwaysStoppedAnimation(
-                        skill.percent >= 0.7 ? AppColors.success : AppColors.warning,
+                        skill.percent >= 0.7
+                            ? AppColors.success
+                            : AppColors.warning,
                       ),
                     ),
                   ),
@@ -175,10 +190,13 @@ class QuizResultScreen extends StatelessWidget {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.btnPrimaryBg,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.button)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button)),
               ),
-              onPressed: () => context.go('/home'),
-              child: const Text('Continue Learning', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+              onPressed: () => context.go('/my-learning'),
+              child: const Text('กลับไปการเรียนของฉัน',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
             ),
           ),
           const SizedBox(height: 10),
@@ -188,10 +206,11 @@ class QuizResultScreen extends StatelessWidget {
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.btnOutlineBorder),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.button)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button)),
               ),
               onPressed: () => _showReviewAnswers(context),
-              child: const Text('Review Answers'),
+              child: const Text('ทบทวนคำตอบ'),
             ),
           ),
           const SizedBox(height: 10),
@@ -200,7 +219,7 @@ class QuizResultScreen extends StatelessWidget {
             height: 48,
             child: TextButton(
               onPressed: () => context.pushReplacement('/quiz/$lessonId'),
-              child: const Text('Retry'),
+              child: const Text('ทำแบบทดสอบอีกครั้ง'),
             ),
           ),
         ],
