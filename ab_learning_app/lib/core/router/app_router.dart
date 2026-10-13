@@ -190,7 +190,7 @@ class AppRouter {
 
 Widget _rolePage(AppRole role, String route, String title, Widget child) {
   final actualRole = role == AppRole.corpAdmin &&
-          CurrentUser.role == UserRole.corpManager
+          CurrentUser.role == AppRole.corpManager
       ? AppRole.corpManager
       : role;
   return RoleScaffold(

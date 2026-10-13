@@ -70,7 +70,7 @@ func CORS(allowedOrigin string) func(http.Handler) http.Handler {
 type ctxKey string
 
 const userIDKey ctxKey = "user_id"
-const userRoleKey ctxKey = "user_role"
+const AppRoleKey ctxKey = "user_role"
 
 // TokenVerifier is satisfied by pkg/jwtx.Manager — kept as an interface
 // here so this package doesn't import pkg/jwtx directly (avoids an import
@@ -99,7 +99,7 @@ func RequireAuth(verifier TokenVerifier) func(http.Handler) http.Handler {
 			}
 
 			ctx := context.WithValue(r.Context(), userIDKey, userID)
-			ctx = context.WithValue(ctx, userRoleKey, role)
+			ctx = context.WithValue(ctx, AppRoleKey, role)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
@@ -111,7 +111,7 @@ func UserIDFromContext(ctx context.Context) (int64, bool) {
 }
 
 func RoleFromContext(ctx context.Context) (string, bool) {
-	role, ok := ctx.Value(userRoleKey).(string)
+	role, ok := ctx.Value(AppRoleKey).(string)
 	return role, ok
 }
 

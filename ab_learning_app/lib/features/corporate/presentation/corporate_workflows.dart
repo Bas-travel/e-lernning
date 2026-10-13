@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+// import 'package:go_router/go_router.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../data/mock/current_user.dart';
-import '../../../data/mock/models.dart';
+import '../../../core/navigation/role_menus.dart';
 
 class CorporateEmployee {
   CorporateEmployee({required this.name, required this.email, required this.department, this.active = true});
@@ -66,7 +66,7 @@ class _CorporateEmployeesScreenState extends State<CorporateEmployeesScreen> {
               TextField(controller: name, textCapitalization: TextCapitalization.words, decoration: const InputDecoration(labelText: 'ชื่อ-นามสกุล')),
               TextField(controller: email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'อีเมลบริษัท')),
               DropdownButtonFormField<String>(
-                value: department,
+                initialValue: department,
                 decoration: const InputDecoration(labelText: 'แผนก'),
                 items: _departments.skip(1).map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
                 onChanged: (value) => setDialogState(() => department = value ?? department),
@@ -92,7 +92,7 @@ class _CorporateEmployeesScreenState extends State<CorporateEmployeesScreen> {
     setState(() => CorporateDemoStore.employees.add(result));
   }
 
-  bool get _canManageEmployees => CurrentUser.role == UserRole.corpAdmin;
+  bool get _canManageEmployees => CurrentUser.role == AppRole.corpAdmin;
 
   @override
   Widget build(BuildContext context) {
@@ -169,10 +169,6 @@ class CorporateLearningPathsScreen extends StatefulWidget {
 
 class _CorporateLearningPathsScreenState extends State<CorporateLearningPathsScreen> {
   Future<void> _createPath() async {
-    if (CurrentUser.role != UserRole.corpAdmin) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Corporate Manager ดูเส้นทางการเรียนได้อย่างเดียว')));
-      return;
-    }
     final title = TextEditingController();
     String department = 'Engineering';
     final result = await showDialog<LearningAssignment>(
@@ -185,7 +181,7 @@ class _CorporateLearningPathsScreenState extends State<CorporateLearningPathsScr
             children: [
               TextField(controller: title, decoration: const InputDecoration(labelText: 'ชื่อเส้นทางการเรียน')),
               DropdownButtonFormField<String>(
-                value: department,
+                initialValue: department,
                 decoration: const InputDecoration(labelText: 'มอบหมายให้'),
                 items: const ['Engineering', 'Design', 'Sales', 'All departments'].map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
                 onChanged: (value) => setDialogState(() => department = value ?? department),
@@ -210,34 +206,82 @@ class _CorporateLearningPathsScreenState extends State<CorporateLearningPathsScr
     setState(() => CorporateDemoStore.learningPaths.insert(0, result));
   }
 
+  void _showPathDetail(LearningAssignment path) {
+    final due = path.dueDate;
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(path.title),
+        content: Text(
+          'มอบหมายให้ ${path.department}\n'
+          'กำหนดส่ง ${due.day}/${due.month}/${due.year}\n\n'
+          'นี่คือข้อมูลตัวอย่างใน MVP',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('ปิด'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Learning Paths')),
-      floatingActionButton: CurrentUser.role == UserRole.corpAdmin
-          ? FloatingActionButton.extended(onPressed: _createPath, icon: const Icon(Icons.add), label: const Text('สร้างเส้นทาง'))
-          : null,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _createPath,
+        icon: const Icon(Icons.add),
+        label: const Text('สร้างเส้นทาง'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           const Text('เส้นทางการเรียนขององค์กร', style: AppTypography.h2),
           const SizedBox(height: 12),
           for (final path in CorporateDemoStore.learningPaths)
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.card), border: Border.all(color: AppColors.cardBorder)),
-              child: ListTile(
-                leading: const CircleAvatar(backgroundColor: Color(0xFFE0E7FF), child: Icon(Icons.route_outlined, color: AppColors.primary)),
-                title: Text(path.title, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
-                subtitle: Text('${path.department} · กำหนดส่ง ${path.dueDate.day}/${path.dueDate.month}/${path.dueDate.year}'),
-                trailing: IconButton(
-                  tooltip: 'รายละเอียดเส้นทาง',
-                  onPressed: () => showDialog<void>(context: context, builder: (context) => AlertDialog(title: Text(path.title), content: Text('มอบหมายให้ ${path.department}\nกำหนดส่ง ${path.dueDate.day}/${path.dueDate.month}/${path.dueDate.year}\n\nนี่คือข้อมูลตัวอย่างใน MVP')), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('ปิด'))]),
-                  icon: const Icon(Icons.chevron_right),
-                ),
-              ),
+            _LearningPathCard(
+              path: path,
+              onDetail: () => _showPathDetail(path),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _LearningPathCard extends StatelessWidget {
+  const _LearningPathCard({required this.path, required this.onDetail});
+  final LearningAssignment path;
+  final VoidCallback onDetail;
+
+  @override
+  Widget build(BuildContext context) {
+    final due = path.dueDate;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Color(0xFFE0E7FF),
+          child: Icon(Icons.route_outlined, color: AppColors.primary),
+        ),
+        title: Text(
+          path.title,
+          style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text('${path.department} · กำหนดส่ง ${due.day}/${due.month}/${due.year}'),
+        trailing: IconButton(
+          tooltip: 'รายละเอียดเส้นทาง',
+          icon: const Icon(Icons.info_outline),
+          onPressed: onDetail,
+        ),
       ),
     );
   }

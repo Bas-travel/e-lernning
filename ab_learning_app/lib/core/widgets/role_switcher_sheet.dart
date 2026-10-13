@@ -5,6 +5,7 @@ import '../../data/mock/models.dart';
 import '../theme/colors.dart';
 import '../theme/radius.dart';
 import '../theme/typography.dart';
+import 'package:ab_learning_app/core/navigation/role_menus.dart';
 
 /// Lets QA / stakeholders jump between roles without needing five separate
 /// backend accounts. Once real auth exists, this becomes a dev-only tool
@@ -30,7 +31,7 @@ Future<void> showRoleSwitcherSheet(BuildContext context) {
               style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
-            for (final role in UserRole.values)
+            for (final role in AppRole.values)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
@@ -74,19 +75,20 @@ Future<void> showRoleSwitcherSheet(BuildContext context) {
     ),
   );
 }
-
-IconData _iconFor(UserRole role) {
+IconData _iconFor(AppRole role) { 
   switch (role) {
-    case UserRole.learner:
+    case AppRole.learner:
       return Icons.school_outlined;
-    case UserRole.instructor:
+    case AppRole.instructor:
       return Icons.cast_for_education_outlined;
-    case UserRole.corpAdmin:
-    case UserRole.corpManager:
+    case AppRole.corpAdmin:
+    case AppRole.corpManager:
       return Icons.apartment_outlined;
-    case UserRole.employer:
+    case AppRole.employer:
       return Icons.work_outline;
-    case UserRole.admin:
+    case AppRole.admin:
       return Icons.admin_panel_settings_outlined;
+    case AppRole.guest:
+      return Icons.person_outline_rounded;
   }
 }

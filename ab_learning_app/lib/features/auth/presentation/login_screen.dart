@@ -6,7 +6,7 @@ import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../data/mock/current_user.dart';
-import '../../../data/mock/models.dart';
+// import '../../../data/mock/models.dart';
 import '../data/auth_repository.dart';
 import '../models/user.dart';
 import 'auth_page_layout.dart';
@@ -71,20 +71,20 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  UserRole _roleFor(String role) {
+  AppRole _roleFor(String role) {
     switch (role) {
       case 'INSTRUCTOR':
-        return UserRole.instructor;
+        return AppRole.instructor;
       case 'CORP_ADMIN':
-        return UserRole.corpAdmin;
+        return AppRole.corpAdmin;
       case 'CORP_MANAGER':
-        return UserRole.corpManager;
+        return AppRole.corpManager;
       case 'EMPLOYER':
-        return UserRole.employer;
+        return AppRole.employer;
       case 'ADMIN':
-        return UserRole.admin;
+        return AppRole.admin;
       default:
-        return UserRole.learner;
+        return AppRole.learner;
     }
   }
 

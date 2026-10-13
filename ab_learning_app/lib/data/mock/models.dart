@@ -1,3 +1,5 @@
+import '../../../core/navigation/role_menus.dart';
+
 class Course {
   final String id;
   final String title;
@@ -104,33 +106,34 @@ class QuizAttemptResult {
 
 // --- RBAC -----------------------------------------------------------------
 //
-// Mirrors the `role` enum on `User` in `05-openapi.yaml`
-// (GUEST/LEARNER/INSTRUCTOR/CORP_ADMIN/CORP_MANAGER/EMPLOYER/ADMIN). GUEST is
-// the pre-login state and isn't represented here since the app requires a
-// role once logged in.
-enum UserRole { learner, instructor, corpAdmin, corpManager, employer, admin }
-
-extension UserRoleLabel on UserRole {
+// The role enum is `AppRole`, declared in `core/navigation/role_menus.dart`
+// (mirrors the `role` enum on `User` in `05-openapi.yaml`). It is the single
+// source of truth for roles; do not declare a second role enum here.
+// The helpers below stay as an extension so existing `role.label` and
+// `role.isCorporate` call sites keep working.
+extension AppRoleLabel on AppRole {
   String get label {
     switch (this) {
-      case UserRole.learner:
+      case AppRole.guest:
+        return 'Guest';
+      case AppRole.learner:
         return 'Learner';
-      case UserRole.instructor:
+      case AppRole.instructor:
         return 'Instructor';
-      case UserRole.corpAdmin:
+      case AppRole.corpAdmin:
         return 'Corporate Admin';
-      case UserRole.corpManager:
+      case AppRole.corpManager:
         return 'Corporate Manager';
-      case UserRole.employer:
+      case AppRole.employer:
         return 'Employer';
-      case UserRole.admin:
+      case AppRole.admin:
         return 'Admin';
     }
   }
 
   /// Route both corporate roles share the same shell — they differ only in
   /// permissions (e.g. billing) once the backend enforces that in Phase 3+.
-  bool get isCorporate => this == UserRole.corpAdmin || this == UserRole.corpManager;
+  bool get isCorporate => this == AppRole.corpAdmin || this == AppRole.corpManager;
 }
 
 /// A single KPI stat shown at the top of a role dashboard (screens 31, 36,

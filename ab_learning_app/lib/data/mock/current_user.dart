@@ -1,4 +1,5 @@
 import 'models.dart';
+import '../../../core/navigation/role_menus.dart';
 
 /// Mock "logged in session" — replace with real state from
 /// `POST /api/v1/auth/login` (see `AuthTokenResponse.user` in
@@ -8,11 +9,11 @@ import 'models.dart';
 class CurrentUser {
   CurrentUser._();
 
-  static UserRole role = UserRole.learner;
+  static AppRole role = AppRole.learner;
   static String name = 'Learner';
   static String email = 'learner@ablearning.co';
 
-  static void loginAs(UserRole newRole) {
+  static void loginAs(AppRole newRole) {
     loginWith(
       role: newRole,
       name: newRole.label,
@@ -21,7 +22,7 @@ class CurrentUser {
   }
 
   static void loginWith({
-    required UserRole role,
+    required AppRole role,
     required String name,
     required String email,
   }) {
@@ -31,25 +32,26 @@ class CurrentUser {
   }
 
   static void logout() {
-    role = UserRole.learner;
+    role = AppRole.learner;
     name = 'Learner';
     email = 'learner@ablearning.co';
   }
 
   /// Initial shell route for a role, used right after login.
-  static String homeRouteFor(UserRole r) {
-    switch (r) {
-      case UserRole.learner:
-        return '/home';
-      case UserRole.instructor:
-        return '/instructor';
-      case UserRole.corpAdmin:
-      case UserRole.corpManager:
-        return '/corporate';
-      case UserRole.employer:
-        return '/employer';
-      case UserRole.admin:
-        return '/admin';
-    }
-  }
+  static String homeRouteFor(AppRole r) => homeRouteForRole(r);
+  // static String homeRouteFor(AppRole r) {
+  //   switch (r) {
+  //     case AppRole.learner:
+  //       return '/home';
+  //     case AppRole.instructor:
+  //       return '/instructor';
+  //     case AppRole.corpAdmin:
+  //     case AppRole.corpManager:
+  //       return '/corporate';
+  //     case AppRole.employer:
+  //       return '/employer';
+  //     case AppRole.admin:
+  //       return '/admin';
+  //   }
+  // }
 }
