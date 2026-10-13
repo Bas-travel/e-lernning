@@ -1,5 +1,4 @@
 package platform
-package platform
 
 import (
 	"net"

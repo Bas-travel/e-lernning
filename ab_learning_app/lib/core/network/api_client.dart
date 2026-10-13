@@ -49,4 +49,7 @@ abstract class ApiClient {
 
   /// POST /api/v1/admin/courses/{id}/approve — ADMIN role only.
   Future<void> approveCourse(int id);
+
+  /// POST /api/v1/admin/courses/{id}/reject — ADMIN role only.
+  Future<void> rejectCourse(int id, {required String reason});
 }

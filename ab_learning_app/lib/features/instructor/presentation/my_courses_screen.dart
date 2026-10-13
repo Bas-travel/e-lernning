@@ -5,12 +5,24 @@ import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../data/mock/mock_repository.dart';
 import '../../../data/mock/models.dart';
+import 'instructor_workflows.dart';
 
 /// Screen 32 — My Courses. Status is derived from mock progress data since
 /// the Course model doesn't carry a real workflow status yet (Phase 3 adds
 /// `status` from `05-openapi.yaml`: draft/pending_review/published/rejected).
-class MyCoursesScreen extends StatelessWidget {
+class MyCoursesScreen extends StatefulWidget {
   const MyCoursesScreen({super.key});
+
+  @override
+  State<MyCoursesScreen> createState() => _MyCoursesScreenState();
+}
+
+class _MyCoursesScreenState extends State<MyCoursesScreen> {
+
+  Future<void> _createCourse() async {
+    await context.push('/instructor/create-course');
+    if (mounted) setState(() {});
+  }
 
   static const _tabs = ['Published', 'Draft', 'Pending', 'Rejected'];
 
@@ -34,12 +46,31 @@ class MyCoursesScreen extends StatelessWidget {
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => context.push('/instructor/create-course'),
+          onPressed: _createCourse,
           icon: const Icon(Icons.add),
           label: const Text('Create Course'),
         ),
         body: TabBarView(
           children: _tabs.map((tab) {
+            if (tab == 'Draft' && InstructorDemoStore.drafts.isNotEmpty) {
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  for (final draft in InstructorDemoStore.drafts)
+                    Card(
+                      child: ListTile(
+                        leading: const CircleAvatar(child: Icon(Icons.edit_note_outlined)),
+                        title: Text(draft.title),
+                        subtitle: Text('${draft.category} · ${draft.status}'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push('/instructor/create-course'),
+                      ),
+                    ),
+                  for (final c in MockRepository.courses.where((course) => _statusFor(course) == tab))
+                    ListTile(title: Text(c.title), subtitle: const Text('Draft')),
+                ],
+              );
+            }
             final courses = MockRepository.courses.where((c) => _statusFor(c) == tab).toList();
             if (courses.isEmpty) {
               return Center(

@@ -19,6 +19,15 @@ class MockApiClient implements ApiClient {
   /// Simulated round-trip latency so loading states are visible during
   /// development instead of flashing instantly.
   static const Duration _latency = Duration(milliseconds: 700);
+  static final List<Map<String, dynamic>> _pendingCourses = [
+    <String, dynamic>{
+      'id': 3,
+      'title': 'Prompt Engineering',
+      'instructor_name': 'Bank',
+      'category': 'AI',
+      'submitted_at': DateTime.now().toIso8601String(),
+    },
+  ];
 
   static final Map<String, Map<String, dynamic>> _seedUsers =
       <String, Map<String, dynamic>>{
@@ -251,21 +260,18 @@ class MockApiClient implements ApiClient {
   @override
   Future<List<dynamic>> getAdminPendingCourses() async {
     await Future<void>.delayed(_latency);
-    return <dynamic>[
-      <String, dynamic>{
-        'id': 3,
-        'title': 'Prompt Engineering',
-        'instructor_name': 'Bank',
-        'category': 'AI',
-        'submitted_at': DateTime.now().toIso8601String(),
-      },
-    ];
+    return List<dynamic>.from(_pendingCourses);
   }
 
   @override
   Future<void> approveCourse(int id) async {
     await Future<void>.delayed(_latency);
-    // No state to mutate in the mock — a real MockApiClient with an
-    // in-memory pending-courses list would remove `id` here.
+    _pendingCourses.removeWhere((course) => course['id'] == id);
+  }
+
+  @override
+  Future<void> rejectCourse(int id, {required String reason}) async {
+    await Future<void>.delayed(_latency);
+    _pendingCourses.removeWhere((course) => course['id'] == id);
   }
 }

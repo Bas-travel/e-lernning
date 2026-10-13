@@ -24,4 +24,8 @@ class AdminRepository {
 
   /// POST /api/v1/admin/courses/{id}/approve
   Future<void> approveCourse(int id) => _apiClient.approveCourse(id);
+
+  /// POST /api/v1/admin/courses/{id}/reject
+  Future<void> rejectCourse(int id, {required String reason}) =>
+      _apiClient.rejectCourse(id, reason: reason);
 }

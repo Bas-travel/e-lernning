@@ -36,6 +36,12 @@ class AdminActions {
     _ref.invalidate(pendingCoursesProvider);
     _ref.invalidate(adminDashboardProvider);
   }
+
+  Future<void> rejectCourse(int id, {required String reason}) async {
+    await _ref.read(adminRepositoryProvider).rejectCourse(id, reason: reason);
+    _ref.invalidate(pendingCoursesProvider);
+    _ref.invalidate(adminDashboardProvider);
+  }
 }
 
 final Provider<AdminActions> adminActionsProvider =

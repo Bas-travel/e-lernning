@@ -25,7 +25,7 @@ func Register(mux *http.ServeMux, guard middleware.Guard, svc *Service) {
 	mux.Handle("POST /api/v1/corporate/employees", write(h.addEmployee))
 	mux.Handle("PUT /api/v1/corporate/employees/{id}", write(h.updateEmployee))
 	mux.Handle("GET /api/v1/corporate/learning-paths", read(h.paths))
-	mux.Handle("POST /api/v1/corporate/learning-paths", read(h.createPath))
+	mux.Handle("POST /api/v1/corporate/learning-paths", write(h.createPath))
 }
 
 func uid(r *http.Request) int64 { p, _ := middleware.PrincipalFrom(r.Context()); return p.UserID }

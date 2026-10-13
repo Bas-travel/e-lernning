@@ -47,7 +47,6 @@ class RoleScaffold extends StatelessWidget {
     return ResponsiveBuilder(
       mobile: (_) => Scaffold(
         backgroundColor: AppColors.background,
-        appBar: AppBar(title: Text(title)),
         body: isLearner
             ? child
             : Column(
@@ -65,22 +64,7 @@ class RoleScaffold extends StatelessWidget {
         body: Row(
           children: <Widget>[
             _Sidebar(role: role, items: sidebarItems, activeRoute: activeRoute, onTap: (i) => _handleTap(context, i)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                    decoration: const BoxDecoration(
-                      color: AppColors.surface,
-                      border: Border(bottom: BorderSide(color: AppColors.border)),
-                    ),
-                    child: Text(title, style: AppTypography.h1),
-                  ),
-                  Expanded(child: child),
-                ],
-              ),
-            ),
+            Expanded(child: child),
           ],
         ),
       ),

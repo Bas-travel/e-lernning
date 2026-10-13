@@ -170,6 +170,15 @@ class DioApiClient implements ApiClient {
     }
   }
 
+  @override
+  Future<void> rejectCourse(int id, {required String reason}) async {
+    try {
+      await _dio.post('/admin/courses/$id/reject', data: <String, dynamic>{'reason': reason});
+    } on DioException catch (e) {
+      throw _mapDioError(e);
+    }
+  }
+
   /// Prefers the backend's own `{code, message}` body (see Go's
   /// `platform.AppError`) since it's always more specific than guessing
   /// from the HTTP status alone — e.g. a 401 on `/auth/login` means wrong
