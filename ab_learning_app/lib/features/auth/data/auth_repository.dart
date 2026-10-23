@@ -17,8 +17,10 @@ class AuthRepository {
   final ApiClient _apiClient;
   final TokenStorage _tokenStorage;
 
-  Future<AuthResult> login({required String identifier, required String password}) async {
-    final response = await _apiClient.login(identifier: identifier, password: password);
+  Future<AuthResult> login(
+      {required String identifier, required String password}) async {
+    final response =
+        await _apiClient.login(identifier: identifier, password: password);
     final userJson = response['user'];
     if (userJson is! Map<String, dynamic>) {
       throw const FormatException('Login response does not contain a user.');

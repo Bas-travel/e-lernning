@@ -3,9 +3,7 @@
 -- Auto-run after 01_schema.sql by the MySQL container's
 -- docker-entrypoint-initdb.d mechanism (files run in filename order).
 --
--- Seed learner account matches the Flutter app's mock login exactly, so
--- flipping lib/core/di/providers.dart from MockApiClient to DioApiClient
--- keeps working with the same credentials, zero UI changes needed:
+-- All development accounts use the same password encoding as Go auth:
 --   email:    learner@ablearning.com
 --   password: password123
 -- ============================================================
@@ -34,7 +32,7 @@ INSERT INTO users (role_id, email, password_hash, status)
 VALUES (
   (SELECT id FROM roles WHERE code = 'INSTRUCTOR'),
   'krit@ablearning.com',
-  '$2a$10$KEHWsSP8QLjM1eUg7dXMpeQwJG79pLJqgjVXWeF2WyQarGh5UKKbW', -- password123
+  'pbkdf2$sha256$210000$QWJsZWFybmluZ1NlZWRWMQ$w5jVCWaPBG4+crkXeoGXmdyigAdxvyBxD2rzz37jP1M', -- password123
   'active'
 );
 SET @krit_user_id = LAST_INSERT_ID();
@@ -51,7 +49,7 @@ INSERT INTO users (role_id, email, password_hash, status)
 VALUES (
   (SELECT id FROM roles WHERE code = 'INSTRUCTOR'),
   'bank@ablearning.com',
-  '$2a$10$KEHWsSP8QLjM1eUg7dXMpeQwJG79pLJqgjVXWeF2WyQarGh5UKKbW',
+  'pbkdf2$sha256$210000$QWJsZWFybmluZ1NlZWRWMQ$w5jVCWaPBG4+crkXeoGXmdyigAdxvyBxD2rzz37jP1M',
   'active'
 );
 SET @bank_user_id = LAST_INSERT_ID();
@@ -68,7 +66,7 @@ INSERT INTO users (role_id, email, password_hash, status)
 VALUES (
   (SELECT id FROM roles WHERE code = 'LEARNER'),
   'learner@ablearning.com',
-  '$2a$10$KEHWsSP8QLjM1eUg7dXMpeQwJG79pLJqgjVXWeF2WyQarGh5UKKbW', -- password123
+  'pbkdf2$sha256$210000$QWJsZWFybmluZ1NlZWRWMQ$w5jVCWaPBG4+crkXeoGXmdyigAdxvyBxD2rzz37jP1M', -- password123
   'active'
 );
 SET @learner_user_id = LAST_INSERT_ID();
@@ -142,7 +140,7 @@ INSERT INTO users (role_id, email, password_hash, status)
 VALUES (
   (SELECT id FROM roles WHERE code = 'CORP_ADMIN'),
   'corp@ablearning.com',
-  '$2a$10$KEHWsSP8QLjM1eUg7dXMpeQwJG79pLJqgjVXWeF2WyQarGh5UKKbW', -- password123
+  'pbkdf2$sha256$210000$QWJsZWFybmluZ1NlZWRWMQ$w5jVCWaPBG4+crkXeoGXmdyigAdxvyBxD2rzz37jP1M', -- password123
   'active'
 );
 SET @corp_user_id = LAST_INSERT_ID();
@@ -157,13 +155,28 @@ VALUES (@abc_org_id, @corp_user_id, 'Human Resources', 'admin', 'active');
 -- dashboard a real "active learner" with a real enrollment to aggregate.
 INSERT INTO organization_users (organization_id, user_id, department, role_in_org, status)
 VALUES (@abc_org_id, @learner_user_id, 'Engineering', 'employee', 'active');
+-- ---- Corporate Manager account (read-only workflows) ----
+INSERT INTO users (role_id, email, password_hash, status)
+VALUES (
+  (SELECT id FROM roles WHERE code = 'CORP_MANAGER'),
+  'manager@ablearning.com',
+  'pbkdf2$sha256$210000$QWJsZWFybmluZ1NlZWRWMQ$w5jVCWaPBG4+crkXeoGXmdyigAdxvyBxD2rzz37jP1M',
+  'active'
+);
+SET @corp_manager_user_id = LAST_INSERT_ID();
+
+INSERT INTO profiles (user_id, first_name, last_name, title)
+VALUES (@corp_manager_user_id, 'Nattaya', 'Wongchai', 'Learning Manager');
+
+INSERT INTO organization_users (organization_id, user_id, department, role_in_org, status)
+VALUES (@abc_org_id, @corp_manager_user_id, 'Learning & Development', 'manager', 'active');
 
 -- ---- Employer: TechCorp Thailand + an Employer account ----
 INSERT INTO users (role_id, email, password_hash, status)
 VALUES (
   (SELECT id FROM roles WHERE code = 'EMPLOYER'),
   'employer@ablearning.com',
-  '$2a$10$KEHWsSP8QLjM1eUg7dXMpeQwJG79pLJqgjVXWeF2WyQarGh5UKKbW',
+  'pbkdf2$sha256$210000$QWJsZWFybmluZ1NlZWRWMQ$w5jVCWaPBG4+crkXeoGXmdyigAdxvyBxD2rzz37jP1M',
   'active'
 );
 SET @employer_user_id = LAST_INSERT_ID();
@@ -199,7 +212,7 @@ INSERT INTO users (role_id, email, password_hash, status)
 VALUES (
   (SELECT id FROM roles WHERE code = 'ADMIN'),
   'admin@ablearning.com',
-  '$2a$10$KEHWsSP8QLjM1eUg7dXMpeQwJG79pLJqgjVXWeF2WyQarGh5UKKbW',
+  'pbkdf2$sha256$210000$QWJsZWFybmluZ1NlZWRWMQ$w5jVCWaPBG4+crkXeoGXmdyigAdxvyBxD2rzz37jP1M',
   'active'
 );
 SET @admin_user_id = LAST_INSERT_ID();

@@ -28,6 +28,125 @@ class MockApiClient implements ApiClient {
       'submitted_at': DateTime.now().toIso8601String(),
     },
   ];
+  static int _nextMockId = 10;
+  static final List<Map<String, dynamic>> _mockCourses = [];
+  static final List<Map<String, dynamic>> _mockEmployees = [
+    {
+      'id': 1,
+      'name': 'Narin Pongsak',
+      'email': 'narin@abc-tech.co',
+      'department': 'Engineering',
+      'status': 'active'
+    },
+    {
+      'id': 2,
+      'name': 'Pimchanok Sae-Tang',
+      'email': 'pimchanok@abc-tech.co',
+      'department': 'Design',
+      'status': 'active'
+    },
+    {
+      'id': 3,
+      'name': 'Thanawat K.',
+      'email': 'thanawat@abc-tech.co',
+      'department': 'Sales',
+      'status': 'inactive'
+    },
+  ];
+  static final List<Map<String, dynamic>> _mockPaths = [
+    {
+      'id': 1,
+      'name': 'Cloud Engineering Foundations',
+      'goal': 'Engineering',
+      'deadline': null,
+      'courses': [
+        {'id': 1, 'title': 'Go Backend Masterclass'}
+      ]
+    },
+    {
+      'id': 2,
+      'name': 'Data Literacy for Teams',
+      'goal': 'All departments',
+      'deadline': null,
+      'courses': [
+        {'id': 2, 'title': 'AI for Business'}
+      ]
+    },
+  ];
+  static final List<Map<String, dynamic>> _mockUsers = [
+    {
+      'id': 1,
+      'email': 'krit@ablearning.co',
+      'role': 'INSTRUCTOR',
+      'status': 'active',
+      'first_name': 'Krit',
+      'last_name': 'Anantasin'
+    },
+    {
+      'id': 2,
+      'email': 'learner@ablearning.co',
+      'role': 'LEARNER',
+      'status': 'active',
+      'first_name': 'Anan',
+      'last_name': 'Suksawat'
+    },
+    {
+      'id': 3,
+      'email': 'corpadmin@ablearning.co',
+      'role': 'CORP_ADMIN',
+      'status': 'active',
+      'first_name': 'Corp',
+      'last_name': 'Admin'
+    },
+  ];
+  static final List<Map<String, dynamic>> _mockPayments = [
+    {
+      'id': 1,
+      'order_code': 'TX-2026-0912',
+      'user_email': 'learner@ablearning.co',
+      'amount': 2490.0,
+      'refunded_amount': 0.0,
+      'method': 'card',
+      'status': 'paid',
+      'order_status': 'completed'
+    },
+    {
+      'id': 2,
+      'order_code': 'TX-2026-0911',
+      'user_email': 'anan@ablearning.co',
+      'amount': 1590.0,
+      'refunded_amount': 0.0,
+      'method': 'promptpay',
+      'status': 'paid',
+      'order_status': 'completed'
+    },
+  ];
+  static final List<Map<String, dynamic>> _mockJobs = [
+    {
+      'id': 1,
+      'title': 'Backend Developer',
+      'description': '',
+      'location': 'Bangkok',
+      'status': 'open'
+    },
+    {
+      'id': 2,
+      'title': 'Product Designer',
+      'description': '',
+      'location': 'Remote',
+      'status': 'open'
+    },
+  ];
+  static final List<Map<String, dynamic>> _mockApplications = [
+    {
+      'id': 1,
+      'user_id': 3,
+      'name': 'Anan Suksawat',
+      'email': 'anan@ablearning.co',
+      'job_title': 'Backend Developer',
+      'status': 'reviewed'
+    },
+  ];
 
   static final Map<String, Map<String, dynamic>> _seedUsers =
       <String, Map<String, dynamic>>{
@@ -273,5 +392,260 @@ class MockApiClient implements ApiClient {
   Future<void> rejectCourse(int id, {required String reason}) async {
     await Future<void>.delayed(_latency);
     _pendingCourses.removeWhere((course) => course['id'] == id);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getInstructorRevenue() async {
+    await Future<void>.delayed(_latency);
+    return {
+      'gross': 96400.0,
+      'platform_fee': 9640.0,
+      'net': 86760.0,
+      'pending': 12300.0,
+      'paid_out': 74460.0,
+      'payouts': <dynamic>[]
+    };
+  }
+
+  @override
+  Future<List<dynamic>> getInstructorCourses({String? status}) async {
+    await Future<void>.delayed(_latency);
+    return _mockCourses
+        .where((course) => status == null || course['status'] == status)
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> createInstructorCourse(
+      Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final course = <String, dynamic>{
+      'id': _nextMockId++,
+      ...body,
+      'status': 'draft',
+      'category': body['category'] ?? 'Programming',
+      'student_count': 0,
+      'rating_avg': 0.0,
+      'lesson_count': 0
+    };
+    _mockCourses.insert(0, course);
+    return Map<String, dynamic>.from(course);
+  }
+
+  @override
+  Future<Map<String, dynamic>> getInstructorCourse(int id) async {
+    await Future<void>.delayed(_latency);
+    final course = _mockCourses.firstWhere((item) => item['id'] == id);
+    return Map<String, dynamic>.from(course);
+  }
+
+  @override
+  Future<Map<String, dynamic>> createInstructorSection(
+      Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final section = <String, dynamic>{
+      'id': _nextMockId++,
+      'lessons': <dynamic>[],
+      ...body
+    };
+    final course =
+        _mockCourses.firstWhere((item) => item['id'] == body['course_id']);
+    final sections = (course['sections'] as List<dynamic>? ?? <dynamic>[]);
+    sections.add(section);
+    course['sections'] = sections;
+    return Map<String, dynamic>.from(section);
+  }
+
+  @override
+  Future<Map<String, dynamic>> createInstructorLesson(
+      Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final lesson = <String, dynamic>{'id': _nextMockId++, ...body};
+    for (final course in _mockCourses) {
+      final sections = (course['sections'] as List<dynamic>? ?? <dynamic>[]);
+      for (final section in sections.cast<Map<String, dynamic>>()) {
+        if (section['id'] == body['section_id']) {
+          (section['lessons'] as List<dynamic>).add(lesson);
+          return Map<String, dynamic>.from(lesson);
+        }
+      }
+    }
+    throw StateError('Section not found');
+  }
+
+  @override
+  Future<Map<String, dynamic>> uploadInstructorVideo(
+      {required List<int> bytes, required String filename}) async {
+    await Future<void>.delayed(_latency);
+    return {
+      'url': 'https://mock.invalid/uploads/$filename',
+      'size_bytes': bytes.length
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> submitInstructorCourse(int id) async {
+    await Future<void>.delayed(_latency);
+    final course = _mockCourses.firstWhere((item) => item['id'] == id);
+    course['status'] = 'pending_review';
+    return Map<String, dynamic>.from(course);
+  }
+
+  @override
+  Future<List<dynamic>> getCategories() async {
+    await Future<void>.delayed(_latency);
+    return const [
+      {'id': 1, 'name_en': 'Programming', 'name_th': 'การเขียนโปรแกรม'},
+      {'id': 2, 'name_en': 'AI', 'name_th': 'ปัญญาประดิษฐ์'},
+      {'id': 3, 'name_en': 'Data', 'name_th': 'ข้อมูล'},
+      {'id': 4, 'name_en': 'Marketing', 'name_th': 'การตลาด'},
+      {'id': 5, 'name_en': 'Business', 'name_th': 'ธุรกิจ'},
+    ];
+  }
+
+  @override
+  Future<List<dynamic>> getCourses({String? query, int page = 1}) async {
+    await Future<void>.delayed(_latency);
+    return const [
+      {'id': 1, 'title': 'Go Backend Masterclass', 'status': 'published'},
+      {'id': 2, 'title': 'AI for Business', 'status': 'published'},
+    ];
+  }
+
+  @override
+  Future<List<dynamic>> getCorporateEmployees(
+      {String? query, String? department, String? status}) async {
+    await Future<void>.delayed(_latency);
+    final needle = query?.toLowerCase() ?? '';
+    return _mockEmployees
+        .where((e) =>
+            (department == null ||
+                department.isEmpty ||
+                e['department'] == department) &&
+            (status == null || status.isEmpty || e['status'] == status) &&
+            ('${e['name']} ${e['email']}'.toLowerCase().contains(needle)))
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> addCorporateEmployee(
+      Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final employee = <String, dynamic>{
+      'id': _nextMockId++,
+      'name': body['email'],
+      'email': body['email'],
+      'department': body['department'] ?? '',
+      'status': 'active',
+      ...body
+    };
+    _mockEmployees.insert(0, employee);
+    return Map<String, dynamic>.from(employee);
+  }
+
+  @override
+  Future<void> updateCorporateEmployee(
+      int id, Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final employee = _mockEmployees.firstWhere((item) => item['id'] == id);
+    employee.addAll(body);
+  }
+
+  @override
+  Future<List<dynamic>> getCorporateLearningPaths() async {
+    await Future<void>.delayed(_latency);
+    return _mockPaths.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> createCorporateLearningPath(
+      Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final path = <String, dynamic>{
+      'id': _nextMockId++,
+      ...body,
+      'courses': <dynamic>[]
+    };
+    _mockPaths.insert(0, path);
+    return Map<String, dynamic>.from(path);
+  }
+
+  @override
+  Future<List<dynamic>> getAdminUsers({String? query}) async {
+    await Future<void>.delayed(_latency);
+    final needle = query?.toLowerCase() ?? '';
+    return _mockUsers
+        .where((u) => '${u['email']} ${u['first_name']} ${u['last_name']}'
+            .toLowerCase()
+            .contains(needle))
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> updateAdminUser(
+      int id, Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final user = _mockUsers.firstWhere((item) => item['id'] == id);
+    user.addAll(body);
+    return Map<String, dynamic>.from(user);
+  }
+
+  @override
+  Future<Map<String, dynamic>> suspendAdminUser(int id,
+          {String reason = ''}) async =>
+      updateAdminUser(id, {'status': 'suspended'});
+
+  @override
+  Future<List<dynamic>> getAdminPayments({String? status}) async {
+    await Future<void>.delayed(_latency);
+    return _mockPayments
+        .where((p) => status == null || p['status'] == status)
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> refundAdminPayment(int id,
+      {String reason = ''}) async {
+    await Future<void>.delayed(_latency);
+    final payment = _mockPayments.firstWhere((item) => item['id'] == id);
+    payment['refunded_amount'] = payment['amount'];
+    payment['status'] = 'refunded';
+    return {'payment_id': id, 'total_refunded': payment['amount']};
+  }
+
+  @override
+  Future<List<dynamic>> getEmployerJobs() async {
+    await Future<void>.delayed(_latency);
+    return _mockJobs.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  @override
+  Future<Map<String, dynamic>> createEmployerJob(
+      Map<String, dynamic> body) async {
+    await Future<void>.delayed(_latency);
+    final job = <String, dynamic>{
+      'id': _nextMockId++,
+      'status': 'open',
+      ...body
+    };
+    _mockJobs.insert(0, job);
+    return Map<String, dynamic>.from(job);
+  }
+
+  @override
+  Future<List<dynamic>> getEmployerApplications() async {
+    await Future<void>.delayed(_latency);
+    return _mockApplications.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  @override
+  Future<void> updateEmployerApplication(int id,
+      {required String status}) async {
+    await Future<void>.delayed(_latency);
+    _mockApplications.firstWhere((item) => item['id'] == id)['status'] = status;
   }
 }

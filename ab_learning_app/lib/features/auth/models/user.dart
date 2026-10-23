@@ -11,7 +11,8 @@ class User {
 
   final int id;
   final String email;
-  final String role; // GUEST, LEARNER, INSTRUCTOR, CORP_ADMIN, CORP_MANAGER, EMPLOYER, ADMIN
+  final String
+      role; // GUEST, LEARNER, INSTRUCTOR, CORP_ADMIN, CORP_MANAGER, EMPLOYER, ADMIN
   final String firstName;
   final String lastName;
   final String? avatarUrl;

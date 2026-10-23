@@ -179,7 +179,8 @@ class CourseDetailScreen extends StatelessWidget {
                                     ),
                                     onTap: () {
                                       if (!isEnrolled) {
-                                        _openCheckout(context, courseId, course.title);
+                                        _openCheckout(
+                                            context, courseId, course.title);
                                       } else if (lesson.hasQuiz) {
                                         context.push('/quiz/${lesson.id}');
                                       } else {

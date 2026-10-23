@@ -24,7 +24,12 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
   final _scrollController = ScrollController();
   bool _isTyping = false;
 
-  static const _quickActions = ['Explain', 'Give Example', 'Quiz Me', 'Career Advice'];
+  static const _quickActions = [
+    'Explain',
+    'Give Example',
+    'Quiz Me',
+    'Career Advice'
+  ];
 
   @override
   void dispose() {
@@ -58,7 +63,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
       setState(() {
-        _messages.add(ChatMessage(text: MockRepository.mockTutorReply(trimmed), fromUser: false));
+        _messages.add(ChatMessage(
+            text: MockRepository.mockTutorReply(trimmed), fromUser: false));
         _isTyping = false;
       });
       _scrollToBottom();
@@ -91,7 +97,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, i) {
                   final question = MockRepository.tutorSuggestedQuestions[i];
-                  return ActionChip(label: Text(question), onPressed: () => _send(question));
+                  return ActionChip(
+                      label: Text(question), onPressed: () => _send(question));
                 },
               ),
             ),
@@ -130,10 +137,12 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                         hintText: 'Ask your AI Tutor...',
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 14),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(AppRadius.input),
-                          borderSide: const BorderSide(color: AppColors.cardBorder),
+                          borderSide:
+                              const BorderSide(color: AppColors.cardBorder),
                         ),
                       ),
                     ),
@@ -142,7 +151,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                   CircleAvatar(
                     backgroundColor: AppColors.primary,
                     child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white, size: 18),
+                      icon:
+                          const Icon(Icons.send, color: Colors.white, size: 18),
                       onPressed: () => _send(_controller.text),
                     ),
                   ),
@@ -167,7 +177,8 @@ class _ChatBubble extends StatelessWidget {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
@@ -177,7 +188,8 @@ class _ChatBubble extends StatelessWidget {
         ),
         child: Text(
           message.text,
-          style: AppTypography.body.copyWith(color: isUser ? Colors.white : AppColors.text),
+          style: AppTypography.body
+              .copyWith(color: isUser ? Colors.white : AppColors.text),
         ),
       ),
     );
@@ -199,7 +211,9 @@ class _TypingIndicator extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.card),
           border: Border.all(color: AppColors.cardBorder),
         ),
-        child: Text('AI Tutor is typing...', style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+        child: Text('AI Tutor is typing...',
+            style:
+                AppTypography.caption.copyWith(color: AppColors.textSecondary)),
       ),
     );
   }

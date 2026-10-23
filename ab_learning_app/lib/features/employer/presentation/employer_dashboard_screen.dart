@@ -1,135 +1,121 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
 import '../../../core/widgets/role_switcher_sheet.dart';
-import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
+import '../application/employer_controller.dart';
 
-/// Screen 39 — Employer Dashboard.
-class EmployerDashboardScreen extends StatelessWidget {
+/// Employer KPIs and recommended candidates are served by role-guarded APIs.
+class EmployerDashboardScreen extends ConsumerWidget {
   const EmployerDashboardScreen({super.key});
 
-  static const _talent = [
-    _Talent('Napat S.', 'Frontend Engineer', '4.9'),
-    _Talent('Kanya P.', 'Data Analyst', '4.7'),
-    _Talent('Wichai T.', 'UX Designer', '4.8'),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboard = ref.watch(employerDashboardProvider);
+    final talent = ref.watch(topApplicantsProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Employer Dashboard'),
+        title: dashboard.maybeWhen(
+            data: (value) => Text(value.companyName),
+            orElse: () => const Text('Employer Dashboard')),
         actions: [
           IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Switch role',
-            onPressed: () => showRoleSwitcherSheet(context),
-          ),
+              icon: const Icon(Icons.swap_horiz),
+              tooltip: 'Switch role',
+              onPressed: () => showRoleSwitcherSheet(context))
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const KpiRow(stats: MockRepository.employerKpis),
-          const SizedBox(height: 20),
+      body: ListView(padding: const EdgeInsets.all(16), children: [
+        dashboard.when(
+          loading: () => const SizedBox(
+              height: 92, child: Center(child: CircularProgressIndicator())),
+          error: (error, _) => _LoadError(
+              message: error.toString(),
+              onRetry: () => ref.invalidate(employerDashboardProvider)),
+          data: (data) => KpiRow(stats: [
+            KpiStat(label: 'Open jobs', value: '${data.openJobs}'),
+            KpiStat(label: 'Applications', value: '${data.totalApplications}'),
+            KpiStat(label: 'Shortlisted', value: '${data.shortlistedCount}'),
+            KpiStat(label: 'Hired', value: '${data.hiredCount}'),
+          ]),
+        ),
+        const SizedBox(height: 20),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           const Text('Recommended Talent', style: AppTypography.h2),
-          const SizedBox(height: 12),
-          ..._talent.map(
-            (t) => Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppRadius.card),
-                border: Border.all(color: AppColors.cardBorder),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(backgroundColor: AppColors.primary.withValues(alpha: 0.15), child: const Icon(Icons.person, color: AppColors.primary)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(t.name, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
-                        Text(t.role, style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.star, size: 14, color: AppColors.warning),
-                      const SizedBox(width: 2),
-                      Text(t.rating, style: AppTypography.caption),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text('Skill Trends', style: AppTypography.h2),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.card),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Full charts arrive with Phase 3 backend wiring.', style: AppTypography.caption),
-                SizedBox(height: 8),
-                _TrendBar(label: 'Cloud / DevOps', percent: 0.82),
-                _TrendBar(label: 'Data Analysis', percent: 0.68),
-                _TrendBar(label: 'UI/UX Design', percent: 0.55),
-              ],
-            ),
-          ),
-        ],
-      ),
+          TextButton(
+              onPressed: () => context.push('/employer/talent'),
+              child: const Text('View all')),
+        ]),
+        const SizedBox(height: 8),
+        talent.when(
+          loading: () => const Center(
+              child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator())),
+          error: (error, _) => _LoadError(
+              message: error.toString(),
+              onRetry: () => ref.invalidate(topApplicantsProvider)),
+          data: (people) => people.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('ยังไม่มีผู้สมัครที่แนะนำ'))
+              : Column(
+                  children: people
+                      .take(3)
+                      .map((person) => Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.card),
+                                border:
+                                    Border.all(color: AppColors.cardBorder)),
+                            child: Row(children: [
+                              CircleAvatar(
+                                  backgroundColor:
+                                      AppColors.primary.withValues(alpha: 0.15),
+                                  child: const Icon(Icons.person,
+                                      color: AppColors.primary)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                    Text(person.name,
+                                        style: AppTypography.body.copyWith(
+                                            fontWeight: FontWeight.w600)),
+                                    Text(
+                                        '${person.headline} · ${person.jobTitle}',
+                                        style: AppTypography.caption.copyWith(
+                                            color: AppColors.textSecondary)),
+                                  ])),
+                              Text('${person.matchScore.round()}%',
+                                  style: AppTypography.body.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w700)),
+                            ]),
+                          ))
+                      .toList()),
+        ),
+      ]),
     );
   }
 }
 
-class _Talent {
-  final String name;
-  final String role;
-  final String rating;
-
-  const _Talent(this.name, this.role, this.rating);
-}
-
-class _TrendBar extends StatelessWidget {
-  final String label;
-  final double percent;
-
-  const _TrendBar({required this.label, required this.percent});
-
+class _LoadError extends StatelessWidget {
+  const _LoadError({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: AppTypography.caption),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.badge),
-            child: LinearProgressIndicator(
-              value: percent,
-              minHeight: 6,
-              backgroundColor: AppColors.cardBorder,
-              valueColor: const AlwaysStoppedAnimation(AppColors.accent),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Row(children: [
+        Expanded(child: Text('โหลดข้อมูลไม่สำเร็จ: $message')),
+        IconButton(onPressed: onRetry, icon: const Icon(Icons.refresh))
+      ]);
 }

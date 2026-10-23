@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/di/providers.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
 import '../../../core/widgets/role_switcher_sheet.dart';
 import '../../../data/mock/current_user.dart';
 import '../../../data/mock/models.dart';
-import '../../../data/mock/mock_repository.dart';
 
 /// Screen 36 — Corporate Dashboard.
-class CorporateDashboardScreen extends StatelessWidget {
+class CorporateDashboardScreen extends ConsumerWidget {
   const CorporateDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboard = ref.watch(corporateDashboardProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Corporate Dashboard'),
@@ -38,13 +40,28 @@ class CorporateDashboardScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.apartment_outlined, color: AppColors.primary, size: 18),
+                const Icon(Icons.apartment_outlined,
+                    color: AppColors.primary, size: 18),
                 const SizedBox(width: 8),
-                Text('Signed in as ${CurrentUser.role.label}', style: AppTypography.caption),
+                Text('Signed in as ${CurrentUser.role.label}',
+                    style: AppTypography.caption),
               ],
             ),
           ),
-          const KpiRow(stats: MockRepository.corporateKpis),
+          dashboard.when(
+            loading: () => const SizedBox(
+                height: 92, child: Center(child: CircularProgressIndicator())),
+            error: (error, _) => _DashboardError(
+                message: error.toString(),
+                onRetry: () => ref.invalidate(corporateDashboardProvider)),
+            data: (data) => KpiRow(
+                stats: (data['kpis'] as List<dynamic>? ?? const []).map((item) {
+              final kpi = item as Map<String, dynamic>;
+              return KpiStat(
+                  label: '${kpi['label'] ?? ''}',
+                  value: '${kpi['value'] ?? ''}');
+            }).toList()),
+          ),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -68,20 +85,32 @@ class CorporateDashboardScreen extends StatelessWidget {
           const SizedBox(height: 24),
           const Text('Department Performance', style: AppTypography.h2),
           const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.card),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: const Column(
-              children: [
-                _DeptRow(name: 'Engineering', progress: 0.72),
-                _DeptRow(name: 'Sales', progress: 0.51),
-                _DeptRow(name: 'Customer Success', progress: 0.64),
-                _DeptRow(name: 'Design', progress: 0.83),
-              ],
-            ),
+          dashboard.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, _) => _DashboardError(
+                message: error.toString(),
+                onRetry: () => ref.invalidate(corporateDashboardProvider)),
+            data: (data) {
+              final departments =
+                  (data['departments'] as List<dynamic>? ?? const [])
+                      .cast<Map<String, dynamic>>();
+              if (departments.isEmpty) return const Text('ยังไม่มีข้อมูลแผนก');
+              return Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.card),
+                    border: Border.all(color: AppColors.cardBorder)),
+                child: Column(children: [
+                  for (final department in departments)
+                    _DeptRow(
+                        name: '${department['department'] ?? 'Unassigned'}',
+                        progress: ((department['avg_progress'] as num? ?? 0)
+                                    .toDouble() /
+                                100)
+                            .clamp(0.0, 1.0))
+                ]),
+              );
+            },
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -90,7 +119,8 @@ class CorporateDashboardScreen extends StatelessWidget {
             child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.btnOutlineBorder),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.button)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button)),
               ),
               onPressed: () => context.push('/corporate/learning-paths'),
               icon: const Icon(Icons.add),
@@ -108,7 +138,8 @@ class _MenuTile extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _MenuTile({required this.icon, required this.label, required this.onTap});
+  const _MenuTile(
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +158,9 @@ class _MenuTile extends StatelessWidget {
           children: [
             Icon(icon, color: AppColors.primary),
             const SizedBox(height: 8),
-            Text(label, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
+            Text(label,
+                style:
+                    AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -152,7 +185,8 @@ class _DeptRow extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(name, style: AppTypography.body),
-              Text('${(progress * 100).round()}%', style: AppTypography.caption),
+              Text('${(progress * 100).round()}%',
+                  style: AppTypography.caption),
             ],
           ),
           const SizedBox(height: 6),
@@ -169,4 +203,15 @@ class _DeptRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DashboardError extends StatelessWidget {
+  const _DashboardError({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        Expanded(child: Text('โหลด Dashboard ไม่สำเร็จ: $message')),
+        IconButton(onPressed: onRetry, icon: const Icon(Icons.refresh))
+      ]);
 }

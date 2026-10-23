@@ -3,7 +3,15 @@ import 'package:flutter/material.dart';
 /// Every role the backend knows about (must match the `roles.code` values
 /// seeded in `db/init/02_seed.sql` and the JWT `role` claim `pkg/jwtx`
 /// issues) plus GUEST, which never has a token at all.
-enum AppRole { guest, learner, instructor, corpAdmin, corpManager, employer, admin }
+enum AppRole {
+  guest,
+  learner,
+  instructor,
+  corpAdmin,
+  corpManager,
+  employer,
+  admin
+}
 
 AppRole roleFromString(String value) {
   switch (value) {
@@ -87,7 +95,8 @@ const List<RoleNavItem> learnerSidebar = <RoleNavItem>[
 const List<RoleNavItem> instructorMenu = <RoleNavItem>[
   RoleNavItem('Dashboard', Icons.dashboard_rounded, '/instructor'),
   RoleNavItem('My Courses', Icons.video_library_rounded, '/instructor/courses'),
-  RoleNavItem('Course Builder', Icons.build_rounded, '/instructor/create-course'),
+  RoleNavItem(
+      'Course Builder', Icons.build_rounded, '/instructor/create-course'),
   RoleNavItem('Revenue', Icons.payments_rounded, '/instructor/revenue'),
   RoleNavItem('Go Live', Icons.podcasts_rounded, '/instructor/go-live'),
 ];
@@ -95,21 +104,24 @@ const List<RoleNavItem> instructorMenu = <RoleNavItem>[
 const List<RoleNavItem> corporateMenu = <RoleNavItem>[
   RoleNavItem('Dashboard', Icons.dashboard_rounded, '/corporate'),
   RoleNavItem('Employees', Icons.groups_rounded, '/corporate/employees'),
-  RoleNavItem('Learning Paths', Icons.route_rounded, '/corporate/learning-paths'),
+  RoleNavItem(
+      'Learning Paths', Icons.route_rounded, '/corporate/learning-paths'),
   RoleNavItem('Reports', Icons.bar_chart_rounded, '/corporate/reports'),
 ];
 
 const List<RoleNavItem> employerMenu = <RoleNavItem>[
   RoleNavItem('Dashboard', Icons.dashboard_rounded, '/employer'),
   RoleNavItem('Jobs', Icons.work_rounded, '/employer/jobs'),
-  RoleNavItem('Applications', Icons.description_rounded, '/employer/applications'),
+  RoleNavItem(
+      'Applications', Icons.description_rounded, '/employer/applications'),
   RoleNavItem('Talent Search', Icons.person_search_rounded, '/employer/talent'),
 ];
 
 const List<RoleNavItem> adminMenu = <RoleNavItem>[
   RoleNavItem('Dashboard', Icons.dashboard_rounded, '/admin'),
   RoleNavItem('Users', Icons.people_alt_rounded, '/admin/users'),
-  RoleNavItem('Course Moderation', Icons.fact_check_rounded, '/admin/moderation'),
+  RoleNavItem(
+      'Course Moderation', Icons.fact_check_rounded, '/admin/moderation'),
   RoleNavItem('Payments', Icons.credit_card_rounded, '/admin/payments'),
   RoleNavItem('Settings', Icons.settings_rounded, '/admin/settings'),
 ];

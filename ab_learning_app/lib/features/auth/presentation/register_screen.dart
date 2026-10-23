@@ -5,9 +5,12 @@ import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import 'auth_page_layout.dart';
 import 'register_controller.dart';
+import '../data/auth_repository.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, this.authRepository});
+
+  final AuthRepository? authRepository;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -22,7 +25,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
-  final _controller = RegisterController();
+  late final _controller =
+      RegisterController(repository: widget.authRepository);
   bool _obscurePassword = true;
   bool _obscureConfirmation = true;
 

@@ -61,6 +61,8 @@ void main() {
       await tester.pumpAndSettle();
 
       for (final item in menu) {
+        await tester.ensureVisible(find.text(item.label).first);
+        await tester.pumpAndSettle();
         await tester.tap(find.text(item.label).first);
         await tester.pumpAndSettle();
         expect(find.text('Screen ${item.route}'), findsOneWidget,

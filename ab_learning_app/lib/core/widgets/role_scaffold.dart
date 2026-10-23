@@ -41,7 +41,8 @@ class RoleScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLearner = role == AppRole.learner;
-    final List<RoleNavItem> items = isLearner ? learnerBottomTabs : sidebarFor(role);
+    final List<RoleNavItem> items =
+        isLearner ? learnerBottomTabs : sidebarFor(role);
     final List<RoleNavItem> sidebarItems = sidebarFor(role);
 
     return ResponsiveBuilder(
@@ -51,19 +52,29 @@ class RoleScaffold extends StatelessWidget {
             ? child
             : Column(
                 children: <Widget>[
-                  _ChipNav(items: sidebarItems, activeRoute: activeRoute, onTap: (i) => _handleTap(context, i)),
+                  _ChipNav(
+                      items: sidebarItems,
+                      activeRoute: activeRoute,
+                      onTap: (i) => _handleTap(context, i)),
                   Expanded(child: child),
                 ],
               ),
         bottomNavigationBar: isLearner
-            ? _BottomNav(items: items, activeRoute: activeRoute, onTap: (i) => _handleTap(context, i))
+            ? _BottomNav(
+                items: items,
+                activeRoute: activeRoute,
+                onTap: (i) => _handleTap(context, i))
             : null,
       ),
       desktop: (_) => Scaffold(
         backgroundColor: AppColors.background,
         body: Row(
           children: <Widget>[
-            _Sidebar(role: role, items: sidebarItems, activeRoute: activeRoute, onTap: (i) => _handleTap(context, i)),
+            _Sidebar(
+                role: role,
+                items: sidebarItems,
+                activeRoute: activeRoute,
+                onTap: (i) => _handleTap(context, i)),
             Expanded(child: child),
           ],
         ),
@@ -73,7 +84,8 @@ class RoleScaffold extends StatelessWidget {
 }
 
 class _BottomNav extends StatelessWidget {
-  const _BottomNav({required this.items, required this.activeRoute, required this.onTap});
+  const _BottomNav(
+      {required this.items, required this.activeRoute, required this.onTap});
   final List<RoleNavItem> items;
   final String activeRoute;
   final ValueChanged<RoleNavItem> onTap;
@@ -92,18 +104,24 @@ class _BottomNav extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: items.map((RoleNavItem item) {
             final bool active = item.route == activeRoute;
-            final Color color = active ? AppColors.primary : AppColors.textSecondary;
+            final Color color =
+                active ? AppColors.primary : AppColors.textSecondary;
             return InkWell(
               onTap: () => onTap(item),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Icon(item.icon, size: 22, color: color),
                     const SizedBox(height: 2),
                     Text(item.label,
-                        style: TextStyle(fontSize: 10, color: color, fontWeight: active ? FontWeight.w600 : FontWeight.w400)),
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: color,
+                            fontWeight:
+                                active ? FontWeight.w600 : FontWeight.w400)),
                   ],
                 ),
               ),
@@ -116,7 +134,8 @@ class _BottomNav extends StatelessWidget {
 }
 
 class _ChipNav extends StatelessWidget {
-  const _ChipNav({required this.items, required this.activeRoute, required this.onTap});
+  const _ChipNav(
+      {required this.items, required this.activeRoute, required this.onTap});
   final List<RoleNavItem> items;
   final String activeRoute;
   final ValueChanged<RoleNavItem> onTap;
@@ -138,13 +157,17 @@ class _ChipNav extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ChoiceChip(
                 label: Text(item.label, style: const TextStyle(fontSize: 12.5)),
-                avatar: Icon(item.icon, size: 15, color: active ? Colors.white : AppColors.textSecondary),
+                avatar: Icon(item.icon,
+                    size: 15,
+                    color: active ? Colors.white : AppColors.textSecondary),
                 selected: active,
                 onSelected: (_) => onTap(item),
                 selectedColor: AppColors.primary,
-                labelStyle: TextStyle(color: active ? Colors.white : AppColors.textPrimary),
+                labelStyle: TextStyle(
+                    color: active ? Colors.white : AppColors.textPrimary),
                 backgroundColor: AppColors.background,
-                side: BorderSide(color: active ? AppColors.primary : AppColors.border),
+                side: BorderSide(
+                    color: active ? AppColors.primary : AppColors.border),
               ),
             );
           }).toList(),
@@ -155,7 +178,11 @@ class _ChipNav extends StatelessWidget {
 }
 
 class _Sidebar extends StatelessWidget {
-  const _Sidebar({required this.role, required this.items, required this.activeRoute, required this.onTap});
+  const _Sidebar(
+      {required this.role,
+      required this.items,
+      required this.activeRoute,
+      required this.onTap});
   final AppRole role;
   final List<RoleNavItem> items;
   final String activeRoute;
@@ -174,7 +201,10 @@ class _Sidebar extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Text('AB LEARNING',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -185,25 +215,34 @@ class _Sidebar extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Material(
-                color: item.route == activeRoute ? const Color(0xFFEEF2FF) : Colors.transparent,
+                color: item.route == activeRoute
+                    ? const Color(0xFFEEF2FF)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(8),
                   onTap: () => onTap(item),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
                     child: Row(
                       children: <Widget>[
                         Icon(item.icon,
                             size: 18,
-                            color: item.route == activeRoute ? AppColors.primary : AppColors.textSecondary),
+                            color: item.route == activeRoute
+                                ? AppColors.primary
+                                : AppColors.textSecondary),
                         const SizedBox(width: 10),
                         Text(
                           item.label,
                           style: TextStyle(
                             fontSize: 13,
-                            color: item.route == activeRoute ? AppColors.primary : AppColors.textSecondary,
-                            fontWeight: item.route == activeRoute ? FontWeight.w600 : FontWeight.w400,
+                            color: item.route == activeRoute
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                            fontWeight: item.route == activeRoute
+                                ? FontWeight.w600
+                                : FontWeight.w400,
                           ),
                         ),
                       ],

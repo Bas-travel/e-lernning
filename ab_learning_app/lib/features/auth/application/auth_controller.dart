@@ -23,7 +23,8 @@ final StateNotifierProvider<AuthController, AuthState> authControllerProvider =
 enum AuthStatus { idle, loading, authenticated, error }
 
 class AuthState {
-  const AuthState({this.status = AuthStatus.idle, this.user, this.errorMessage});
+  const AuthState(
+      {this.status = AuthStatus.idle, this.user, this.errorMessage});
 
   final AuthStatus status;
   final User? user;

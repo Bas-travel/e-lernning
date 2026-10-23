@@ -1,8 +1,10 @@
 package employer
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/ablearning/api/internal/middleware"
 	"github.com/ablearning/api/internal/platform"
 )
 
@@ -12,6 +14,11 @@ type Handler struct {
 
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
+}
+
+func userIDFromContext(ctx context.Context) (int64, bool) {
+	principal, ok := middleware.PrincipalFrom(ctx)
+	return principal.UserID, ok
 }
 
 // RegisterRoutes wires this domain's endpoints onto mux. `guard` is the
@@ -27,7 +34,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, guard func(http.Handler) ht
 }
 
 func (h *Handler) dashboard(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
+	userID, ok := userIDFromContext(r.Context())
 	if !ok {
 		platform.WriteError(w, platform.ErrUnauthorized)
 		return
@@ -42,7 +49,7 @@ func (h *Handler) dashboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) topApplicants(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
+	userID, ok := userIDFromContext(r.Context())
 	if !ok {
 		platform.WriteError(w, platform.ErrUnauthorized)
 		return
@@ -57,7 +64,7 @@ func (h *Handler) topApplicants(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) jobs(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
+	userID, ok := userIDFromContext(r.Context())
 	if !ok {
 		platform.WriteError(w, platform.ErrUnauthorized)
 		return
@@ -71,7 +78,7 @@ func (h *Handler) jobs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) createJob(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
+	userID, ok := userIDFromContext(r.Context())
 	if !ok {
 		platform.WriteError(w, platform.ErrUnauthorized)
 		return
@@ -90,7 +97,7 @@ func (h *Handler) createJob(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) applications(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
+	userID, ok := userIDFromContext(r.Context())
 	if !ok {
 		platform.WriteError(w, platform.ErrUnauthorized)
 		return
@@ -104,7 +111,7 @@ func (h *Handler) applications(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateApplication(w http.ResponseWriter, r *http.Request) {
-	userID, ok := platform.UserIDFromContext(r.Context())
+	userID, ok := userIDFromContext(r.Context())
 	if !ok {
 		platform.WriteError(w, platform.ErrUnauthorized)
 		return

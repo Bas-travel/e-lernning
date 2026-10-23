@@ -70,7 +70,8 @@ class _DashboardError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.textSecondary),
+            const Icon(Icons.error_outline_rounded,
+                size: 40, color: AppColors.textSecondary),
             const SizedBox(height: 12),
             const Text('โหลดข้อมูลไม่สำเร็จ', style: AppTypography.h2),
             const SizedBox(height: 6),
@@ -80,7 +81,8 @@ class _DashboardError extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            SecondaryButton(label: 'ลองอีกครั้ง', onPressed: onRetry, fullWidth: false),
+            SecondaryButton(
+                label: 'ลองอีกครั้ง', onPressed: onRetry, fullWidth: false),
           ],
         ),
       ),

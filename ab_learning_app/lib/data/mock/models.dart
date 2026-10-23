@@ -133,7 +133,8 @@ extension AppRoleLabel on AppRole {
 
   /// Route both corporate roles share the same shell — they differ only in
   /// permissions (e.g. billing) once the backend enforces that in Phase 3+.
-  bool get isCorporate => this == AppRole.corpAdmin || this == AppRole.corpManager;
+  bool get isCorporate =>
+      this == AppRole.corpAdmin || this == AppRole.corpManager;
 }
 
 /// A single KPI stat shown at the top of a role dashboard (screens 31, 36,

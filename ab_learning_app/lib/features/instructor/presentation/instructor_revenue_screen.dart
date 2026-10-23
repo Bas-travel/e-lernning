@@ -46,12 +46,20 @@ class InstructorRevenueScreen extends StatelessWidget {
                   .map(
                     (p) => ListTile(
                       leading: Icon(
-                        p.status == 'Paid' ? Icons.check_circle : Icons.hourglass_top,
-                        color: p.status == 'Paid' ? AppColors.success : AppColors.warning,
+                        p.status == 'Paid'
+                            ? Icons.check_circle
+                            : Icons.hourglass_top,
+                        color: p.status == 'Paid'
+                            ? AppColors.success
+                            : AppColors.warning,
                       ),
                       title: Text(p.month, style: AppTypography.body),
-                      trailing: Text(p.amount, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600)),
-                      subtitle: Text(p.status, style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                      trailing: Text(p.amount,
+                          style: AppTypography.body
+                              .copyWith(fontWeight: FontWeight.w600)),
+                      subtitle: Text(p.status,
+                          style: AppTypography.caption
+                              .copyWith(color: AppColors.textSecondary)),
                     ),
                   )
                   .toList(),

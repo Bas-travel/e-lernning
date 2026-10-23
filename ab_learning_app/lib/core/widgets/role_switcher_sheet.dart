@@ -15,7 +15,8 @@ Future<void> showRoleSwitcherSheet(BuildContext context) {
     context: context,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.modal)),
+      borderRadius:
+          BorderRadius.vertical(top: Radius.circular(AppRadius.modal)),
     ),
     builder: (context) => SafeArea(
       child: Padding(
@@ -28,7 +29,8 @@ Future<void> showRoleSwitcherSheet(BuildContext context) {
             const SizedBox(height: 4),
             Text(
               'Demo helper — no separate login needed per role yet.',
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+              style: AppTypography.caption
+                  .copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
             for (final role in AppRole.values)
@@ -40,7 +42,9 @@ Future<void> showRoleSwitcherSheet(BuildContext context) {
                       : AppColors.cardBorder,
                   child: Icon(
                     _iconFor(role),
-                    color: role == CurrentUser.role ? Colors.white : AppColors.textSecondary,
+                    color: role == CurrentUser.role
+                        ? Colors.white
+                        : AppColors.textSecondary,
                     size: 18,
                   ),
                 ),
@@ -62,7 +66,8 @@ Future<void> showRoleSwitcherSheet(BuildContext context) {
                 backgroundColor: AppColors.pillErrorBg,
                 child: Icon(Icons.logout, color: AppColors.error, size: 18),
               ),
-              title: Text('Logout', style: AppTypography.body.copyWith(color: AppColors.error)),
+              title: Text('Logout',
+                  style: AppTypography.body.copyWith(color: AppColors.error)),
               onTap: () {
                 Navigator.of(context).pop();
                 CurrentUser.logout();
@@ -75,7 +80,8 @@ Future<void> showRoleSwitcherSheet(BuildContext context) {
     ),
   );
 }
-IconData _iconFor(AppRole role) { 
+
+IconData _iconFor(AppRole role) {
   switch (role) {
     case AppRole.learner:
       return Icons.school_outlined;

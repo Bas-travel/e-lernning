@@ -33,7 +33,8 @@ class ComingSoonScreen extends StatelessWidget {
               Icon(icon, size: 48, color: AppColors.textSecondary),
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.pillWarnBg,
                   borderRadius: BorderRadius.circular(999),
@@ -47,12 +48,15 @@ class ComingSoonScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Text(title, style: AppTypography.h1.copyWith(fontSize: 18), textAlign: TextAlign.center),
+              Text(title,
+                  style: AppTypography.h1.copyWith(fontSize: 18),
+                  textAlign: TextAlign.center),
               const SizedBox(height: 8),
               Text(
                 description,
                 textAlign: TextAlign.center,
-                style: AppTypography.body.copyWith(color: AppColors.textSecondary),
+                style:
+                    AppTypography.body.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),

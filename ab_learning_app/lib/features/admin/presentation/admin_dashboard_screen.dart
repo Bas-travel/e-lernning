@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/di/providers.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/kpi_card.dart';
 import '../../../core/widgets/role_switcher_sheet.dart';
-import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
 
 /// Screen 40 — Admin Dashboard.
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends ConsumerWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboard = ref.watch(adminDashboardProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
@@ -27,7 +30,27 @@ class AdminDashboardScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const KpiRow(stats: MockRepository.adminKpis),
+          dashboard.when(
+            loading: () => const SizedBox(
+                height: 92, child: Center(child: CircularProgressIndicator())),
+            error: (error, _) => _DashboardError(
+                message: error.toString(),
+                onRetry: () => ref.invalidate(adminDashboardProvider)),
+            data: (data) => KpiRow(stats: [
+              KpiStat(label: 'Users', value: '${data['users_total'] ?? 0}'),
+              KpiStat(
+                  label: 'Instructors', value: '${data['instructors'] ?? 0}'),
+              KpiStat(
+                  label: 'Published courses',
+                  value: '${data['courses_published'] ?? 0}'),
+              KpiStat(
+                  label: 'Pending courses',
+                  value: '${data['courses_pending'] ?? 0}'),
+              KpiStat(label: 'Revenue', value: '฿${data['revenue'] ?? 0}'),
+              KpiStat(
+                  label: 'Open reports', value: '${data['open_reports'] ?? 0}'),
+            ]),
+          ),
           const SizedBox(height: 24),
           const Text('Quick Menu', style: AppTypography.h2),
           const SizedBox(height: 12),
@@ -64,17 +87,21 @@ class AdminDashboardScreen extends StatelessWidget {
           const SizedBox(height: 24),
           const Text('Platform Growth', style: AppTypography.h2),
           const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppRadius.card),
-              border: Border.all(color: AppColors.cardBorder),
-            ),
-            child: Text(
-              'Revenue, user growth, and course sales charts arrive once '
-              '/admin/dashboard is wired to the real API in Phase 3.',
-              style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+          dashboard.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, _) => _DashboardError(
+                message: error.toString(),
+                onRetry: () => ref.invalidate(adminDashboardProvider)),
+            data: (data) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(AppRadius.card),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: Text('Gross merchandise value: ฿${data['gmv'] ?? 0}',
+                  style: AppTypography.caption
+                      .copyWith(color: AppColors.textSecondary)),
             ),
           ),
         ],
@@ -83,12 +110,26 @@ class AdminDashboardScreen extends StatelessWidget {
   }
 }
 
+class _DashboardError extends StatelessWidget {
+  const _DashboardError({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(children: [
+        Expanded(child: Text('โหลด Dashboard ไม่สำเร็จ: $message')),
+        IconButton(onPressed: onRetry, icon: const Icon(Icons.refresh))
+      ]));
+}
+
 class _MenuTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
 
-  const _MenuTile({required this.icon, required this.label, required this.onTap});
+  const _MenuTile(
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +147,10 @@ class _MenuTile extends StatelessWidget {
           children: [
             Icon(icon, color: AppColors.primary),
             const SizedBox(width: 10),
-            Expanded(child: Text(label, style: AppTypography.body.copyWith(fontWeight: FontWeight.w600))),
+            Expanded(
+                child: Text(label,
+                    style: AppTypography.body
+                        .copyWith(fontWeight: FontWeight.w600))),
           ],
         ),
       ),

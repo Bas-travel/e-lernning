@@ -27,7 +27,8 @@ class KpiCard extends StatelessWidget {
         children: [
           Text(
             stat.label,
-            style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+            style:
+                AppTypography.caption.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(stat.value, style: AppTypography.h1.copyWith(fontSize: 20)),
@@ -36,15 +37,21 @@ class KpiCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  stat.deltaIsPositive ? Icons.trending_up : Icons.trending_down,
+                  stat.deltaIsPositive
+                      ? Icons.trending_up
+                      : Icons.trending_down,
                   size: 14,
-                  color: stat.deltaIsPositive ? AppColors.success : AppColors.error,
+                  color: stat.deltaIsPositive
+                      ? AppColors.success
+                      : AppColors.error,
                 ),
                 const SizedBox(width: 2),
                 Text(
                   stat.deltaLabel!,
                   style: AppTypography.micro.copyWith(
-                    color: stat.deltaIsPositive ? AppColors.success : AppColors.error,
+                    color: stat.deltaIsPositive
+                        ? AppColors.success
+                        : AppColors.error,
                   ),
                 ),
               ],

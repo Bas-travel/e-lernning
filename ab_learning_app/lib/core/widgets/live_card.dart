@@ -46,8 +46,8 @@ class LiveCard extends StatelessWidget {
                   children: <Widget>[
                     Container(
                       height: 96,
-                      decoration:
-                          const BoxDecoration(gradient: AppColors.accentGradient),
+                      decoration: const BoxDecoration(
+                          gradient: AppColors.accentGradient),
                     ),
                     if (isLiveNow)
                       const Positioned(
@@ -72,7 +72,8 @@ class LiveCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text('$instructorName${startsInLabel != null ? ' · $startsInLabel' : ''}',
+                      Text(
+                          '$instructorName${startsInLabel != null ? ' · $startsInLabel' : ''}',
                           style: AppTypography.micro),
                     ],
                   ),
@@ -91,7 +92,8 @@ enum PillVariant { success, warning, error, live, neutral }
 /// Corresponds to `Badge` in the Figma component library — small status
 /// pills used across cards, tables, and detail headers.
 class Pill extends StatelessWidget {
-  const Pill({required this.label, this.variant = PillVariant.neutral, super.key});
+  const Pill(
+      {required this.label, this.variant = PillVariant.neutral, super.key});
 
   final String label;
   final PillVariant variant;
@@ -129,7 +131,8 @@ class Pill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: fg),
+        style:
+            TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: fg),
       ),
     );
   }

@@ -300,7 +300,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           _SummaryRow(
             label: 'ราคาคอร์ส',
             value: course.originalPriceLabel ?? course.priceLabel,
-            valueColor: course.originalPriceLabel == null ? null : AppColors.textSecondary,
+            valueColor: course.originalPriceLabel == null
+                ? null
+                : AppColors.textSecondary,
           ),
           if (savings > 0) ...[
             const SizedBox(height: 10),
