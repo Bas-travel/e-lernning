@@ -16,6 +16,8 @@ class AppColors {
   static const pillErrorBg = Color(0xFFFEE2E2);
   // Button & card tokens
   static const btnPrimaryBg = Color(0xFF4338CA);
+  /// Primary button when disabled (primary at 40% opacity).
+  static const primaryDisabled = Color(0x664338CA);
   static const btnOutlineBorder = Color(0xFF4338CA);
   static const cardBorder = Color(0xFFEEF0F4);
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
@@ -100,10 +101,8 @@ class _HomeMobile extends StatelessWidget {
       ),
       bottomNavigationBar: AppBottomNav(
         currentIndex: 0,
-        onTap: (index) {
-          // Only Home exists in the router so far; other tabs are not routed yet.
-          if (index == 0) context.go('/home');
-        },
+        // Learn / Community / Profile tabs have no screens yet (ignored).
+        onTap: (index) => NavTargets.onTab(context, index),
       ),
     );
   }
@@ -184,9 +183,7 @@ class _HomeDesktop extends StatelessWidget {
         children: [
           AppSidebar(
             activeKey: 'home',
-            onSelect: (key) {
-              if (key == 'home') context.go('/home');
-            },
+            onSelect: (key) => NavTargets.onSidebar(context, key),
           ),
           Expanded(
             child: ColoredBox(

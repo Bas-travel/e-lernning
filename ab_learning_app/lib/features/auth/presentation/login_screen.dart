@@ -212,16 +212,19 @@ class _LoginForm extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // TODO(nav): Forgot Password (screen 07) is not in the router yet.
             Flexible(
-              child: Text(
-                'Forgot password?',
-                textAlign: TextAlign.end,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.base(
-                  smallSize,
-                  weight: FontWeight.w600,
-                  color: AppColors.primary,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => context.push('/forgot-password'),
+                child: Text(
+                  'Forgot password?',
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.base(
+                    smallSize,
+                    weight: FontWeight.w600,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
             ),
@@ -261,27 +264,29 @@ class _LoginForm extends StatelessWidget {
           ],
         ),
         SizedBox(height: desktop ? 22 : 20),
-        // TODO(nav): Register (screen 04) is not in the router yet.
-        Center(
-          child: Text.rich(
-            TextSpan(
-              text: "Don't have an account? ",
+        Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            Text(
+              "Don't have an account? ",
               style: AppTypography.base(
                 desktop ? 12.5 : 12,
                 color: AppColors.textSecondary,
               ),
-              children: [
-                TextSpan(
-                  text: 'Register',
-                  style: AppTypography.base(
-                    desktop ? 12.5 : 12,
-                    weight: FontWeight.w600,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
             ),
-          ),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => context.push('/register'),
+              child: Text(
+                'Register',
+                style: AppTypography.base(
+                  desktop ? 12.5 : 12,
+                  weight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

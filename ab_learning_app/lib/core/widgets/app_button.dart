@@ -93,7 +93,10 @@ class AppButton extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.btnPrimaryBg,
             foregroundColor: Colors.white,
-            disabledBackgroundColor: AppColors.btnPrimaryBg,
+            // While loading keep the full-strength colour; a null onPressed
+            // without loading means "disabled" and is dimmed.
+            disabledBackgroundColor:
+                loading ? AppColors.btnPrimaryBg : AppColors.primaryDisabled,
             disabledForegroundColor: Colors.white,
             elevation: 0,
             padding: _padding,
