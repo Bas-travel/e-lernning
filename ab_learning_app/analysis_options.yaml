@@ -14,3 +14,4 @@ analyzer:
     - "**/*.freezed.dart"
     - build/**
     - web/**
+    - windows/**
