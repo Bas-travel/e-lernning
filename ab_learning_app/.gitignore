@@ -8,6 +8,7 @@ build/
 .pub/
 *.g.dart
 *.freezed.dart
+coverage/
 
 # IDE
 .idea/
