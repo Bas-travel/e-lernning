@@ -8,7 +8,7 @@ services:
       MYSQL_USER: ab_app
       MYSQL_PASSWORD: ab_app_pw
     ports:
-      - "${MYSQL_HOST_PORT:-3306}:3306"
+      - "${MYSQL_HOST_PORT:-3307}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       # Official MySQL image auto-runs every .sql file in this directory,
@@ -33,7 +33,7 @@ services:
       APP_ENV: "dev"
       DB_DSN: "ab_app:ab_app_pw@tcp(mysql:3306)/ab_learning?parseTime=true&charset=utf8mb4"
       JWT_SECRET: "dev-only-insecure-secret-change-me"
-      CORS_ALLOW_ORIGIN: "http://localhost:3000"
+      CORS_ALLOW_ORIGIN: "http://localhost:56901"
       RATE_LIMIT_REQUESTS: "120"
       RATE_LIMIT_WINDOW_SECONDS: "60"
     ports:
