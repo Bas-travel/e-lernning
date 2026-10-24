@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/app_dependencies.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/brand_mark.dart';
@@ -21,10 +22,19 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // For prototype navigate to onboarding
-    _timer = Timer(const Duration(seconds: 1), () {
-      if (mounted) context.go('/onboarding');
-    });
+    _timer = Timer(const Duration(seconds: 1), _route);
+  }
+
+  /// Spec 01: session found -> Home, otherwise -> Onboarding.
+  Future<void> _route() async {
+    var signedIn = false;
+    try {
+      signedIn = await AppDependencies.authRepository.hasSession();
+    } catch (_) {
+      // Storage unavailable: treat as signed out.
+    }
+    if (!mounted) return;
+    context.go(signedIn ? '/home' : '/onboarding');
   }
 
   @override

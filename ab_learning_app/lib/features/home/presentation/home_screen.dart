@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/app_dependencies.dart';
 import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_avatar.dart';
 import '../../../core/widgets/app_bottom_nav.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
@@ -20,9 +22,12 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = AppDependencies.authRepository.currentUser;
+    final name = user?.displayName ?? HomeSampleData.userName;
+    final initial = user?.initial ?? HomeSampleData.userInitial;
     return ResponsiveBuilder(
-      mobile: (_) => const _HomeMobile(),
-      desktop: (_) => const _HomeDesktop(),
+      mobile: (_) => _HomeMobile(name: name, initial: initial),
+      desktop: (_) => _HomeDesktop(name: name, initial: initial),
     );
   }
 }
@@ -30,7 +35,10 @@ class HomeScreen extends StatelessWidget {
 // ---------------------------------------------------------------- mobile
 
 class _HomeMobile extends StatelessWidget {
-  const _HomeMobile();
+  const _HomeMobile({required this.name, required this.initial});
+
+  final String name;
+  final String initial;
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +59,13 @@ class _HomeMobile extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        'สวัสดี, ${HomeSampleData.userName} 👋',
+                        'สวัสดี, $name 👋',
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.base(14, weight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const _UserActions(gap: 14),
+                    _UserActions(gap: 14, initial: initial),
                   ],
                 ),
               ),
@@ -172,7 +180,10 @@ class _LiveRow extends StatelessWidget {
 // --------------------------------------------------------------- desktop
 
 class _HomeDesktop extends StatelessWidget {
-  const _HomeDesktop();
+  const _HomeDesktop({required this.name, required this.initial});
+
+  final String name;
+  final String initial;
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +212,7 @@ class _HomeDesktop extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'สวัสดี, ${HomeSampleData.userName} 👋',
+                              'สวัสดี, $name 👋',
                               style: AppTypography.base(
                                 19,
                                 weight: FontWeight.w700,
@@ -216,7 +227,7 @@ class _HomeDesktop extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const _UserActions(gap: 16),
+                        _UserActions(gap: 16, initial: initial),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -439,9 +450,10 @@ class _HeroCard extends StatelessWidget {
 }
 
 class _UserActions extends StatelessWidget {
-  const _UserActions({required this.gap});
+  const _UserActions({required this.gap, required this.initial});
 
   final double gap;
+  final String initial;
 
   @override
   Widget build(BuildContext context) {
@@ -473,22 +485,10 @@ class _UserActions extends StatelessWidget {
           ),
         ),
         SizedBox(width: gap),
-        Container(
-          width: 30,
-          height: 30,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
-          ),
-          child: Text(
-            HomeSampleData.userInitial,
-            style: AppTypography.base(
-              12,
-              weight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => context.push('/profile'),
+          child: AppAvatar(initial: initial),
         ),
       ],
     );

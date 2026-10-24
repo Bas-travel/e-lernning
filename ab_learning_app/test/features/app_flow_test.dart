@@ -4,15 +4,13 @@ import 'package:ab_learning_app/features/course/presentation/video_player_screen
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-void _useMobileViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(375, 812);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-}
+import '../helpers/test_helpers.dart';
 
 void main() {
+  installMockAuth();
+
   testWidgets('splash -> onboarding -> login -> home', (tester) async {
-    _useMobileViewport(tester);
+    useViewport(tester, mobileSize);
 
     await tester.pumpWidget(const App());
     expect(find.text('AB LEARNING'), findsOneWidget);
@@ -32,14 +30,32 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Log in'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).first, 'learner@example.com');
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), 'learner@example.com');
+    await tester.enterText(fields.at(1), 'secret');
     await tester.tap(find.text('Log in'));
     await tester.pumpAndSettle();
     expect(find.textContaining('สวัสดี'), findsOneWidget);
   });
 
+  testWidgets('login shows an error banner for empty credentials',
+      (tester) async {
+    useViewport(tester, mobileSize);
+
+    await tester.pumpWidget(const App());
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Log in'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('กรุณากรอก'), findsOneWidget);
+    expect(find.textContaining('สวัสดี'), findsNothing);
+  });
+
   testWidgets('onboarding Skip goes to login', (tester) async {
-    _useMobileViewport(tester);
+    useViewport(tester, mobileSize);
 
     await tester.pumpWidget(const App());
     await tester.pump(const Duration(seconds: 1));
@@ -51,7 +67,7 @@ void main() {
   });
 
   testWidgets('course detail shows price and curriculum', (tester) async {
-    _useMobileViewport(tester);
+    useViewport(tester, mobileSize);
 
     await tester.pumpWidget(
       const MaterialApp(home: CourseDetailScreen(courseId: 'go-backend')),
@@ -62,7 +78,7 @@ void main() {
   });
 
   testWidgets('video player switches tabs', (tester) async {
-    _useMobileViewport(tester);
+    useViewport(tester, mobileSize);
 
     await tester.pumpWidget(
       const MaterialApp(home: VideoPlayerScreen(lessonId: 'lesson1')),

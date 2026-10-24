@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/app_dependencies.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_button.dart';
@@ -36,8 +37,23 @@ class _InterestsScreenState extends State<InterestsScreen> {
     });
   }
 
-  void _start() {
-    // Prototype stub: POST /api/v1/me/preferences is not connected yet.
+  bool _saving = false;
+
+  Future<void> _start() async {
+    if (_saving) return;
+    setState(() => _saving = true);
+    try {
+      await AppDependencies.authRepository.savePreferences(
+        interests: _interests.toList(),
+        level: _level,
+        goals: _goals.toList(),
+      );
+    } catch (e) {
+      // Preferences are not critical to continue (e.g. no session yet, or the
+      // endpoint is not deployed). Do not block onboarding.
+      debugPrint('savePreferences failed: $e');
+    }
+    if (!mounted) return;
     context.go('/home');
   }
 
@@ -97,6 +113,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
               AppButton.primary(
                 label: 'Start Learning',
                 onPressed: _start,
+                loading: _saving,
                 expand: true,
               ),
             ],
@@ -174,6 +191,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
             AppButton.primary(
               label: 'Start Learning',
               onPressed: _start,
+              loading: _saving,
               expand: true,
             ),
           ],

@@ -6,7 +6,6 @@
 
 # Go
 **/bin/
-**/pkg/
 
 # IDE
 .vscode/

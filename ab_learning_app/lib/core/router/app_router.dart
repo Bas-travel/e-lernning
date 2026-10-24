@@ -11,6 +11,8 @@ import '../../features/course/presentation/video_player_screen.dart';
 import '../../features/explore/presentation/explore_screen.dart';
 import '../../features/explore/presentation/search_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/learn/presentation/learn_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
 
 class AppRouter {
   late final GoRouter router;
@@ -23,7 +25,12 @@ class AppRouter {
         GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
         GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
         GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
-        GoRoute(path: '/otp', builder: (context, state) => const OtpScreen()),
+        GoRoute(
+          path: '/otp',
+          builder: (context, state) => OtpScreen(
+            args: state.extra is OtpArgs ? state.extra as OtpArgs : null,
+          ),
+        ),
         GoRoute(path: '/interests', builder: (context, state) => const InterestsScreen()),
         GoRoute(
           path: '/forgot-password',
@@ -36,6 +43,8 @@ class AppRouter {
               SearchScreen(initialQuery: state.queryParameters['q'] ?? ''),
         ),
         GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+        GoRoute(path: '/learn', builder: (context, state) => const LearnScreen()),
+        GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen()),
         GoRoute(path: '/course/:id', builder: (context, state) {
           final id = state.pathParameters['id'] ?? '';
           return CourseDetailScreen(courseId: id);

@@ -8,13 +8,14 @@ import 'package:ab_learning_app/features/explore/presentation/search_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-void _useMobileViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(375, 812);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-}
+import '../helpers/test_helpers.dart';
+
+void _useMobileViewport(WidgetTester tester) =>
+    useViewport(tester, mobileSize);
 
 void main() {
+  installMockAuth();
+
   group('CourseCatalogSample.search', () {
     test('empty query returns everything', () {
       expect(
@@ -46,11 +47,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Create Account'), findsOneWidget);
 
+    final fields = find.byType(TextField);
+    await tester.enterText(fields.at(0), 'Anan');
+    await tester.enterText(fields.at(1), 'Suksawat');
+    await tester.enterText(fields.at(2), 'anan@example.com');
+    await tester.enterText(fields.at(3), '0812345678');
+    await tester.enterText(fields.at(4), 'secret-1');
+    await tester.enterText(fields.at(5), 'secret-1');
+
     await tester.tap(find.text('Create Account'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text('ยืนยัน'), findsOneWidget);
+    expect(find.textContaining('08X-XXX-5678'), findsOneWidget);
 
+    // A user id is known, so the code has to be complete before verifying.
+    await tester.tap(find.text('ยืนยัน'));
+    await tester.pump();
+    expect(find.textContaining('กรุณากรอกรหัส'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '123456');
+    await tester.pump();
     await tester.tap(find.text('ยืนยัน'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
@@ -107,8 +124,16 @@ void main() {
     _useMobileViewport(tester);
 
     await tester.pumpWidget(const MaterialApp(home: ForgotPasswordScreen()));
+
+    // Empty e-mail is rejected locally.
     await tester.tap(find.text('Send Reset Link'));
     await tester.pump();
+    expect(find.textContaining('กรุณากรอกอีเมล'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'anan@example.com');
+    await tester.tap(find.text('Send Reset Link'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('ส่งลิงก์รีเซ็ตแล้ว'), findsOneWidget);
   });
 

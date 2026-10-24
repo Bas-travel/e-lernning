@@ -7,6 +7,7 @@ import '../../../core/theme/shadows.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/brand_mark.dart';
+import '../../../core/widgets/inline_banner.dart';
 import '../../../core/widgets/responsive.dart';
 import 'login_controller.dart';
 
@@ -34,12 +35,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_loginController.isLoading) return;
     FocusScope.of(context).unfocus();
-    // Prototype stub: accept any credentials and go to home
-    await _loginController.login(
-      email: _emailController.text,
+    final ok = await _loginController.login(
+      identifier: _emailController.text,
       password: _passwordController.text,
+      remember: _rememberMe,
     );
-    if (!mounted) return;
+    if (!mounted || !ok) return;
     context.go('/home');
   }
 
@@ -156,12 +157,24 @@ class _LoginForm extends StatelessWidget {
           ],
         ),
         SizedBox(height: desktop ? 28 : 34),
+        ListenableBuilder(
+          listenable: loginController,
+          builder: (context, _) {
+            final message = loginController.errorMessage;
+            if (message == null) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: InlineBanner(message: message),
+            );
+          },
+        ),
         _FieldLabel('Email or phone', size: labelSize),
         TextField(
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
           autofillHints: const [AutofillHints.username],
+          onChanged: (_) => loginController.clearError(),
           style: AppTypography.base(inputSize),
         ),
         SizedBox(height: desktop ? 14 : 12),
@@ -172,6 +185,7 @@ class _LoginForm extends StatelessWidget {
           textInputAction: TextInputAction.done,
           autofillHints: const [AutofillHints.password],
           onSubmitted: (_) => onSubmit(),
+          onChanged: (_) => loginController.clearError(),
           style: AppTypography.base(inputSize),
         ),
         SizedBox(height: desktop ? 10 : 8),

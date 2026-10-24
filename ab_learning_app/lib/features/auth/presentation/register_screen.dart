@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/app_dependencies.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_check_row.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/auth_scaffold.dart';
+import '../../../core/widgets/inline_banner.dart';
+import 'otp_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -23,6 +27,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   bool _acceptTerms = true;
+  bool _loading = false;
+  String? _error;
 
   /// The desktop mockup has no "confirm password" field; set while building.
   bool _showConfirm = true;
@@ -43,10 +49,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return _confirm.text == _password.text ? null : 'รหัสผ่านไม่ตรงกัน';
   }
 
-  void _submit() {
-    if (!_acceptTerms || _confirmError != null) return;
-    // Prototype stub: POST /api/v1/auth/register is not connected yet.
-    context.go('/otp');
+  Future<void> _submit() async {
+    if (_loading || !_acceptTerms || _confirmError != null) return;
+    if (_first.text.trim().isEmpty ||
+        _last.text.trim().isEmpty ||
+        _email.text.trim().isEmpty ||
+        _password.text.isEmpty) {
+      setState(() => _error = 'กรุณากรอกชื่อ นามสกุล อีเมล และรหัสผ่านให้ครบ');
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final user = await AppDependencies.authRepository.register(
+        firstName: _first.text,
+        lastName: _last.text,
+        email: _email.text,
+        phone: _phone.text,
+        password: _password.text,
+      );
+      if (!mounted) return;
+      context.go(
+        '/otp',
+        extra: OtpArgs(
+          userId: user.id,
+          destination: maskPhone(_phone.text) ?? _email.text.trim(),
+          identifier: _email.text.trim(),
+          password: _password.text,
+        ),
+      );
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่');
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -79,6 +122,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             SizedBox(height: desktop ? 22 : 18),
+            if (_error != null) ...[
+              InlineBanner(message: _error!),
+              SizedBox(height: gap),
+            ],
             Row(
               children: [
                 Expanded(
@@ -184,6 +231,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             AppButton.primary(
               label: 'Create Account',
               onPressed: (_acceptTerms && _confirmError == null) ? _submit : null,
+              loading: _loading,
               expand: true,
             ),
             SizedBox(height: desktop ? 16 : 14),

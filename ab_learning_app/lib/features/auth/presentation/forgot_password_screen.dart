@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/app_dependencies.dart';
+import '../../../core/network/api_exception.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/auth_scaffold.dart';
+import '../../../core/widgets/inline_banner.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -17,6 +20,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _email = TextEditingController();
   bool _sent = false;
+  bool _loading = false;
+  String? _error;
 
   @override
   void dispose() {
@@ -24,10 +29,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _send() {
-    // Prototype stub: POST /api/v1/auth/forgot-password is not connected yet.
+  Future<void> _send() async {
+    if (_loading) return;
+    if (_email.text.trim().isEmpty) {
+      setState(() => _error = 'กรุณากรอกอีเมลที่ลงทะเบียนไว้');
+      return;
+    }
     FocusScope.of(context).unfocus();
-    setState(() => _sent = true);
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await AppDependencies.authRepository.forgotPassword(email: _email.text);
+      if (mounted) setState(() => _sent = true);
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่');
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -95,6 +119,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               style: bodyStyle,
             ),
             SizedBox(height: desktop ? 22 : 20),
+            if (_error != null) ...[
+              InlineBanner(message: _error!),
+              const SizedBox(height: 14),
+            ],
             AppTextField(
               controller: _email,
               hint: 'Email',
@@ -108,6 +136,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             AppButton.primary(
               label: 'Send Reset Link',
               onPressed: _send,
+              loading: _loading,
               expand: true,
             ),
           ],
