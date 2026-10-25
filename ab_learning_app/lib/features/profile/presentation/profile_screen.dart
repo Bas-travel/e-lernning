@@ -76,10 +76,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.go('/login');
   }
 
+  static const _menuRoutes = <String, String>{
+    'Edit Profile': '/profile/edit',
+    'My Courses': '/learn',
+    'Wallet': '/wallet',
+    'Certificates': '/certificates',
+    'Portfolio': '/portfolio',
+    'Settings': '/settings',
+    'Help Center': '/help',
+  };
+
   void _openMenu(String item) {
-    if (item == 'My Courses') context.go('/learn');
-    // TODO(nav): Edit Profile / Wallet / Certificates / Portfolio / Settings /
-    // Help Center screens do not exist yet.
+    final route = _menuRoutes[item];
+    if (route == null) return;
+    // My Courses is a tab (replace); the rest are pushed so Back returns here.
+    if (route == '/learn') {
+      context.go(route);
+    } else {
+      context.push(route);
+    }
   }
 
   @override

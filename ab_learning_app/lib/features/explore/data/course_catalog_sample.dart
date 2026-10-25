@@ -110,3 +110,37 @@ class CourseCatalogSample {
     return searchable.where((c) => c.title.toLowerCase().contains(q)).toList();
   }
 }
+
+/// Price bands offered by the Explore filter.
+enum PriceBand {
+  any('ทุกราคา'),
+  under1500('ต่ำกว่า ฿1,500'),
+  from1500('฿1,500 ขึ้นไป');
+
+  const PriceBand(this.label);
+  final String label;
+}
+
+/// Client-side filter applied to the demo catalog.
+/// TODO(api): send as query params to `GET /courses` instead.
+class CourseFilter {
+  const CourseFilter({this.price = PriceBand.any, this.minRating = 0});
+
+  final PriceBand price;
+  final double minRating;
+
+  bool get isActive => price != PriceBand.any || minRating > 0;
+
+  static double _number(String text) =>
+      double.tryParse(text.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;
+
+  bool matches(CatalogCourse c) {
+    final amount = _number(c.price);
+    final okPrice = switch (price) {
+      PriceBand.any => true,
+      PriceBand.under1500 => amount < 1500,
+      PriceBand.from1500 => amount >= 1500,
+    };
+    return okPrice && _number(c.rating) >= minRating;
+  }
+}

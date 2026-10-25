@@ -8,12 +8,18 @@ class NavTargets {
     0: '/home',
     1: '/explore',
     2: '/learn',
+    3: '/community',
     4: '/profile',
   };
   static const _sidebarRoutes = <String, String>{
     'home': '/home',
     'explore': '/explore',
     'learn': '/learn',
+    'community': '/community',
+    'ai': '/tutor',
+    'portfolio': '/portfolio',
+    'wallet': '/wallet',
+    'settings': '/settings',
   };
 
   static void onTab(BuildContext context, int index) {

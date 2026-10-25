@@ -143,8 +143,7 @@ class _CourseMobile extends StatelessWidget {
               child: CenteredContent(
                 child: AppButton.primary(
                   label: 'ซื้อคอร์สนี้เลย — ฿2,990',
-                  // TODO(nav): Checkout/Payment route does not exist yet.
-                  onPressed: () {},
+                  onPressed: () => context.push('/checkout/${widget.courseId}'),
                   expand: true,
                 ),
               ),
@@ -278,8 +277,12 @@ class _PurchaseCard extends StatelessWidget {
             variant: StatusPillVariant.error,
           ),
           const SizedBox(height: 16),
-          // TODO(nav): Checkout/Payment and Cart routes do not exist yet.
-          AppButton.primary(label: 'ซื้อคอร์สนี้เลย', onPressed: () {}, expand: true),
+          // TODO(nav): no Cart screen yet, so "เพิ่มลงตะกร้า" stays inactive.
+          AppButton.primary(
+            label: 'ซื้อคอร์สนี้เลย',
+            onPressed: () => context.push('/checkout/${widget.courseId}'),
+            expand: true,
+          ),
           const SizedBox(height: 8),
           AppButton.secondary(
             label: 'เพิ่มลงตะกร้า',

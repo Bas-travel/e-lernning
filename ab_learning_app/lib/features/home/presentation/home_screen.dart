@@ -436,10 +436,9 @@ class _HeroCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: subtitleGap),
-          // TODO(nav): AI Tutor route (screen 21) does not exist in the router yet.
           AppButton.inverse(
             label: 'ถาม AI Tutor →',
-            onPressed: () {},
+            onPressed: () => context.push('/tutor'),
             fontSize: buttonFontSize,
             padding: buttonPadding,
           ),

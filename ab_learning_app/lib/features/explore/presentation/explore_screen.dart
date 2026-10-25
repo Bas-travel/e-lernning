@@ -12,6 +12,7 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/course_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../data/course_catalog_sample.dart';
+import 'course_filter_sheet.dart';
 import 'course_list_tile.dart';
 
 const _searchHint = 'ค้นหาคอร์ส, สกิล, อาจารย์...';
@@ -25,8 +26,17 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   int _category = 0;
+  CourseFilter _filter = const CourseFilter();
 
   void _openSearch() => context.push('/search');
+
+  Future<void> _openFilter() async {
+    final result = await showCourseFilterSheet(context, _filter);
+    if (result != null && mounted) setState(() => _filter = result);
+  }
+
+  List<CatalogCourse> get _filteredAll =>
+      CourseCatalogSample.all.where(_filter.matches).toList();
 
   Widget _categoryChips(List<String> categories) {
     return SingleChildScrollView(
@@ -67,10 +77,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     horizontal: 16,
                     vertical: 14,
                   ),
-                  child: AppTextField(
-                    hint: _searchHint,
-                    readOnly: true,
-                    onTap: _openSearch,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AppTextField(
+                          hint: _searchHint,
+                          readOnly: true,
+                          onTap: _openSearch,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      AppButton.ghost(
+                        label: _filter.isActive ? '☰ •' : '☰',
+                        onPressed: _openFilter,
+                      ),
+                    ],
                   ),
                 ),
                 Padding(
@@ -106,7 +127,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
-                      for (final c in CourseCatalogSample.all.skip(2)) ...[
+                      for (final c in _filteredAll.skip(_filter.isActive ? 0 : 2)) ...[
                         CourseListTile(
                           course: c,
                           onTap: () => context.push('/course/${c.id}'),
@@ -161,8 +182,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        // TODO(ui): filter drawer (280px) is specified but not designed.
-                        AppButton.ghost(label: '☰ Filter', onPressed: () {}),
+                        AppButton.ghost(
+                          label: _filter.isActive ? '☰ Filter •' : '☰ Filter',
+                          onPressed: _openFilter,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -176,8 +199,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     CardGrid(
                       columns: 4,
                       children: [
-                        for (final c in CourseCatalogSample.all)
-                          _courseCard(context, c),
+                        for (final c in _filteredAll) _courseCard(context, c),
                       ],
                     ),
                   ],
