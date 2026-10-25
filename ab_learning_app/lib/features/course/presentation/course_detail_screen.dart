@@ -1,401 +1,245 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_card.dart';
-import '../../../core/widgets/responsive.dart';
-import '../../../core/widgets/status_pill.dart';
-import 'course_back_button.dart';
-
-/// Demo content from `02-hifi-mockups.html` (screen 11).
-/// TODO(api): replace with `GET /api/v1/courses/{id}`.
-const _courseTitle = 'Go Backend Professional';
-const _outcomes = <String>[
-  'ออกแบบ REST API ด้วย Go',
-  'เชื่อมต่อฐานข้อมูล MySQL',
-  'Authentication ด้วย JWT',
-  'Deploy สู่ Production',
-];
-
-class _LessonRow {
-  const _LessonRow(this.prefix, this.title, this.duration, {this.locked = false});
-
-  final String prefix;
-  final String title;
-  final String duration;
-  final bool locked;
-}
-
-const _lessons = <_LessonRow>[
-  _LessonRow('✓', 'Introduction', '12 min'),
-  _LessonRow('▶', 'Go Fundamentals', '1h 20m'),
-  _LessonRow('🔒', 'Production Deployment', '40 min', locked: true),
-];
-
-// Prototype: all unlocked lessons open the same demo lesson.
-const _demoLessonId = 'lesson1';
+import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
 
 class CourseDetailScreen extends StatelessWidget {
-  /// Route parameter. TODO(api): fetch course data by this id.
   final String courseId;
 
   const CourseDetailScreen({super.key, required this.courseId});
 
   @override
   Widget build(BuildContext context) {
+    final course = MockRepository.courseById(courseId);
+    final color = Color(int.parse('FF${course.coverColorHex}', radix: 16));
+    final isEnrolled = MockRepository.isEnrolled(courseId);
+    final previewLessons =
+        MockRepository.curriculumFor(courseId).first.lessons.take(3);
+
     return Scaffold(
-      body: ResponsiveBuilder(
-        mobile: (_) => const _CourseMobile(),
-        desktop: (_) => const _CourseDesktop(),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------- mobile
-
-class _CourseMobile extends StatelessWidget {
-  const _CourseMobile();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: CenteredContent(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    height: 200,
-                    decoration: const BoxDecoration(gradient: AppGradients.brand),
-                    child: const SafeArea(
-                      bottom: false,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: CourseBackButton(),
+      body: Stack(
+        children: [
+          ListView(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 96),
+            children: [
+              Container(
+                height: 220,
+                color: color.withValues(alpha: 0.15),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: SafeArea(
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back,
+                                color: AppColors.text),
+                            onPressed: () => context.canPop()
+                                ? context.pop()
+                                : context.go('/home'),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Center(
+                      child:
+                          Icon(Icons.play_circle_fill, color: color, size: 64),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(course.title,
+                        style: AppTypography.display.copyWith(fontSize: 22)),
+                    const SizedBox(height: 8),
+                    Row(
                       children: [
+                        const Icon(Icons.star,
+                            color: AppColors.warning, size: 16),
+                        const SizedBox(width: 4),
+                        Text(course.rating.toStringAsFixed(1),
+                            style: AppTypography.body),
+                        const SizedBox(width: 8),
                         Text(
-                          _courseTitle,
-                          style: AppTypography.base(17, weight: FontWeight.w700),
+                          '(${course.students} ผู้เรียน)',
+                          style: AppTypography.caption
+                              .copyWith(color: AppColors.textSecondary),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '⭐ 4.9 (2,140) · 8,421 students · Dr. Krit',
-                          style: AppTypography.base(
-                            12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        const _PriceRow(
-                          priceSize: 22,
-                          discountLabel: '-40%',
-                          oldPriceSize: 13,
-                        ),
-                        const SizedBox(height: 16),
-                        const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
-                        Text(
-                          [for (final o in _outcomes) '✓ $o'].join('\n'),
-                          style: AppTypography.base(
-                            12.5,
-                            color: AppColors.textSecondary,
-                            height: 1.8,
-                          ),
-                        ),
-                        const _SectionHeading('หลักสูตร'),
-                        for (var i = 0; i < _lessons.length; i++) ...[
-                          if (i > 0) const SizedBox(height: 8),
-                          _CurriculumCard(
-                            lesson: _lessons[i],
-                            durationSize: 11,
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                            radius: 16,
+                            backgroundColor: color.withValues(alpha: 0.2),
+                            child: Icon(Icons.person, color: color, size: 18)),
+                        const SizedBox(width: 8),
+                        Text(course.instructor, style: AppTypography.body),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Text(course.priceLabel,
+                            style: AppTypography.h1
+                                .copyWith(color: AppColors.primary)),
+                        if (course.originalPriceLabel != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            course.originalPriceLabel!,
+                            style: AppTypography.body.copyWith(
+                              color: AppColors.textSecondary,
+                              decoration: TextDecoration.lineThrough,
+                            ),
                           ),
                         ],
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        // Sticky bottom CTA
-        Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: CenteredContent(
-                child: AppButton.primary(
-                  label: 'ซื้อคอร์สนี้เลย — ฿2,990',
-                  onPressed: () => context.push('/checkout/${widget.courseId}'),
-                  expand: true,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// --------------------------------------------------------------- desktop
-
-class _CourseDesktop extends StatelessWidget {
-  const _CourseDesktop();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 28),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 320,
-                      decoration: BoxDecoration(
-                        gradient: AppGradients.brand,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Align(
-                        alignment: Alignment.topLeft,
-                        child: CourseBackButton(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      _courseTitle,
-                      style: AppTypography.base(24, weight: FontWeight.w700),
-                    ),
+                    const Divider(height: 32),
+                    const Text('รายละเอียดคอร์ส', style: AppTypography.h2),
                     const SizedBox(height: 8),
                     Text(
-                      '⭐ 4.9 (2,140 รีวิว) · 8,421 students · สอนโดย Dr. Krit',
-                      style: AppTypography.base(
-                        13,
-                        color: AppColors.textSecondary,
-                      ),
+                      course.description.isEmpty
+                          ? 'ยังไม่มีรายละเอียดของคอร์สนี้'
+                          : course.description,
+                      style: AppTypography.body
+                          .copyWith(color: AppColors.textSecondary),
                     ),
-                    const SizedBox(height: 18),
-                    const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
-                    CardGrid(
-                      columns: 3,
-                      children: [
-                        for (final o in _outcomes.take(3))
-                          AppCard(
-                            child: Text(
-                              '✓ $o',
-                              style: AppTypography.base(
-                                12.5,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
+                    const SizedBox(height: 20),
+                    if (course.whatYouLearn.isNotEmpty) ...[
+                      const Text('สิ่งที่คุณจะได้เรียนรู้',
+                          style: AppTypography.h2),
+                      const SizedBox(height: 8),
+                      ...course.whatYouLearn.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.check_circle,
+                                  color: AppColors.success, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                  child: Text(item, style: AppTypography.body)),
+                            ],
                           ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('หลักสูตร', style: AppTypography.h2),
+                        TextButton.icon(
+                          onPressed: () =>
+                              context.push('/course/$courseId/curriculum'),
+                          icon: const Icon(Icons.arrow_forward, size: 16),
+                          label: const Text('ดูทั้งหมด'),
+                        ),
                       ],
                     ),
-                    const _SectionHeading('หลักสูตร'),
-                    for (var i = 0; i < _lessons.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 8),
-                      _CurriculumCard(lesson: _lessons[i], durationSize: 11.5),
-                    ],
+                    const SizedBox(height: 4),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(AppRadius.card),
+                        border: Border.all(color: AppColors.cardBorder),
+                      ),
+                      child: Column(
+                        children: previewLessons
+                            .map((lesson) => Material(
+                                  type: MaterialType.transparency,
+                                  child: ListTile(
+                                    leading: Icon(
+                                      lesson.state == LessonState.completed
+                                          ? Icons.check_circle
+                                          : Icons.play_circle_outline,
+                                      color:
+                                          lesson.state == LessonState.completed
+                                              ? AppColors.success
+                                              : AppColors.primary,
+                                    ),
+                                    title: Text(lesson.title,
+                                        style: AppTypography.body),
+                                    trailing: Text(
+                                      lesson.duration,
+                                      style: AppTypography.caption.copyWith(
+                                          color: AppColors.textSecondary),
+                                    ),
+                                    onTap: () {
+                                      if (!isEnrolled) {
+                                        _openCheckout(
+                                            context, courseId, course.title);
+                                      } else if (lesson.hasQuiz) {
+                                        context.push('/quiz/${lesson.id}');
+                                      } else {
+                                        context.push('/player/${lesson.id}');
+                                      }
+                                    },
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(width: 32),
-            SizedBox(
-              width: 320,
-              child: const SingleChildScrollView(child: _PurchaseCard()),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PurchaseCard extends StatelessWidget {
-  const _PurchaseCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final infoStyle = AppTypography.base(
-      12,
-      color: AppColors.textSecondary,
-      height: 2,
-    );
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '฿2,990',
-                style: AppTypography.base(
-                  24,
-                  weight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '฿4,990',
-                style: AppTypography.base(
-                  13,
-                  color: AppColors.textSecondary,
-                ).copyWith(decoration: TextDecoration.lineThrough),
-              ),
             ],
           ),
-          const SizedBox(height: 4),
-          const StatusPill(
-            label: 'ประหยัด 40%',
-            variant: StatusPillVariant.error,
-          ),
-          const SizedBox(height: 16),
-          // TODO(nav): no Cart screen yet, so "เพิ่มลงตะกร้า" stays inactive.
-          AppButton.primary(
-            label: 'ซื้อคอร์สนี้เลย',
-            onPressed: () => context.push('/checkout/${widget.courseId}'),
-            expand: true,
-          ),
-          const SizedBox(height: 8),
-          AppButton.secondary(
-            label: 'เพิ่มลงตะกร้า',
-            onPressed: () {},
-            expand: true,
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(top: 12),
-            decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: AppColors.cardBorder)),
-            ),
-            child: Text(
-              '📹 18h 30m วิดีโอ\n📄 42 บทเรียน\n🏆 ใบเกียรติบัตรเมื่อจบหลักสูตร',
-              style: infoStyle,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------- shared
-
-class _SectionHeading extends StatelessWidget {
-  const _SectionHeading(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 18, bottom: 10),
-      child: Text(text, style: AppTypography.base(14, weight: FontWeight.w600)),
-    );
-  }
-}
-
-class _PriceRow extends StatelessWidget {
-  const _PriceRow({
-    required this.priceSize,
-    required this.discountLabel,
-    required this.oldPriceSize,
-  });
-
-  final double priceSize;
-  final String discountLabel;
-  final double oldPriceSize;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Text(
-          '฿2,990',
-          style: AppTypography.base(
-            priceSize,
-            weight: FontWeight.w700,
-            color: AppColors.primary,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '฿4,990',
-          style: AppTypography.base(
-            oldPriceSize,
-            color: AppColors.textSecondary,
-          ).copyWith(decoration: TextDecoration.lineThrough),
-        ),
-        const SizedBox(width: 8),
-        StatusPill(label: discountLabel, variant: StatusPillVariant.error),
-      ],
-    );
-  }
-}
-
-class _CurriculumCard extends StatelessWidget {
-  const _CurriculumCard({required this.lesson, required this.durationSize});
-
-  final _LessonRow lesson;
-  final double durationSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = lesson.locked ? AppColors.textSecondary : AppColors.text;
-    return AppCard(
-      // Spec 12: tapping an unlocked lesson row navigates straight to the player.
-      onTap: lesson.locked
-          ? null
-          : () => context.push('/player/$_demoLessonId'),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              '${lesson.prefix} ${lesson.title}',
-              style: AppTypography.base(13, color: color),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            lesson.duration,
-            style: AppTypography.base(
-              durationSize,
-              color: AppColors.textSecondary,
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(top: BorderSide(color: AppColors.cardBorder)),
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.btnPrimaryBg,
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.button)),
+                    ),
+                    onPressed: isEnrolled
+                        ? () => context.push('/course/$courseId/curriculum')
+                        : () => _openCheckout(context, courseId, course.title),
+                    child: Text(
+                      isEnrolled
+                          ? 'เรียนต่อ'
+                          : 'ซื้อคอร์สนี้เลย — ${course.priceLabel}',
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _openCheckout(BuildContext context, String id, String title) {
+    context.push('/checkout/$id', extra: title);
   }
 }

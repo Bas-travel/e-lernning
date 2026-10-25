@@ -1,6 +1,6 @@
 import 'package:ab_learning_app/app.dart';
-import 'package:ab_learning_app/features/course/presentation/course_detail_screen.dart';
-import 'package:ab_learning_app/features/course/presentation/video_player_screen.dart';
+import 'package:ab_learning_app/features/course/presentation/hifi_course_detail_screen.dart';
+import 'package:ab_learning_app/features/course/presentation/hifi_video_player_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -70,7 +70,7 @@ void main() {
     useViewport(tester, mobileSize);
 
     await tester.pumpWidget(
-      const MaterialApp(home: CourseDetailScreen(courseId: 'go-backend')),
+      const MaterialApp(home: HifiCourseDetailScreen(courseId: 'go-backend')),
     );
     expect(find.text('Go Backend Professional'), findsOneWidget);
     expect(find.text('฿2,990'), findsOneWidget);
@@ -81,7 +81,7 @@ void main() {
     useViewport(tester, mobileSize);
 
     await tester.pumpWidget(
-      const MaterialApp(home: VideoPlayerScreen(lessonId: 'lesson1')),
+      const MaterialApp(home: HifiVideoPlayerScreen(lessonId: 'lesson1')),
     );
     expect(find.textContaining('slides-rest-api.pdf'), findsOneWidget);
 

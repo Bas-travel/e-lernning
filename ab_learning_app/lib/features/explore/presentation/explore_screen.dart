@@ -1,21 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_bottom_nav.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_chip.dart';
-import '../../../core/widgets/app_sidebar.dart';
-import '../../../core/widgets/app_text_field.dart';
-import '../../../core/widgets/course_card.dart';
-import '../../../core/widgets/responsive.dart';
-import '../data/course_catalog_sample.dart';
-import 'course_filter_sheet.dart';
-import 'course_list_tile.dart';
-
-const _searchHint = 'ค้นหาคอร์ส, สกิล, อาจารย์...';
+import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -25,217 +14,328 @@ class ExploreScreen extends StatefulWidget {
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
-  int _category = 0;
-  CourseFilter _filter = const CourseFilter();
+  String _selectedCategory = 'All';
+  String _sortBy = 'recommended';
+  final _searchController = TextEditingController();
 
-  void _openSearch() => context.push('/search');
+  List<Course> get _filteredCourses {
+    final query = _searchController.text.trim().toLowerCase();
+    final results = MockRepository.courses.where((c) {
+      final matchesCategory =
+          _selectedCategory == 'All' || c.category == _selectedCategory;
+      final searchableText =
+          '${c.title} ${c.instructor} ${c.category} ${c.description}'
+              .toLowerCase();
+      final matchesQuery = query.isEmpty || searchableText.contains(query);
+      return matchesCategory && matchesQuery;
+    }).toList();
 
-  Future<void> _openFilter() async {
-    final result = await showCourseFilterSheet(context, _filter);
-    if (result != null && mounted) setState(() => _filter = result);
+    if (_sortBy == 'rating') {
+      results.sort((a, b) => b.rating.compareTo(a.rating));
+    } else if (_sortBy == 'price') {
+      results.sort((a, b) =>
+          _priceValue(a.priceLabel).compareTo(_priceValue(b.priceLabel)));
+    }
+    return results;
   }
 
-  List<CatalogCourse> get _filteredAll =>
-      CourseCatalogSample.all.where(_filter.matches).toList();
+  int _priceValue(String label) =>
+      int.tryParse(label.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
-  Widget _categoryChips(List<String> categories) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (var i = 0; i < categories.length; i++) ...[
-            if (i > 0) const SizedBox(width: 8),
-            AppChip(
-              label: categories[i],
-              active: i == _category,
-              onTap: () => setState(() => _category = i),
-            ),
-          ],
-        ],
-      ),
-    );
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveBuilder(mobile: _buildMobile, desktop: _buildDesktop);
-  }
+    final courses = _filteredCourses;
+    final isDesktop = MediaQuery.sizeOf(context).width >= 900;
 
-  // ---------------------------------------------------------------- mobile
-
-  Widget _buildMobile(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          child: CenteredContent(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: AppTextField(
-                          hint: _searchHint,
-                          readOnly: true,
-                          onTap: _openSearch,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'ค้นหาคอร์ส, สกิล, อาจารย์...',
+                        prefixIcon: const Icon(Icons.search),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 0, horizontal: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.input),
+                          borderSide:
+                              const BorderSide(color: AppColors.cardBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.input),
+                          borderSide:
+                              const BorderSide(color: AppColors.cardBorder),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      AppButton.ghost(
-                        label: _filter.isActive ? '☰ •' : '☰',
-                        onPressed: _openFilter,
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  child: _categoryChips(
-                    CourseCatalogSample.categories.take(6).toList(),
-                  ),
-                ),
-                const _MobileSectionTitle('กำลังมาแรง'),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (var i = 0;
-                            i < CourseCatalogSample.trending.length;
-                            i++) ...[
-                          if (i > 0) const SizedBox(width: 12),
-                          _courseCard(
-                            context,
-                            CourseCatalogSample.trending[i],
-                            width: 180,
-                          ),
-                        ],
-                      ],
                     ),
                   ),
-                ),
-                const _MobileSectionTitle('คอร์สทั้งหมด'),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      for (final c in _filteredAll.skip(_filter.isActive ? 0 : 2)) ...[
-                        CourseListTile(
-                          course: c,
-                          onTap: () => context.push('/course/${c.id}'),
+                  if (isDesktop) ...[
+                    const SizedBox(width: 10),
+                    OutlinedButton.icon(
+                      onPressed: _showSortOptions,
+                      icon: const Icon(Icons.tune, size: 18),
+                      label: const Text('จัดเรียง'),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 44,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: MockRepository.categories.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final category = MockRepository.categories[index];
+                  final selected = category == _selectedCategory;
+                  return ChoiceChip(
+                    label: Text(category),
+                    selected: selected,
+                    onSelected: (_) =>
+                        setState(() => _selectedCategory = category),
+                    selectedColor: AppColors.primary,
+                    labelStyle: AppTypography.caption.copyWith(
+                      color: selected ? Colors.white : AppColors.text,
+                    ),
+                    backgroundColor: Colors.white,
+                    shape: const StadiumBorder(
+                        side: BorderSide(color: AppColors.cardBorder)),
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: courses.isEmpty
+                  ? Center(
+                      child: Text('ไม่พบคอร์สที่ตรงกับการค้นหา',
+                          style: AppTypography.body
+                              .copyWith(color: AppColors.textSecondary)),
+                    )
+                  : ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                      children: [
+                        if (_searchController.text.isEmpty &&
+                            _selectedCategory == 'All') ...[
+                          const Text('กำลังมาแรง', style: AppTypography.h2),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            height: 158,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  courses.length < 2 ? courses.length : 2,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 10),
+                              itemBuilder: (context, index) =>
+                                  _TrendingCourseCard(course: courses[index]),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('คอร์สทั้งหมด', style: AppTypography.h2),
+                            Text('${courses.length} คอร์ส',
+                                style: AppTypography.caption
+                                    .copyWith(color: AppColors.textSecondary)),
+                          ],
                         ),
                         const SizedBox(height: 10),
+                        for (final course in courses)
+                          _CourseListCard(course: course),
                       ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
+                    ),
             ),
-          ),
+          ],
         ),
-      ),
-      bottomNavigationBar: AppBottomNav(
-        currentIndex: 1,
-        onTap: (i) => NavTargets.onTab(context, i),
       ),
     );
   }
 
-  // --------------------------------------------------------------- desktop
+  Future<void> _showSortOptions() async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ListTile(title: Text('จัดเรียงคอร์ส')),
+            _SortOption(
+              label: 'แนะนำ',
+              selected: _sortBy == 'recommended',
+              onTap: () => Navigator.pop(context, 'recommended'),
+            ),
+            _SortOption(
+              label: 'คะแนนสูงสุด',
+              selected: _sortBy == 'rating',
+              onTap: () => Navigator.pop(context, 'rating'),
+            ),
+            _SortOption(
+              label: 'ราคาต่ำสุด',
+              selected: _sortBy == 'price',
+              onTap: () => Navigator.pop(context, 'price'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (selected != null && mounted) setState(() => _sortBy = selected);
+  }
+}
 
-  Widget _buildDesktop(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Not in the Explore mockup, but kept so desktop users can navigate.
-          AppSidebar(
-            activeKey: 'explore',
-            onSelect: (k) => NavTargets.onSidebar(context, k),
+class _SortOption extends StatelessWidget {
+  const _SortOption(
+      {required this.label, required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(selected ? Icons.check_circle : Icons.circle_outlined,
+          color: selected ? AppColors.primary : AppColors.textSecondary),
+      title: Text(label),
+      onTap: onTap,
+    );
+  }
+}
+
+class _TrendingCourseCard extends StatelessWidget {
+  const _TrendingCourseCard({required this.course});
+
+  final Course course;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Color(int.parse('FF${course.coverColorHex}', radix: 16));
+    return SizedBox(
+      width: 190,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        onTap: () => context.push('/course/${course.id}'),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: AppColors.cardBorder),
           ),
-          Expanded(
-            child: ColoredBox(
-              color: AppColors.background,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [color, Color.lerp(color, Colors.black, 0.2)!]),
+                  ),
+                  child: const Icon(Icons.school_outlined,
+                      color: Colors.white, size: 30),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(9),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppTextField(
-                            hint: _searchHint,
-                            fontSize: 13.5,
-                            readOnly: true,
-                            onTap: _openSearch,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        AppButton.ghost(
-                          label: _filter.isActive ? '☰ Filter •' : '☰ Filter',
-                          onPressed: _openFilter,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _categoryChips(CourseCatalogSample.categories),
-                    const SizedBox(height: 20),
-                    Text(
-                      'คอร์สทั้งหมด',
-                      style: AppTypography.base(14, weight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 14),
-                    CardGrid(
-                      columns: 4,
-                      children: [
-                        for (final c in _filteredAll) _courseCard(context, c),
-                      ],
-                    ),
+                    Expanded(
+                        child: Text(course.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.caption
+                                .copyWith(fontWeight: FontWeight.w600))),
+                    const SizedBox(width: 6),
+                    Text(course.rating.toStringAsFixed(1),
+                        style: AppTypography.micro),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-Widget _courseCard(BuildContext context, CatalogCourse c, {double? width}) {
-  return CourseCard(
-    width: width,
-    title: c.title,
-    gradient: c.gradient,
-    meta: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Text(c.rating), Text(c.price)],
-    ),
-    onTap: () => context.push('/course/${c.id}'),
-  );
-}
+class _CourseListCard extends StatelessWidget {
+  final Course course;
 
-class _MobileSectionTitle extends StatelessWidget {
-  const _MobileSectionTitle(this.text);
-
-  final String text;
+  const _CourseListCard({required this.course});
 
   @override
   Widget build(BuildContext context) {
+    final color = Color(int.parse('FF${course.coverColorHex}', radix: 16));
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
-      child: Text(text, style: AppTypography.base(14, weight: FontWeight.w600)),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        onTap: () => context.push('/course/${course.id}'),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+            border: Border.all(color: AppColors.cardBorder),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 96,
+                height: 88,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(AppRadius.card)),
+                ),
+                child: Icon(Icons.play_circle_fill, color: color, size: 32),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(course.title,
+                          style: AppTypography.h2,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 4),
+                      Text(
+                          '${course.rating.toStringAsFixed(1)} ★ · ${course.priceLabel}',
+                          style: AppTypography.caption
+                              .copyWith(color: AppColors.textSecondary)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

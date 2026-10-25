@@ -1,43 +1,79 @@
 package courses
 
 import (
+	"errors"
 	"net/http"
-	"strings"
 
-	"github.com/ablearning/api/pkg/httpx"
+	"github.com/ablearning/api/internal/httpx"
 )
 
-type Controller struct {
-	service *Service
+type Handler struct{ svc *Service }
+
+func Register(mux *http.ServeMux, svc *Service) {
+	h := &Handler{svc: svc}
+	mux.HandleFunc("GET /api/v1/categories", h.categories)
+	mux.HandleFunc("GET /api/v1/courses", h.list)
+	mux.HandleFunc("GET /api/v1/search", h.list)
+	mux.HandleFunc("GET /api/v1/courses/{id}", h.get)
+	mux.HandleFunc("GET /api/v1/courses/{id}/curriculum", h.curriculum)
 }
 
-func NewController(service *Service) *Controller {
-	return &Controller{service: service}
-}
-
-func RegisterRoutes(mux *http.ServeMux) {
-	controller := NewController(NewService(NewRepository()))
-	mux.HandleFunc("/api/v1/courses", controller.ListCourses)
-	mux.HandleFunc("/api/v1/courses/", controller.CourseByID)
-}
-
-func (c *Controller) ListCourses(w http.ResponseWriter, r *http.Request) {
-	courses := c.service.List()
-	httpx.JSON(w, http.StatusOK, courses)
-}
-
-func (c *Controller) CourseByID(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/v1/courses/")
-	if id == "" {
-		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": "missing id"})
-		return
-	}
-
-	course, err := c.service.GetByID(id)
+func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	limit := httpx.QueryInt(r, "limit", 20, 1, 100)
+	page := httpx.QueryInt(r, "page", 1, 1, 100000)
+	out, err := h.svc.List(ListFilter{
+		Category: q.Get("category"), Level: q.Get("level"), Query: q.Get("q"),
+		Limit: limit, Offset: (page - 1) * limit,
+	})
 	if err != nil {
-		httpx.JSON(w, http.StatusNotFound, map[string]string{"error": err.Error()})
+		httpx.Error(w, http.StatusInternalServerError, "internal error")
 		return
 	}
+	httpx.JSON(w, http.StatusOK, out)
+}
 
-	httpx.JSON(w, http.StatusOK, course)
+func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
+	id, ok := httpx.PathID(r, "id")
+	if !ok {
+		httpx.Error(w, http.StatusBadRequest, "invalid course id")
+		return
+	}
+	c, err := h.svc.Get(id)
+	if errors.Is(err, ErrNotFound) {
+		httpx.Error(w, http.StatusNotFound, err.Error())
+		return
+	}
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	httpx.JSON(w, http.StatusOK, c)
+}
+
+func (h *Handler) curriculum(w http.ResponseWriter, r *http.Request) {
+	id, ok := httpx.PathID(r, "id")
+	if !ok {
+		httpx.Error(w, http.StatusBadRequest, "invalid course id")
+		return
+	}
+	s, err := h.svc.Curriculum(id)
+	if errors.Is(err, ErrNotFound) {
+		httpx.Error(w, http.StatusNotFound, err.Error())
+		return
+	}
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	httpx.JSON(w, http.StatusOK, s)
+}
+
+func (h *Handler) categories(w http.ResponseWriter, r *http.Request) {
+	out, err := h.svc.Categories()
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	httpx.JSON(w, http.StatusOK, out)
 }

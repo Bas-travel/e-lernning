@@ -5,11 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/app_dependencies.dart';
-import '../../../core/network/api_exception.dart';
+import '../../../core/network/rest_exception.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/auth_scaffold.dart';
 import '../../../core/widgets/inline_banner.dart';
 
@@ -128,7 +128,7 @@ class _OtpScreenState extends State<OtpScreen> {
       }
       if (!mounted) return;
       context.go('/interests');
-    } on ApiException catch (e) {
+    } on RestException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } catch (_) {
       if (mounted) {

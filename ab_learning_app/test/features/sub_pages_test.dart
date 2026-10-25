@@ -1,8 +1,8 @@
 import 'package:ab_learning_app/core/di/app_dependencies.dart';
-import 'package:ab_learning_app/core/network/api_exception.dart';
+import 'package:ab_learning_app/core/network/rest_exception.dart';
 import 'package:ab_learning_app/features/checkout/presentation/checkout_screen.dart';
 import 'package:ab_learning_app/features/community/presentation/community_screen.dart';
-import 'package:ab_learning_app/features/explore/presentation/explore_screen.dart';
+import 'package:ab_learning_app/features/explore/presentation/hifi_explore_screen.dart';
 import 'package:ab_learning_app/features/profile/presentation/certificates_screen.dart';
 import 'package:ab_learning_app/features/profile/presentation/edit_profile_screen.dart';
 import 'package:ab_learning_app/features/profile/presentation/help_center_screen.dart';
@@ -27,7 +27,7 @@ Widget _app(String initial) {
           return CheckoutScreen(courseId: s.pathParameters['id'] ?? '');
         }),
         GoRoute(path: '/community', builder: (_, __) => const CommunityScreen()),
-        GoRoute(path: '/tutor', builder: (_, __) => const AiTutorScreen()),
+        GoRoute(path: '/tutor', builder: (_, __) => const HifiAiTutorScreen()),
         GoRoute(path: '/wallet', builder: (_, __) => const WalletScreen()),
         GoRoute(
           path: '/certificates',
@@ -40,7 +40,7 @@ Widget _app(String initial) {
           path: '/profile/edit',
           builder: (_, __) => const EditProfileScreen(),
         ),
-        GoRoute(path: '/explore', builder: (_, __) => const ExploreScreen()),
+        GoRoute(path: '/explore', builder: (_, __) => const HifiExploreScreen()),
         GoRoute(path: '/learn', builder: (_, __) => stub('LEARN PAGE')),
         GoRoute(path: '/home', builder: (_, __) => stub('HOME PAGE')),
         GoRoute(path: '/profile', builder: (_, __) => stub('PROFILE PAGE')),
@@ -180,6 +180,6 @@ void main() {
 class _FailingTutor implements TutorRepository {
   @override
   Future<String> ask(String message, {String? action}) async {
-    throw const ApiException('ล้มเหลวทดสอบ');
+    throw const RestException('ล้มเหลวทดสอบ');
   }
 }

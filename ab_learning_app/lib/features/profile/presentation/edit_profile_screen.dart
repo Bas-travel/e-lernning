@@ -4,7 +4,7 @@ import '../../../core/di/app_dependencies.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_avatar.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/sub_page_scaffold.dart';
 

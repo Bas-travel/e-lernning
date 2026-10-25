@@ -1,15 +1,15 @@
 import 'package:ab_learning_app/features/auth/presentation/forgot_password_screen.dart';
 import 'package:ab_learning_app/features/auth/presentation/interests_screen.dart';
-import 'package:ab_learning_app/features/auth/presentation/login_screen.dart';
+import 'package:ab_learning_app/features/auth/presentation/hifi_login_screen.dart';
 import 'package:ab_learning_app/features/auth/presentation/onboarding_screen.dart';
 import 'package:ab_learning_app/features/auth/presentation/otp_screen.dart';
-import 'package:ab_learning_app/features/auth/presentation/register_screen.dart';
-import 'package:ab_learning_app/features/auth/presentation/splash_screen.dart';
-import 'package:ab_learning_app/features/course/presentation/course_detail_screen.dart';
-import 'package:ab_learning_app/features/course/presentation/video_player_screen.dart';
-import 'package:ab_learning_app/features/explore/presentation/explore_screen.dart';
+import 'package:ab_learning_app/features/auth/presentation/hifi_register_screen.dart';
+import 'package:ab_learning_app/features/auth/presentation/hifi_splash_screen.dart';
+import 'package:ab_learning_app/features/course/presentation/hifi_course_detail_screen.dart';
+import 'package:ab_learning_app/features/course/presentation/hifi_video_player_screen.dart';
+import 'package:ab_learning_app/features/explore/presentation/hifi_explore_screen.dart';
 import 'package:ab_learning_app/features/explore/presentation/search_screen.dart';
-import 'package:ab_learning_app/features/home/presentation/home_screen.dart';
+import 'package:ab_learning_app/features/home/presentation/hifi_home_screen.dart';
 import 'package:ab_learning_app/features/learn/presentation/learn_screen.dart';
 import 'package:ab_learning_app/features/profile/presentation/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -23,18 +23,18 @@ void main() {
   installMockAuth();
 
   final screens = <String, Widget Function()>{
-    'splash': () => const SplashScreen(),
+    'splash': () => const HifiSplashScreen(),
     'onboarding': () => const OnboardingScreen(),
-    'login': () => const LoginScreen(),
-    'register': () => const RegisterScreen(),
+    'login': () => const HifiLoginScreen(),
+    'register': () => const HifiRegisterScreen(),
     'otp': () => const OtpScreen(),
     'interests': () => const InterestsScreen(),
     'forgot password': () => const ForgotPasswordScreen(),
-    'home': () => const HomeScreen(),
-    'explore': () => const ExploreScreen(),
+    'home': () => const HifiHomeScreen(),
+    'explore': () => const HifiExploreScreen(),
     'search': () => const SearchScreen(initialQuery: 'flutter'),
-    'course detail': () => const CourseDetailScreen(courseId: 'go-backend'),
-    'video player': () => const VideoPlayerScreen(lessonId: 'lesson1'),
+    'course detail': () => const HifiCourseDetailScreen(courseId: 'go-backend'),
+    'video player': () => const HifiVideoPlayerScreen(lessonId: 'lesson1'),
     'learn': () => const LearnScreen(),
     'profile': () => const ProfileScreen(),
   };

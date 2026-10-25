@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
-
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_card.dart';
-import '../../../core/widgets/app_chip.dart';
-import '../../../core/widgets/app_progress_bar.dart';
-import '../../../core/widgets/responsive.dart';
-import 'course_back_button.dart';
+import '../../../data/mock/mock_repository.dart';
 
-/// Demo content from `02-hifi-mockups.html` (screen 13).
-/// TODO(api): replace with `GET /api/v1/lessons/{id}`.
-const _lessonTitle = 'REST API with Go';
-const _nextLessonTitle = 'JWT Authentication';
-const _tabs = <String>['Resources', 'Notes', 'Discussion', 'Ask AI ✨'];
-
+/// Screen 13 — Video Player / Learning. Plays a single lesson, tracks
+/// completion, and routes to the next lesson (or its quiz) when done.
 class VideoPlayerScreen extends StatefulWidget {
   final String lessonId;
 
@@ -24,296 +16,227 @@ class VideoPlayerScreen extends StatefulWidget {
   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
 }
 
-class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  int _tab = 0;
+class _VideoPlayerScreenState extends State<VideoPlayerScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _completeAndAdvance() {
+    MockRepository.completeLesson(widget.lessonId);
+    final next = MockRepository.nextLessonAfter(widget.lessonId);
+
+    if (next == null) {
+      _showCourseCompleteDialog();
+      return;
+    }
+    if (next.hasQuiz) {
+      context.push('/quiz/${next.id}');
+    } else {
+      context.push('/player/${next.id}');
+    }
+  }
+
+  void _showPreviewStatus() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text('วิดีโอตัวอย่างของบทเรียนนี้ยังไม่พร้อมใช้งาน')),
+    );
+  }
+
+  void _showCourseCompleteDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('เรียนครบทุกบทแล้ว!'),
+        content: const Text('ยอดเยี่ยม คุณเรียนจบทุกบทในหลักสูตรนี้แล้ว'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop(); // close the dialog
+              context.pop(); // back to curriculum
+            },
+            child: const Text('กลับไปยังหลักสูตร'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final lesson = MockRepository.lessonById(widget.lessonId);
+    final title = lesson?.title ?? 'บทเรียน';
+    final isLast = MockRepository.isLastLesson(widget.lessonId);
+
     return Scaffold(
-      body: ResponsiveBuilder(
-        mobile: _buildMobile,
-        desktop: _buildDesktop,
-      ),
-    );
-  }
-
-  Widget _tabContent() {
-    if (_tab != 0) {
-      return AppCard(
-        child: Text(
-          'ยังไม่มีข้อมูลในแท็บนี้',
-          style: AppTypography.base(12.5, color: AppColors.textSecondary),
-        ),
-      );
-    }
-    return AppCard(
-      child: SizedBox(
-        width: double.infinity,
-        child: Text(
-          '📎 slides-rest-api.pdf\n📎 source-code.zip',
-          style: AppTypography.base(12.5, color: AppColors.textSecondary),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMobile(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: CenteredContent(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Semantics(
-                    label: 'Video player, lesson ${widget.lessonId}',
-                    child: Container(
-                      height: 210,
-                      color: AppColors.playerSurface,
-                      child: Stack(
-                        children: const [
-                          Center(
-                            child: Icon(
-                              Icons.play_arrow,
-                              size: 36,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SafeArea(
-                            bottom: false,
-                            child: Align(
-                              alignment: Alignment.topLeft,
-                              child: CourseBackButton(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _lessonTitle,
-                          style: AppTypography.base(14, weight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'บทเรียนที่ 8 · 24:35 · ถัดไป: $_nextLessonTitle',
-                          style: AppTypography.base(
-                            11.5,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              for (var i = 0; i < _tabs.length; i++) ...[
-                                if (i > 0) const SizedBox(width: 8),
-                                AppChip(
-                                  label: _tabs[i],
-                                  active: i == _tab,
-                                  onTap: () => setState(() => _tab = i),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        _tabContent(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        // Sticky "Next lesson" bar
-        Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: CenteredContent(
-                child: AppButton.primary(
-                  label: 'บทเรียนถัดไป: $_nextLessonTitle →',
-                  // TODO(api): next lesson id comes from the lesson response.
-                  onPressed: () {},
-                  expand: true,
+      appBar: AppBar(title: Text(title)),
+      body: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Container(
+              color: Colors.black87,
+              child: Center(
+                child: IconButton(
+                  tooltip: 'เล่นตัวอย่างบทเรียน',
+                  onPressed: _showPreviewStatus,
+                  icon: const Icon(Icons.play_circle_fill,
+                      color: Colors.white, size: 64),
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDesktop(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Container(
-            color: AppColors.playerSurface,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Semantics(
-                    label: 'Video player, lesson ${widget.lessonId}',
-                    child: Stack(
-                      children: const [
-                        Center(
-                          child: Icon(
-                            Icons.play_arrow,
-                            size: 52,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SafeArea(
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: CourseBackButton(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                  color: AppColors.playerSurface,
-                  child: Row(
-                    children: [
-                      for (final (i, label)
-                          in const ['Transcript', 'Notes', 'Discussion'].indexed) ...[
-                        if (i > 0) const SizedBox(width: 16),
-                        i == 0
-                            ? AppChip(label: label, active: true)
-                            : Text(
-                                label,
-                                style: AppTypography.base(
-                                  12.5,
-                                  color: AppColors.textOnDarkMuted,
-                                ),
-                              ),
-                      ],
-                    ],
-                  ),
+                Text(title, style: AppTypography.h1.copyWith(fontSize: 18)),
+                const SizedBox(height: 4),
+                Text(
+                  lesson?.duration ?? '',
+                  style: AppTypography.caption
+                      .copyWith(color: AppColors.textSecondary),
                 ),
               ],
             ),
           ),
-        ),
-        Container(
-          width: 360,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(left: BorderSide(color: AppColors.border)),
+          TabBar(
+            controller: _tabController,
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.textSecondary,
+            indicatorColor: AppColors.primary,
+            tabs: const [
+              Tab(text: 'เอกสาร'),
+              Tab(text: 'โน้ต'),
+              Tab(text: 'พูดคุย'),
+              Tab(text: 'Ask AI ✨'),
+            ],
           ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Go Backend Professional',
-                    style: AppTypography.base(14, weight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 10),
-                  const AppProgressBar(value: 0.68),
-                  const SizedBox(height: 10),
-                  Text(
-                    '68% เสร็จแล้ว',
-                    style: AppTypography.base(
-                      11,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  AppCard(
-                    borderColor: AppColors.primary,
-                    borderWidth: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '▶ $_lessonTitle',
-                          style: AppTypography.base(12.5, weight: FontWeight.w600),
-                        ),
-                        Text(
-                          '24:35 · กำลังเล่น',
-                          style: AppTypography.base(
-                            11,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(_nextLessonTitle, style: AppTypography.base(12.5)),
-                        Text(
-                          '18:02',
-                          style: AppTypography.base(
-                            11,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '🔒 Production Deployment',
-                          style: AppTypography.base(
-                            12.5,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        Text(
-                          '40:00',
-                          style: AppTypography.base(
-                            11,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                const _EmptyTabContent(
+                  icon: Icons.attach_file,
+                  message: 'บทเรียนนี้ยังไม่มีเอกสารประกอบ',
+                ),
+                const _EmptyTabContent(
+                  icon: Icons.edit_note,
+                  message: 'โน้ตของบทเรียนนี้จะแสดงที่นี่',
+                ),
+                const _EmptyTabContent(
+                  icon: Icons.forum_outlined,
+                  message: 'เริ่มพูดคุยเกี่ยวกับบทเรียนนี้ได้ที่นี่',
+                ),
+                _AskTutorTab(
+                  onTap: () => context.push('/tutor', extra: title),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.btnPrimaryBg,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.button)),
+              ),
+              onPressed: _completeAndAdvance,
+              icon: Icon(isLast ? Icons.flag : Icons.arrow_forward,
+                  color: Colors.white),
+              label: Text(
+                isLast ? 'จบบทเรียน' : 'บทเรียนถัดไป',
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
           ),
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _AskTutorTab extends StatelessWidget {
+  const _AskTutorTab({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.auto_awesome, size: 36, color: AppColors.primary),
+            const SizedBox(height: 10),
+            const Text('ถาม AI เกี่ยวกับบทเรียนนี้', style: AppTypography.h2),
+            const SizedBox(height: 8),
+            Text(
+              'รับคำอธิบายและตัวอย่างที่อ้างอิงจากบทเรียนที่กำลังเรียน',
+              textAlign: TextAlign.center,
+              style:
+                  AppTypography.body.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: onTap,
+              icon: const Icon(Icons.chat_bubble_outline),
+              label: const Text('เปิด AI Tutor'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyTabContent extends StatelessWidget {
+  final IconData icon;
+  final String message;
+
+  const _EmptyTabContent({required this.icon, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 36, color: AppColors.textSecondary),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style:
+                  AppTypography.body.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

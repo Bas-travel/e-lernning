@@ -1,10 +1,15 @@
 package auth
 
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+// User mirrors the `User` schema in 05-openapi.yaml.
+type User struct {
+	ID        int64  `json:"id"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	AvatarURL string `json:"avatar_url"`
 }
 
-type LoginResponse struct {
-	Token string `json:"token"`
+type RefreshRequest struct {
+	RefreshToken string `json:"refresh_token"`
 }

@@ -1,59 +1,50 @@
-import 'package:dio/dio.dart';
-
-/// Error surfaced to the UI. [message] is safe to show to the user.
+/// Mirrors the `Error` schema in `05-openapi.yaml`:
+/// ```yaml
+/// Error:
+///   properties:
+///     code: { type: string }
+///     message: { type: string }
+/// ```
+/// Every repository should catch transport errors and rethrow this type so
+/// the UI layer only ever has one error shape to handle.
 class ApiException implements Exception {
-  const ApiException(this.message, {this.code, this.statusCode});
+  const ApiException({
+    required this.code,
+    required this.message,
+    this.statusCode,
+  });
 
+  final String code;
   final String message;
-
-  /// Machine readable code from the `Error` schema (e.g. `COURSE_NOT_FOUND`).
-  final String? code;
-
-  /// HTTP status; `null` when the server could not be reached.
   final int? statusCode;
 
-  bool get isNetworkError => statusCode == null;
-  bool get isUnauthorized => statusCode == 401;
-
-  static const networkMessage =
-      'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่';
-  static const unauthorizedMessage = 'อีเมล เบอร์โทร หรือรหัสผ่านไม่ถูกต้อง';
-  static const unknownMessage = 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
-
-  factory ApiException.fromDio(DioException e) {
-    final response = e.response;
-    if (response == null) {
-      return const ApiException(networkMessage);
-    }
-
-    final status = response.statusCode;
-    if (status == 401) {
-      return ApiException(
-        unauthorizedMessage,
-        code: _codeOf(response.data),
-        statusCode: status,
+  factory ApiException.network() => const ApiException(
+        code: 'NETWORK_ERROR',
+        message: 'Could not reach the server. Check your connection.',
       );
-    }
 
-    String? message;
-    final data = response.data;
-    if (data is Map) {
-      // `Error` schema is {code, message}; the Go stub answers {error}.
-      final raw = data['message'] ?? data['error'];
-      if (raw is String && raw.trim().isNotEmpty) message = raw.trim();
-    }
-    message ??= (status != null && status >= 500)
-        ? 'เซิร์ฟเวอร์ขัดข้อง ($status) กรุณาลองใหม่ภายหลัง'
-        : 'คำขอไม่สำเร็จ (${status ?? '-'})';
+  factory ApiException.unauthorized() => const ApiException(
+        code: 'UNAUTHORIZED',
+        message: 'Your session has expired. Please log in again.',
+        statusCode: 401,
+      );
 
-    return ApiException(message, code: _codeOf(data), statusCode: status);
-  }
+  factory ApiException.invalidCredentials() => const ApiException(
+        code: 'INVALID_CREDENTIALS',
+        message: 'Email/phone or password is incorrect.',
+        statusCode: 401,
+      );
 
-  static String? _codeOf(Object? data) {
-    if (data is Map && data['code'] is String) return data['code'] as String;
-    return null;
-  }
+  /// Matches the Go backend's `platform.ErrForbidden` — a valid, logged-in
+  /// user whose role isn't allowed on this endpoint. Distinct from
+  /// [unauthorized] (no/expired session): this is "you ARE logged in, but
+  /// not as the right role."
+  factory ApiException.forbidden() => const ApiException(
+        code: 'FORBIDDEN',
+        message: "Your account doesn't have access to this.",
+        statusCode: 403,
+      );
 
   @override
-  String toString() => 'ApiException($statusCode, $code, $message)';
+  String toString() => 'ApiException($code): $message';
 }

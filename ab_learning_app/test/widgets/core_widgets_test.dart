@@ -1,5 +1,5 @@
 import 'package:ab_learning_app/core/widgets/app_bottom_nav.dart';
-import 'package:ab_learning_app/core/widgets/app_button.dart';
+import 'package:ab_learning_app/core/widgets/hifi_button.dart';
 import 'package:ab_learning_app/core/widgets/app_chip.dart';
 import 'package:ab_learning_app/core/widgets/app_progress_bar.dart';
 import 'package:ab_learning_app/core/widgets/status_pill.dart';

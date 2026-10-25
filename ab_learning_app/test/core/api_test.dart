@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:ab_learning_app/core/network/api_client.dart';
-import 'package:ab_learning_app/core/network/api_exception.dart';
+import 'package:ab_learning_app/core/network/rest_client.dart';
+import 'package:ab_learning_app/core/network/rest_exception.dart';
 import 'package:ab_learning_app/core/network/token_store.dart';
-import 'package:ab_learning_app/features/auth/data/auth_repository.dart';
+import 'package:ab_learning_app/features/auth/data/account_repository.dart';
 import 'package:ab_learning_app/features/auth/domain/auth_models.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,20 +41,20 @@ ResponseBody _json(String body, [int status = 200]) {
   );
 }
 
-({ApiAuthRepository repo, _FakeAdapter adapter, MemoryTokenStore tokens})
+({ApiAccountRepository repo, _FakeAdapter adapter, MemoryTokenStore tokens})
     _setup(ResponseBody Function(RequestOptions) handler) {
   final adapter = _FakeAdapter(handler);
   final tokens = MemoryTokenStore();
   final dio = Dio(BaseOptions(baseUrl: 'http://test/api/v1'))
     ..httpClientAdapter = adapter;
-  final client = ApiClient(tokenStore: tokens, dio: dio);
-  return (repo: ApiAuthRepository(client), adapter: adapter, tokens: tokens);
+  final client = RestClient(tokenStore: tokens, dio: dio);
+  return (repo: ApiAccountRepository(client), adapter: adapter, tokens: tokens);
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('ApiAuthRepository.login', () {
+  group('ApiAccountRepository.login', () {
     test('parses the OpenAPI response and stores tokens', () async {
       final t = _setup(
         (_) => _json(
@@ -101,7 +101,7 @@ void main() {
       await expectLater(
         t.repo.login(identifier: 'a@b.c', password: 'bad'),
         throwsA(
-          isA<ApiException>()
+          isA<RestException>()
               .having((e) => e.isUnauthorized, 'isUnauthorized', isTrue)
               .having((e) => e.message, 'message', contains('ไม่ถูกต้อง')),
         ),
@@ -113,7 +113,7 @@ void main() {
       final t = _setup((_) => _json('{"user":{"email":"a@b.c"}}'));
       await expectLater(
         t.repo.login(identifier: 'a@b.c', password: 'pw'),
-        throwsA(isA<ApiException>()),
+        throwsA(isA<RestException>()),
       );
     });
 
@@ -127,7 +127,7 @@ void main() {
       await expectLater(
         t.repo.login(identifier: 'a@b.c', password: 'pw'),
         throwsA(
-          isA<ApiException>().having(
+          isA<RestException>().having(
             (e) => e.message,
             'message',
             contains('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้'),
@@ -143,7 +143,7 @@ void main() {
     });
   });
 
-  group('ApiAuthRepository other endpoints', () {
+  group('ApiAccountRepository other endpoints', () {
     test('register posts the documented fields', () async {
       final t = _setup(
         (_) => _json('{"id":5,"email":"n@e.w","first_name":"N","last_name":"W"}', 201),
@@ -173,7 +173,7 @@ void main() {
           password: 'pw',
         ),
         throwsA(
-          isA<ApiException>().having((e) => e.message, 'message', 'email taken'),
+          isA<RestException>().having((e) => e.message, 'message', 'email taken'),
         ),
       );
       expect((t.adapter.last.data as Map).containsKey('phone'), isFalse);
@@ -242,7 +242,7 @@ void main() {
     });
   });
 
-  group('ApiException.fromDio', () {
+  group('RestException.fromDio', () {
     DioException err(int? status, Object? data, [DioExceptionType? type]) {
       final options = RequestOptions(path: '/x');
       return DioException(
@@ -259,18 +259,18 @@ void main() {
     }
 
     test('prefers {message} then {error}, keeps code', () {
-      final a = ApiException.fromDio(
+      final a = RestException.fromDio(
         err(400, {'code': 'BAD', 'message': 'nope'}),
       );
       expect(a.message, 'nope');
       expect(a.code, 'BAD');
-      expect(ApiException.fromDio(err(400, {'error': 'e'})).message, 'e');
+      expect(RestException.fromDio(err(400, {'error': 'e'})).message, 'e');
     });
 
     test('falls back to status based messages', () {
-      expect(ApiException.fromDio(err(404, null)).message, contains('404'));
-      expect(ApiException.fromDio(err(401, null)).isUnauthorized, isTrue);
-      expect(ApiException.fromDio(err(500, 'oops')).message, contains('500'));
+      expect(RestException.fromDio(err(404, null)).message, contains('404'));
+      expect(RestException.fromDio(err(401, null)).isUnauthorized, isTrue);
+      expect(RestException.fromDio(err(500, 'oops')).message, contains('500'));
     });
   });
 
@@ -313,9 +313,9 @@ void main() {
     });
   });
 
-  group('MockAuthRepository', () {
+  group('MockAccountRepository', () {
     test('login creates a session and logout ends it', () async {
-      final repo = MockAuthRepository(latency: Duration.zero);
+      final repo = MockAccountRepository(latency: Duration.zero);
       expect(await repo.hasSession(), isFalse);
       final session = await repo.login(identifier: 'a@b.c', password: 'pw');
       expect(session.user?.email, 'a@b.c');
@@ -326,7 +326,7 @@ void main() {
     });
 
     test('other operations complete', () async {
-      final repo = MockAuthRepository(latency: Duration.zero);
+      final repo = MockAccountRepository(latency: Duration.zero);
       final user = await repo.register(
         firstName: 'A',
         lastName: 'B',
