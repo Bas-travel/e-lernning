@@ -87,11 +87,46 @@ class _OtpScreenState extends State<OtpScreen> {
     });
   }
 
-  void _resend() {
-    // TODO(api): POST /api/v1/auth/verify-otp resend endpoint.
-    _controller.clear();
-    setState(() => _seconds = _resendSeconds);
-    _scheduleTimer();
+  bool _resending = false;
+
+  Future<void> _resend() async {
+    if (_resending) return;
+    final userId = widget.args?.userId;
+    setState(() {
+      _resending = true;
+      _error = null;
+    });
+    // Without a user id (prototype / deep link) there is nothing to request,
+    // so only the local countdown restarts.
+    var sent = true;
+    String? error;
+    try {
+      if (userId != null) {
+        sent = await AppDependencies.authRepository.resendOtp(userId: userId);
+      }
+    } on RestException catch (e) {
+      error = e.message;
+    } catch (_) {
+      error = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่';
+    }
+    if (!mounted) return;
+    setState(() {
+      _resending = false;
+      if (error != null) {
+        _error = error;
+      } else if (!sent) {
+        _error = 'ระบบยังไม่เปิดให้ส่งรหัสซ้ำ กรุณาใช้รหัสเดิมหรือติดต่อฝ่ายสนับสนุน';
+      } else {
+        _controller.clear();
+        _seconds = _resendSeconds;
+      }
+    });
+    if (error == null && sent) {
+      _scheduleTimer();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ส่งรหัสใหม่แล้ว')),
+      );
+    }
   }
 
   Future<void> _verify() async {

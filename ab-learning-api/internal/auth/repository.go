@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	ErrNotFound       = errors.New("not found")
-	ErrEmailTaken     = errors.New("email already registered")
+	ErrNotFound   = errors.New("not found")
+	ErrEmailTaken = errors.New("email already registered")
 )
 
 type Repository struct{ db *sql.DB }
@@ -77,4 +77,12 @@ func (r *Repository) CreateLearner(req RegisterRequest, hash string) (int64, err
 		return 0, err
 	}
 	return id, tx.Commit()
+}
+
+// UpdateProfileName sets the profile's first/last name, creating the profile
+// row when the account has none yet (`profiles.user_id` is UNIQUE).
+func (r *Repository) UpdateProfileName(id int64, first, last string) error {
+	_, err := r.db.Exec(`INSERT INTO profiles (user_id, first_name, last_name) VALUES (?, ?, ?)
+		ON DUPLICATE KEY UPDATE first_name = VALUES(first_name), last_name = VALUES(last_name)`, id, first, last)
+	return err
 }

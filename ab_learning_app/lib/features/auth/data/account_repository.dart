@@ -47,6 +47,16 @@ abstract class AccountRepository {
     required List<String> goals,
   });
 
+  /// `POST /auth/resend-otp`. Returns `false` when the server has no such
+  /// endpoint (nothing was sent), `true` when a new code was requested.
+  Future<bool> resendOtp({required int userId});
+
+  /// `PUT /me`. Updates the display name and returns the saved user.
+  Future<AuthUser> updateProfile({
+    required String firstName,
+    required String lastName,
+  });
+
   /// `GET /me`. Returns `null` when the session is no longer valid (the
   /// stored tokens are cleared); when offline the cached user is returned.
   Future<AuthUser?> fetchProfile();
@@ -208,6 +218,37 @@ class ApiAccountRepository implements AccountRepository {
   }
 
   @override
+  Future<bool> resendOtp({required int userId}) async {
+    try {
+      await _dio.post<Object?>('/auth/resend-otp', data: {'user_id': userId});
+      return true;
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      if (status == 404 || status == 405 || status == 501) return false;
+      throw RestException.fromDio(e);
+    }
+  }
+
+  @override
+  Future<AuthUser> updateProfile({
+    required String firstName,
+    required String lastName,
+  }) {
+    return _guard(() async {
+      final response = await _dio.put<Object?>(
+        '/me',
+        data: {'first_name': firstName.trim(), 'last_name': lastName.trim()},
+      );
+      final user = AuthUser.fromJson(
+        _asMap(response.data),
+        fallbackEmail: _user?.email,
+      );
+      _user = user;
+      return user;
+    });
+  }
+
+  @override
   Future<AuthUser?> fetchProfile() async {
     try {
       final response = await _dio.get<Object?>('/me');
@@ -294,6 +335,26 @@ class MockAccountRepository implements AccountRepository {
     required List<String> goals,
   }) =>
       _wait();
+
+  @override
+  Future<bool> resendOtp({required int userId}) async {
+    await _wait();
+    return true;
+  }
+
+  @override
+  Future<AuthUser> updateProfile({
+    required String firstName,
+    required String lastName,
+  }) async {
+    await _wait();
+    final updated = (_user ?? const AuthUser(email: '')).copyWith(
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+    );
+    _user = updated;
+    return updated;
+  }
 
   @override
   Future<AuthUser?> fetchProfile() async => _signedIn ? _user : null;

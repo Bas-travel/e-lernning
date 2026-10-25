@@ -16,6 +16,7 @@ func Register(mux *http.ServeMux, guard middleware.Guard, svc *Service) {
 	mux.HandleFunc("POST /api/v1/auth/register", h.register)
 	mux.HandleFunc("POST /api/v1/auth/refresh", h.refresh)
 	mux.Handle("GET /api/v1/me", guard.Require(h.me))
+	mux.Handle("PUT /api/v1/me", guard.Require(h.updateMe))
 }
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
@@ -78,4 +79,24 @@ func (h *Handler) me(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.JSON(w, http.StatusOK, u)
+}
+
+func (h *Handler) updateMe(w http.ResponseWriter, r *http.Request) {
+	p, _ := middleware.PrincipalFrom(r.Context())
+	var req UpdateProfileRequest
+	if err := httpx.Decode(w, r, &req); err != nil {
+		httpx.Error(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	u, err := h.svc.UpdateMe(p.UserID, req)
+	switch {
+	case errors.Is(err, ErrValidation):
+		httpx.Error(w, http.StatusUnprocessableEntity, err.Error())
+	case errors.Is(err, ErrNotFound):
+		httpx.Error(w, http.StatusNotFound, "user not found")
+	case err != nil:
+		httpx.Error(w, http.StatusInternalServerError, "internal error")
+	default:
+		httpx.JSON(w, http.StatusOK, toUserResponse(u))
+	}
 }

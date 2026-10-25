@@ -16,6 +16,15 @@ class AuthUser {
   final String? role;
   final String? avatarUrl;
 
+  AuthUser copyWith({String? firstName, String? lastName}) => AuthUser(
+        id: id,
+        email: email,
+        firstName: firstName ?? this.firstName,
+        lastName: lastName ?? this.lastName,
+        role: role,
+        avatarUrl: avatarUrl,
+      );
+
   String get displayName {
     final parts = [firstName, lastName]
         .whereType<String>()

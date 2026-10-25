@@ -5,6 +5,7 @@ import (
 	"net/mail"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/ablearning/api/internal/security"
 )
@@ -89,6 +90,22 @@ func (s *Service) Register(req RegisterRequest) (User, error) {
 func (s *Service) Me(id int64) (User, error) {
 	u, err := s.repo.ByID(id)
 	return u.User, err
+}
+
+// UpdateMe edits the signed-in user's display name and returns the fresh user.
+func (s *Service) UpdateMe(id int64, req UpdateProfileRequest) (User, error) {
+	first := strings.TrimSpace(req.FirstName)
+	last := strings.TrimSpace(req.LastName)
+	if first == "" || last == "" {
+		return User{}, errors.Join(ErrValidation, errors.New("first_name and last_name are required"))
+	}
+	if utf8.RuneCountInString(first) > 100 || utf8.RuneCountInString(last) > 100 {
+		return User{}, errors.Join(ErrValidation, errors.New("first_name and last_name must be at most 100 characters"))
+	}
+	if err := s.repo.UpdateProfileName(id, first, last); err != nil {
+		return User{}, err
+	}
+	return s.Me(id)
 }
 
 // Refresh exchanges a valid refresh token for a fresh token pair.

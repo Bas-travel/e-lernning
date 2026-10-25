@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/colors.dart';
+import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_card.dart';
@@ -26,6 +29,61 @@ class HifiVideoPlayerScreen extends StatefulWidget {
 
 class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
   int _tab = 0;
+
+  /// The lesson comes from the shared [MockRepository] when its id is known
+  /// (ids `l1`, `l2`, ...). Any other id is the mockup's demo lesson, which
+  /// continues with the first lesson that is not completed yet.
+  bool get _isKnownLesson => MockRepository.lessonById(widget.lessonId) != null;
+
+  LessonItem? get _nextLesson {
+    if (_isKnownLesson) return MockRepository.nextLessonAfter(widget.lessonId);
+    for (final section in MockRepository.curriculumFor('')) {
+      for (final lesson in section.lessons) {
+        if (lesson.state != LessonState.completed) return lesson;
+      }
+    }
+    return null;
+  }
+
+  String get _nextTitle {
+    if (!_isKnownLesson) return _nextLessonTitle;
+    return _nextLesson?.title ?? 'จบหลักสูตร';
+  }
+
+  // TODO(api): replace with `POST /lessons/{id}/progress` and the next lesson
+  // from `GET /lessons/{id}` once the player is bound to the API.
+  void _goNext() {
+    if (_isKnownLesson) MockRepository.completeLesson(widget.lessonId);
+    final next = _nextLesson;
+    if (next == null) {
+      _showCourseCompleteDialog();
+      return;
+    }
+    context.push(next.hasQuiz ? '/quiz/${next.id}' : '/player/${next.id}');
+  }
+
+  void _showCourseCompleteDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('เรียนครบทุกบทแล้ว!'),
+        content: const Text('ยอดเยี่ยม คุณเรียนจบทุกบทในหลักสูตรนี้แล้ว'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/learn');
+              }
+            },
+            child: const Text('กลับ'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +163,7 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'บทเรียนที่ 8 · 24:35 · ถัดไป: $_nextLessonTitle',
+                          'บทเรียนที่ 8 · 24:35 · ถัดไป: $_nextTitle',
                           style: AppTypography.base(
                             11.5,
                             color: AppColors.textSecondary,
@@ -150,9 +208,8 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: CenteredContent(
                 child: AppButton.primary(
-                  label: 'บทเรียนถัดไป: $_nextLessonTitle →',
-                  // TODO(api): next lesson id comes from the lesson response.
-                  onPressed: () {},
+                  label: 'บทเรียนถัดไป: $_nextTitle →',
+                  onPressed: _goNext,
                   expand: true,
                 ),
               ),
@@ -272,10 +329,11 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
                   ),
                   const SizedBox(height: 8),
                   AppCard(
+                    onTap: _goNext,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_nextLessonTitle, style: AppTypography.base(12.5)),
+                        Text(_nextTitle, style: AppTypography.base(12.5)),
                         Text(
                           '18:02',
                           style: AppTypography.base(

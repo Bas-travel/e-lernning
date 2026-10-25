@@ -106,6 +106,14 @@ class _LoginScreenState extends State<HifiLoginScreen> {
   }
 }
 
+void _socialUnavailable(BuildContext context, String provider) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(content: Text('การเข้าสู่ระบบด้วย $provider ยังไม่เปิดให้บริการ')),
+    );
+}
+
 class _LoginForm extends StatelessWidget {
   const _LoginForm({
     required this.desktop,
@@ -267,16 +275,31 @@ class _LoginForm extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
-        // TODO(auth): social sign-in is not wired (no provider config yet).
+        // TODO(auth): real social sign-in needs OAuth client ids per provider
+        // and a backend endpoint that exchanges the provider token; neither
+        // exists yet, so the buttons say so instead of doing nothing.
         Row(
           children: [
-            Expanded(child: AppButton.ghost(label: 'Google', onPressed: () {})),
-            const SizedBox(width: 8),
             Expanded(
-              child: AppButton.ghost(label: 'Facebook', onPressed: () {}),
+              child: AppButton.ghost(
+                label: 'Google',
+                onPressed: () => _socialUnavailable(context, 'Google'),
+              ),
             ),
             const SizedBox(width: 8),
-            Expanded(child: AppButton.ghost(label: 'LINE', onPressed: () {})),
+            Expanded(
+              child: AppButton.ghost(
+                label: 'Facebook',
+                onPressed: () => _socialUnavailable(context, 'Facebook'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: AppButton.ghost(
+                label: 'LINE',
+                onPressed: () => _socialUnavailable(context, 'LINE'),
+              ),
+            ),
           ],
         ),
         SizedBox(height: desktop ? 22 : 20),

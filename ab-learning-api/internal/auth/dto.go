@@ -17,6 +17,13 @@ type RegisterRequest struct {
 	Password  string `json:"password"`
 }
 
+// UpdateProfileRequest is the body of `PUT /me`. Only the display name is
+// editable for now; email, phone and role are changed through other flows.
+type UpdateProfileRequest struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
 // ---- Responses ----
 
 // UserResponse matches the `User` schema.
