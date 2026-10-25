@@ -1,104 +1,384 @@
 <#
-.SYNOPSIS
-Create a GitHub pull request using the REST API and a Personal Access Token.
-
-USAGE
-Set environment variable GH_TOKEN to a token with `repo` scope, then run from
-the repository root:
-
-    $env:GH_TOKEN = 'ghp_...'
-    pwsh .\scripts\create-pr-api.ps1 -Branch 'design/tokens-update' -Base 'main' -Title 'Update design tokens and sync Flutter theme' -BodyFile 'deployments/PRs/0001-update-design-tokens.md'
-
-The script will attempt to push the branch first (`git push -u origin <branch>`).
+Create GitHub Pull Request
+Repository: Bas-travel/e-lernning
 #>
 
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$Branch,
-    [Parameter(Mandatory=$true)]
+
+    [Parameter(Mandatory = $true)]
     [string]$Base,
-    [Parameter(Mandatory=$true)]
+
+    [Parameter(Mandatory = $true)]
     [string]$Title,
-    [Parameter(Mandatory=$true)]
+
+    [Parameter(Mandatory = $true)]
     [string]$BodyFile
 )
 
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Write-Error "git is not installed or not in PATH. Install Git and retry."
-    exit 1
-}
+$ErrorActionPreference = "Stop"
+
+$repoOwner = "Bas-travel"
+$repoName  = "e-lernning"
+$repo       = "$repoOwner/$repoName"
+
+# --------------------------------------------------
+# Validate environment
+# --------------------------------------------------
 
 if (-not $env:GH_TOKEN) {
-    Write-Error "GH_TOKEN environment variable is not set. Create a GitHub PAT with 'repo' scope and set GH_TOKEN."
+    Write-Error "GH_TOKEN is not set."
     exit 1
 }
 
-Write-Host "Validating GH token..."
-try {
-    $me = Invoke-RestMethod -Uri 'https://api.github.com/user' -Headers @{ Authorization = "token $env:GH_TOKEN"; 'User-Agent' = 'create-pr-script' }
-    Write-Host "Authenticated as $($me.login)"
-} catch {
-    Write-Error "GH_TOKEN invalid or unauthorized (need 'repo' scope). API response: $($_.Exception.Message)"
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    Write-Error "Git is not installed or not in PATH."
     exit 1
-}
-
-# Push via HTTPS to avoid SSH host fingerprint prompts
-$repo = 'Bas-travel/e-lernning'
-$remoteHttps = "https://github.com/$repo.git"
-Write-Host "Pushing branch '$Branch' to $remoteHttps ..."
-$pair = "$($Branch):$($Branch)"
-
-# Try pushing by supplying an Authorization header so git doesn't prompt for credentials
-try {
-    $credString = "x-access-token:$env:GH_TOKEN"
-    $b64 = [Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($credString))
-    $extra = "Authorization: Basic $b64"
-    $push = git -c http.extraHeader="$extra" push $remoteHttps $pair 2>&1
-    if ($LASTEXITCODE -ne 0) { throw $push }
-}
-catch {
-    Write-Warning "Push with header failed: $_"
-    Write-Host "Attempting fallback: embed token into remote URL (temporary)..."
-    # Fallback: embed token into URL. Note: this exposes token in command; avoid long-term.
-    $encodedToken = [System.Uri]::EscapeDataString($env:GH_TOKEN)
-    $remoteWithToken = "https://x-access-token:$encodedToken@github.com/$Owner/$Repo.git"
-    $push = git push $remoteWithToken $pair 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Failed to push branch to $remoteHttps. Output:`n$push`n
-Hint: ensure you have network access and the remote repository exists and your PAT has push rights (repo scope). If you prefer not to allow the script to embed tokens, configure a credential helper or install the GitHub CLI and run 'gh auth login'. You can try pushing manually using:`n git push $remoteWithToken $pair"
-        exit $LASTEXITCODE
-    }
 }
 
 if (-not (Test-Path $BodyFile)) {
-    Write-Error "Body file '$BodyFile' not found."
+    Write-Error "Body file not found: $BodyFile"
     exit 1
 }
 
-$bodyText = Get-Content -Raw -Path $BodyFile
+$headers = @{
+    Authorization          = "Bearer $env:GH_TOKEN"
+    Accept                 = "application/vnd.github+json"
+    "User-Agent"           = "AB-Learning-PR-Creator"
+    "X-GitHub-Api-Version" = "2022-11-28"
+}
 
-$payload = @{
-    title = $Title
-    head  = $Branch
-    base  = $Base
-    body  = $bodyText
-    draft = $true
-} | ConvertTo-Json -Depth 6
+Write-Host ""
+Write-Host "======================================"
+Write-Host " AB LEARNING - CREATE PULL REQUEST"
+Write-Host "======================================"
+Write-Host ""
 
-Write-Host "Preparing PR payload..."
-$url = "https://api.github.com/repos/$repo/pulls"
+# --------------------------------------------------
+# 1. Validate GitHub Token
+# --------------------------------------------------
 
-Write-Host "Creating PR (draft) at $url ..."
+Write-Host "1. Validating GitHub token..."
+
 try {
-    $resp = Invoke-RestMethod -Uri $url -Method Post -Body $payload -Headers @{ Authorization = "token $env:GH_TOKEN"; 'User-Agent' = 'create-pr-script' } -ContentType 'application/json'
-    Write-Host "PR created: $($resp.html_url)"
-} catch {
-    Write-Error "PR creation failed: $($_.Exception.Message)"
-    if ($_.Exception.Response) {
-        $stream = $_.Exception.Response.GetResponseStream()
-        $reader = New-Object System.IO.StreamReader($stream)
-        $text = $reader.ReadToEnd(); $reader.Close()
-        Write-Error $text
+    $me = Invoke-RestMethod `
+        -Uri "https://api.github.com/user" `
+        -Method Get `
+        -Headers $headers
+
+    Write-Host "Authenticated as: $($me.login)"
+}
+catch {
+    Write-Error "GitHub authentication failed."
+    Write-Error $_.Exception.Message
+    exit 1
+}
+
+# --------------------------------------------------
+# 2. Check Repository
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "2. Checking repository: $repo"
+
+try {
+    $repoInfo = Invoke-RestMethod `
+        -Uri "https://api.github.com/repos/$repo" `
+        -Method Get `
+        -Headers $headers
+
+    Write-Host "Repository found: $($repoInfo.full_name)"
+}
+catch {
+    Write-Error "Repository not found or inaccessible."
+    Write-Error $_.Exception.Message
+    exit 1
+}
+
+# --------------------------------------------------
+# 3. Push Branch
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "3. Pushing branch: $Branch"
+
+try {
+
+    $credential = "x-access-token:$env:GH_TOKEN"
+
+    $encodedCredential = [Convert]::ToBase64String(
+        [Text.Encoding]::ASCII.GetBytes($credential)
+    )
+
+    $extraHeader = "Authorization: Basic $encodedCredential"
+
+    Write-Host "Executing git push..."
+
+    git -c "http.extraHeader=$extraHeader" `
+        push origin "${Branch}:${Branch}"
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Git push failed with exit code $LASTEXITCODE"
     }
+
+    Write-Host "Branch pushed successfully."
+
+}
+catch {
+
+    Write-Host ""
+    Write-Host "======================================"
+    Write-Host " GIT PUSH FAILED"
+    Write-Host "======================================"
+    Write-Host ""
+
+    Write-Host "Branch : $Branch"
+    Write-Host "Remote : origin"
+    Write-Host ""
+
+    Write-Host "Error:"
+    Write-Host $_.Exception.Message
+
+    Write-Host ""
+    Write-Host "Please run manually:"
+    Write-Host ""
+    Write-Host "git push origin $Branch"
+    Write-Host ""
+
+    exit 1
+}
+
+# --------------------------------------------------
+# 4. Verify Base Branch
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "4. Checking base branch: $Base"
+
+try {
+    $baseBranch = Invoke-RestMethod `
+        -Uri "https://api.github.com/repos/$repo/branches/$Base" `
+        -Method Get `
+        -Headers $headers
+
+    Write-Host "Base branch exists."
+}
+catch {
+    Write-Error "Base branch '$Base' does not exist."
+    exit 1
+}
+
+# --------------------------------------------------
+# 5. Verify Head Branch
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "5. Checking head branch: $Branch"
+
+try {
+    $headBranch = Invoke-RestMethod `
+        -Uri "https://api.github.com/repos/$repo/branches/$Branch" `
+        -Method Get `
+        -Headers $headers
+
+    Write-Host "Head branch exists."
+    Write-Host "Head SHA: $($headBranch.commit.sha)"
+}
+catch {
+    Write-Error "Head branch '$Branch' does not exist."
+    exit 1
+}
+
+# --------------------------------------------------
+# 6. Read PR Body
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "6. Reading PR body..."
+
+$body = Get-Content -Raw -Path $BodyFile
+
+Write-Host "PR body loaded."
+
+# --------------------------------------------------
+# 7. Check Existing PR
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "7. Checking for existing PR..."
+
+try {
+
+    $encodedHead = [System.Uri]::EscapeDataString(
+        "$repoOwner`:$Branch"
+    )
+
+    $encodedBase = [System.Uri]::EscapeDataString(
+        $Base
+    )
+
+    $existingUrl =
+        "https://api.github.com/repos/$repo/pulls" +
+        "?state=open" +
+        "&head=$encodedHead" +
+        "&base=$encodedBase"
+
+    $existing = Invoke-RestMethod `
+        -Uri $existingUrl `
+        -Method Get `
+        -Headers $headers
+
+    if ($existing.Count -gt 0) {
+
+        Write-Host ""
+        Write-Host "An open PR already exists:"
+        Write-Host $existing[0].html_url
+
+        exit 0
+    }
+
+    Write-Host "No existing open PR found."
+}
+catch {
+    Write-Warning "Could not check existing PR. Continuing..."
+}
+
+# --------------------------------------------------
+# 8. Prepare PR Payload
+# --------------------------------------------------
+
+Write-Host ""
+Write-Host "8. Preparing PR payload..."
+
+try {
+
+    Write-Host "   [8.1] Building payload object..."
+
+    $payloadObject = @{
+        title = [string]$Title
+        head  = [string]$Branch
+        base  = [string]$Base
+        body  = [string]$body
+        draft = $true
+    }
+
+    Write-Host "   [8.2] Converting payload to JSON..."
+
+    $payload = $payloadObject | ConvertTo-Json -Depth 5 -Compress
+
+    if ([string]::IsNullOrWhiteSpace($payload)) {
+        throw "Payload JSON is empty."
+    }
+
+    Write-Host "   [8.3] Payload JSON created."
+    Write-Host "   Payload size: $($payload.Length) characters"
+
+}
+catch {
+
+    Write-Host ""
+    Write-Host "======================================"
+    Write-Host " PAYLOAD PREPARATION FAILED"
+    Write-Host "======================================"
+    Write-Host ""
+    Write-Host $_.Exception.Message
+    exit 1
+}
+
+Write-Host ""
+Write-Host "Repository : $repo"
+Write-Host "Head       : $Branch"
+Write-Host "Base       : $Base"
+Write-Host "Draft      : true"
+Write-Host ""
+
+# --------------------------------------------------
+# 9. Create Pull Request
+# --------------------------------------------------
+
+Write-Host "9. Creating draft PR..."
+Write-Host "   Sending request to GitHub API..."
+
+try {
+
+    $apiUrl = "https://api.github.com/repos/$repo/pulls"
+
+    Write-Host "   API: $apiUrl"
+
+    $response = Invoke-RestMethod `
+        -Uri $apiUrl `
+        -Method Post `
+        -Headers $headers `
+        -ContentType "application/json; charset=utf-8" `
+        -Body ([System.Text.Encoding]::UTF8.GetBytes($payload)) `
+        -TimeoutSec 30
+
+    Write-Host ""
+    Write-Host "======================================"
+    Write-Host " PR CREATED SUCCESSFULLY"
+    Write-Host "======================================"
+    Write-Host ""
+
+    Write-Host "PR Number : $($response.number)"
+    Write-Host "Title     : $($response.title)"
+    Write-Host "State     : $($response.state)"
+    Write-Host "Draft     : $($response.draft)"
+    Write-Host "URL       : $($response.html_url)"
+
+    Write-Host ""
+
+}
+catch {
+
+    Write-Host ""
+    Write-Host "======================================"
+    Write-Host " PR CREATION FAILED"
+    Write-Host "======================================"
+    Write-Host ""
+
+    Write-Host "Exception:"
+    Write-Host $_.Exception.Message
+
+    if ($_.ErrorDetails -and $_.ErrorDetails.Message) {
+        Write-Host ""
+        Write-Host "GitHub API Response:"
+        Write-Host $_.ErrorDetails.Message
+    }
+
+    if ($_.Exception.Response) {
+
+        try {
+
+            $response = $_.Exception.Response
+
+            $stream = $response.GetResponseStream()
+
+            if ($stream) {
+
+                $reader = New-Object System.IO.StreamReader($stream)
+
+                $errorBody = $reader.ReadToEnd()
+
+                $reader.Close()
+
+                if ($errorBody) {
+
+                    Write-Host ""
+                    Write-Host "GitHub Response Body:"
+                    Write-Host $errorBody
+                }
+            }
+
+        }
+        catch {
+            Write-Warning "Unable to read API response body."
+        }
+    }
+
+    Write-Host ""
+    Write-Host "Payload:"
+    Write-Host $payload
+
     exit 1
 }

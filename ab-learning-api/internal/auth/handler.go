@@ -18,6 +18,7 @@ func NewController(service *Service) *Controller {
 func RegisterRoutes(mux *http.ServeMux) {
 	controller := NewController(NewService(NewRepository()))
 	mux.HandleFunc("/api/v1/auth/login", controller.Login)
+	mux.HandleFunc("/api/v1/auth/register", controller.Register)
 }
 
 func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
@@ -39,4 +40,25 @@ func (c *Controller) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.JSON(w, http.StatusOK, resp)
+}
+
+func (c *Controller) Register(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		httpx.JSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+
+	var req RegisterRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": "invalid body"})
+		return
+	}
+
+	resp, err := c.service.Register(req)
+	if err != nil {
+		httpx.JSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return
+	}
+
+	httpx.JSON(w, http.StatusCreated, resp)
 }

@@ -22,25 +22,32 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(seconds: 1), _route);
-  }
+// <<<<<<< design/tokens-update
+//     Future.delayed(const Duration(seconds: 1), () {
+//       if (!mounted) return;
+//       context.go('/onboarding');
+//     });
+// =======
+//     _timer = Timer(const Duration(seconds: 1), _route);
+//   }
 
-  /// Spec 01: session found -> Home, otherwise -> Onboarding.
-  Future<void> _route() async {
-    var signedIn = false;
-    try {
-      signedIn = await AppDependencies.authRepository.hasSession();
-    } catch (_) {
-      // Storage unavailable: treat as signed out.
-    }
-    if (!mounted) return;
-    context.go(signedIn ? '/home' : '/onboarding');
-  }
+//   /// Spec 01: session found -> Home, otherwise -> Onboarding.
+//   Future<void> _route() async {
+//     var signedIn = false;
+//     try {
+//       signedIn = await AppDependencies.authRepository.hasSession();
+//     } catch (_) {
+//       // Storage unavailable: treat as signed out.
+//     }
+//     if (!mounted) return;
+//     context.go(signedIn ? '/home' : '/onboarding');
+//   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+//   @override
+//   void dispose() {
+//     _timer?.cancel();
+//     super.dispose();
+// >>>>>>> main
   }
 
   @override
