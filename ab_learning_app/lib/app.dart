@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/router/app_router.dart';
-import 'core/theme/colors.dart';
+import 'core/theme/app_theme.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -11,11 +11,7 @@ class App extends StatelessWidget {
 
     return MaterialApp.router(
       title: 'AB LEARNING',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-        primaryColor: AppColors.primary,
-        scaffoldBackgroundColor: AppColors.background,
-      ),
+      theme: AppTheme.light,
       routerConfig: router,
     );
   }
