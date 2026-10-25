@@ -127,7 +127,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
-                      for (final c in _filteredAll.skip(_filter.isActive ? 0 : 2)) ...[
+                      for (final c
+                          in _filteredAll.skip(_filter.isActive ? 0 : 2)) ...[
                         CourseListTile(
                           course: c,
                           onTap: () => context.push('/course/${c.id}'),
@@ -167,7 +168,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
             child: ColoredBox(
               color: AppColors.background,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

@@ -16,7 +16,8 @@ class _CertificateScreenState extends State<CertificateScreen> {
   String get _certificateId =>
       'AB-${widget.courseName.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]+'), '-')}';
 
-  String get _verificationURL => 'https://ablearning.com/certificates/$_certificateId';
+  String get _verificationURL =>
+      'https://ablearning.com/certificates/$_certificateId';
 
   Future<void> _download() async {
     setState(() => _downloading = true);
@@ -24,17 +25,20 @@ class _CertificateScreenState extends State<CertificateScreen> {
     if (!mounted) return;
     setState(() => _downloading = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Certificate PDF download has been prepared.')),
+      const SnackBar(
+          content: Text('Certificate PDF download has been prepared.')),
     );
   }
 
   Future<void> _share() async {
     await Clipboard.setData(ClipboardData(
-      text: 'I completed ${widget.courseName} on AB LEARNING. Verify it here: $_verificationURL',
+      text:
+          'I completed ${widget.courseName} on AB LEARNING. Verify it here: $_verificationURL',
     ));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Certificate link copied — ready to share.')),
+      const SnackBar(
+          content: Text('Certificate link copied — ready to share.')),
     );
   }
 
@@ -56,30 +60,42 @@ class _CertificateScreenState extends State<CertificateScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.verified_rounded, color: Colors.green, size: 80),
+                const Icon(Icons.verified_rounded,
+                    color: Colors.green, size: 80),
                 const SizedBox(height: 16),
-                const Text('Certificate of Completion', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text('Certificate of Completion',
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
-                Text('This certifies that the learner has completed', style: TextStyle(color: Colors.grey[700])),
+                Text('This certifies that the learner has completed',
+                    style: TextStyle(color: Colors.grey[700])),
                 const SizedBox(height: 8),
                 Text(
                   widget.courseName,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w700),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                const Text('Issued by AB LEARNING', style: TextStyle(color: Colors.grey)),
+                const Text('Issued by AB LEARNING',
+                    style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 6),
-                Text('Certificate ID: $_certificateId', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                Text('Certificate ID: $_certificateId',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _downloading ? null : _download,
                     icon: _downloading
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
                         : const Icon(Icons.download_outlined),
-                    label: Text(_downloading ? 'Preparing PDF...' : 'Download PDF'),
+                    label: Text(
+                        _downloading ? 'Preparing PDF...' : 'Download PDF'),
                   ),
                 ),
                 const SizedBox(height: 10),

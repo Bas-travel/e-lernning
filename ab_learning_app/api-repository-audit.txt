@@ -1,0 +1,51 @@
+﻿lib\core\di\app_dependencies.dart:9: class AppDependencies {
+lib\core\di\app_dependencies.dart:11: static AuthRepository? _auth;
+lib\core\di\app_dependencies.dart:18: static AuthRepository get authRepository => _auth ??= ApiConfig.useMockAuth
+lib\core\di\app_dependencies.dart:19: ? MockAuthRepository()
+lib\core\di\app_dependencies.dart:20: : ApiAuthRepository(apiClient);
+lib\core\di\app_dependencies.dart:22: static set authRepository(AuthRepository value) => _auth = value;
+lib\core\network\api_client.dart:12: Dio(
+lib\core\network\api_client.dart:14: baseUrl: ApiConfig.baseUrl,
+lib\core\network\api_config.dart:4: /// `flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1`
+lib\core\network\api_config.dart:7: static const baseUrl = String.fromEnvironment(
+lib\core\network\api_config.dart:9: defaultValue: 'http://localhost:8080/api/v1',
+lib\core\network\api_exception.dart:23: factory ApiException.fromDio(DioException e) {
+lib\features\auth\data\auth_repository.dart:9: /// Auth operations used by the UI. Implementations: [ApiAuthRepository]
+lib\features\auth\data\auth_repository.dart:10: /// (Go backend, contract in 05-openapi.yaml) and [MockAuthRepository]
+lib\features\auth\data\auth_repository.dart:12: abstract class AuthRepository {
+lib\features\auth\data\auth_repository.dart:52: Future<AuthUser?> fetchProfile();
+lib\features\auth\data\auth_repository.dart:57: /// [AuthRepository] backed by the Go API.
+lib\features\auth\data\auth_repository.dart:58: class ApiAuthRepository implements AuthRepository {
+lib\features\auth\data\auth_repository.dart:59: ApiAuthRepository(this._client);
+lib\features\auth\data\auth_repository.dart:79: throw ApiException.fromDio(e);
+lib\features\auth\data\auth_repository.dart:198: Future<AuthUser?> fetchProfile() async {
+lib\features\auth\data\auth_repository.dart:208: final error = ApiException.fromDio(e);
+lib\features\auth\data\auth_repository.dart:225: /// In-memory [AuthRepository] for demos (`--dart-define=USE_MOCK_AUTH=true`)
+lib\features\auth\data\auth_repository.dart:227: class MockAuthRepository implements AuthRepository {
+lib\features\auth\data\auth_repository.dart:228: MockAuthRepository({this.latency = const Duration(milliseconds: 300)});
+lib\features\auth\data\auth_repository.dart:293: Future<AuthUser?> fetchProfile() async => _signedIn ? _user : null;
+lib\features\auth\presentation\forgot_password_screen.dart:44: await AppDependencies.authRepository.forgotPassword(email: _email.text);
+lib\features\auth\presentation\interests_screen.dart:52: await AppDependencies.authRepository.savePreferences(
+lib\features\auth\presentation\login_controller.dart:8: LoginController({AuthRepository? repository})
+lib\features\auth\presentation\login_controller.dart:9: : _repository = repository ?? AppDependencies.authRepository;
+lib\features\auth\presentation\login_controller.dart:11: final AuthRepository _repository;
+lib\features\auth\presentation\otp_screen.dart:91: // TODO(api): POST /api/v1/auth/verify-otp resend endpoint.
+lib\features\auth\presentation\otp_screen.dart:116: final repo = AppDependencies.authRepository;
+lib\features\auth\presentation\register_controller.dart:8: RegisterController({AuthRepository? repository})
+lib\features\auth\presentation\register_controller.dart:9: : _repository = repository ?? AppDependencies.authRepository;
+lib\features\auth\presentation\register_controller.dart:11: final AuthRepository _repository;
+lib\features\auth\presentation\register_screen.dart:67: final user = await AppDependencies.authRepository.register(
+lib\features\auth\presentation\splash_screen.dart:32: signedIn = await AppDependencies.authRepository.hasSession();
+lib\features\course\presentation\course_detail_screen.dart:13: /// TODO(api): replace with `GET /api/v1/courses/{id}`.
+lib\features\course\presentation\video_player_screen.dart:13: /// TODO(api): replace with `GET /api/v1/lessons/{id}`.
+lib\features\explore\data\course_catalog_sample.dart:6: /// TODO(api): replace with `GET /api/v1/courses` and `GET /api/v1/search?q=`.
+lib\features\home\presentation\home_sample_data.dart:7: /// TODO(api): replace with the `GET /api/v1/home` response once the repository
+lib\features\home\presentation\home_screen.dart:25: final user = AppDependencies.authRepository.currentUser;
+lib\features\learn\presentation\learn_sample_data.dart:5: /// Demo enrolments. TODO(api): `GET /api/v1/me/courses` (+ enrollment progress).
+lib\features\profile\presentation\edit_profile_screen.dart:21: final user = AppDependencies.authRepository.currentUser;
+lib\features\profile\presentation\profile_screen.dart:20: /// TODO(api): `GET /api/v1/me` (profile) and `GET /api/v1/gamification` (stats).
+lib\features\profile\presentation\profile_screen.dart:55: AuthUser? _user = AppDependencies.authRepository.currentUser;
+lib\features\profile\presentation\profile_screen.dart:64: final user = await AppDependencies.authRepository.fetchProfile();
+lib\features\profile\presentation\profile_screen.dart:74: await AppDependencies.authRepository.logout();
+lib\features\tutor\data\tutor_repository.dart:28: throw ApiException.fromDio(e);
+lib\features\tutor\presentation\ai_tutor_screen.dart:62: await AppDependencies.tutorRepository.ask(message, action: action);

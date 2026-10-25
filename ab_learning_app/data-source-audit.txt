@@ -1,0 +1,51 @@
+﻿lib\core\di\app_dependencies.dart:19: ? MockAuthRepository()
+lib\core\di\app_dependencies.dart:25: ? MockTutorRepository()
+lib\features\auth\data\auth_repository.dart:10: /// (Go backend, contract in 05-openapi.yaml) and [MockAuthRepository]
+lib\features\auth\data\auth_repository.dart:227: class MockAuthRepository implements AuthRepository {
+lib\features\auth\data\auth_repository.dart:228: MockAuthRepository({this.latency = const Duration(milliseconds: 300)});
+lib\features\auth\presentation\interests_screen.dart:11: // TODO(api): options come from `skills` / preferences; chips below are the
+lib\features\auth\presentation\otp_screen.dart:91: // TODO(api): POST /api/v1/auth/verify-otp resend endpoint.
+lib\features\checkout\presentation\checkout_screen.dart:21: /// TODO(api): `POST /orders` then `POST /payments` once ids line up.
+lib\features\community\presentation\community_screen.dart:21: /// Demo feed. TODO(api): `GET /community/posts`, `POST /community/posts`.
+lib\features\course\presentation\course_detail_screen.dart:13: /// TODO(api): replace with `GET /api/v1/courses/{id}`.
+lib\features\course\presentation\course_detail_screen.dart:42: /// Route parameter. TODO(api): fetch course data by this id.
+lib\features\course\presentation\video_player_screen.dart:13: /// TODO(api): replace with `GET /api/v1/lessons/{id}`.
+lib\features\course\presentation\video_player_screen.dart:155: // TODO(api): next lesson id comes from the lesson response.
+lib\features\explore\data\course_catalog_sample.dart:6: /// TODO(api): replace with `GET /api/v1/courses` and `GET /api/v1/search?q=`.
+lib\features\explore\data\course_catalog_sample.dart:125: /// TODO(api): send as query params to `GET /courses` instead.
+lib\features\home\presentation\home_sample_data.dart:7: /// TODO(api): replace with the `GET /api/v1/home` response once the repository
+lib\features\home\presentation\home_sample_data.dart:25: class HomeSampleData {
+lib\features\home\presentation\home_screen.dart:18: import 'home_sample_data.dart';
+lib\features\home\presentation\home_screen.dart:26: final name = user?.displayName ?? HomeSampleData.userName;
+lib\features\home\presentation\home_screen.dart:27: final initial = user?.initial ?? HomeSampleData.userInitial;
+lib\features\home\presentation\home_screen.dart:130: title: HomeSampleData.continueTitle,
+lib\features\home\presentation\home_screen.dart:131: extra: const AppProgressBar(value: HomeSampleData.continueProgress),
+lib\features\home\presentation\home_screen.dart:151: context.push('/player/${HomeSampleData.continueLessonId}'),
+lib\features\home\presentation\home_screen.dart:166: for (final course in HomeSampleData.recommended.take(2))
+lib\features\home\presentation\home_screen.dart:272: '${(HomeSampleData.careerProgress * 100).round()}%',
+lib\features\home\presentation\home_screen.dart:280: value: HomeSampleData.careerProgress,
+lib\features\home\presentation\home_screen.dart:295: for (final course in HomeSampleData.recommended)
+lib\features\home\presentation\home_screen.dart:336: title: HomeSampleData.liveTitle,
+lib\features\home\presentation\home_screen.dart:341: label: HomeSampleData.liveStartsIn,
+lib\features\home\presentation\home_screen.dart:480: '🪙 ${HomeSampleData.coins}',
+lib\features\learn\presentation\learn_sample_data.dart:5: /// Demo enrolments. TODO(api): `GET /api/v1/me/courses` (+ enrollment progress).
+lib\features\learn\presentation\learn_sample_data.dart:22: class LearnSampleData {
+lib\features\learn\presentation\learn_screen.dart:13: import 'learn_sample_data.dart';
+lib\features\learn\presentation\learn_screen.dart:48: for (final c in LearnSampleData.enrolled) ...[
+lib\features\learn\presentation\learn_screen.dart:125: for (final c in LearnSampleData.enrolled)
+lib\features\profile\presentation\certificates_screen.dart:7: import 'profile_sample_data.dart';
+lib\features\profile\presentation\certificates_screen.dart:9: /// TODO(api): `GET /certificates`, download via `/certificates/{id}/download`.
+lib\features\profile\presentation\certificates_screen.dart:19: for (final c in ProfileSampleData.certificates) ...[
+lib\features\profile\presentation\edit_profile_screen.dart:15: /// TODO(api): enable "บันทึก" once `PUT /me` exists.
+lib\features\profile\presentation\portfolio_screen.dart:8: import 'profile_sample_data.dart';
+lib\features\profile\presentation\portfolio_screen.dart:10: /// TODO(api): `GET /portfolio` / `PUT /portfolio`.
+lib\features\profile\presentation\portfolio_screen.dart:20: for (final p in ProfileSampleData.portfolio) ...[
+lib\features\profile\presentation\profile_sample_data.dart:2: /// TODO(api): `GET /wallet`, `GET /wallet/transactions`, `GET /certificates`,
+lib\features\profile\presentation\profile_sample_data.dart:42: class ProfileSampleData {
+lib\features\profile\presentation\profile_screen.dart:20: /// TODO(api): `GET /api/v1/me` (profile) and `GET /api/v1/gamification` (stats).
+lib\features\profile\presentation\settings_screen.dart:9: /// TODO(api): persist preferences (no settings endpoint in 05-openapi.yaml).
+lib\features\profile\presentation\wallet_screen.dart:7: import 'profile_sample_data.dart';
+lib\features\profile\presentation\wallet_screen.dart:30: formatBaht(ProfileSampleData.walletBalance),
+lib\features\profile\presentation\wallet_screen.dart:41: for (final t in ProfileSampleData.transactions) ...[
+lib\features\tutor\data\tutor_repository.dart:34: class MockTutorRepository implements TutorRepository {
+lib\features\tutor\data\tutor_repository.dart:35: MockTutorRepository({this.latency = const Duration(milliseconds: 600)});

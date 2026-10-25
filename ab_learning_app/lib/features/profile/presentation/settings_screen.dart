@@ -20,14 +20,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _autoplay = true;
   bool _wifiOnly = true;
 
-  Widget _switchRow(String label, String hint, bool value, ValueChanged<bool> onChanged) {
+  Widget _switchRow(
+      String label, String hint, bool value, ValueChanged<bool> onChanged) {
     return Row(
       children: [
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: AppTypography.base(13, weight: FontWeight.w600)),
+              Text(label,
+                  style: AppTypography.base(13, weight: FontWeight.w600)),
               const SizedBox(height: 2),
               Text(
                 hint,
@@ -38,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Switch(
           value: value,
-          activeColor: AppColors.primary,
+          activeThumbColor: AppColors.primary,
           onChanged: onChanged,
         ),
       ],
@@ -57,8 +59,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _switchRow('Push notification', 'เตือนบทเรียนและไลฟ์สด', _push,
                   (v) => setState(() => _push = v)),
               const Divider(height: 20),
-              _switchRow('อีเมลสรุปรายสัปดาห์', 'ความคืบหน้าและคอร์สแนะนำ', _email,
-                  (v) => setState(() => _email = v)),
+              _switchRow('อีเมลสรุปรายสัปดาห์', 'ความคืบหน้าและคอร์สแนะนำ',
+                  _email, (v) => setState(() => _email = v)),
             ],
           ),
         ),
@@ -66,11 +68,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         AppCard(
           child: Column(
             children: [
-              _switchRow('เล่นบทถัดไปอัตโนมัติ', 'ต่อวิดีโอเมื่อจบบทเรียน', _autoplay,
-                  (v) => setState(() => _autoplay = v)),
+              _switchRow('เล่นบทถัดไปอัตโนมัติ', 'ต่อวิดีโอเมื่อจบบทเรียน',
+                  _autoplay, (v) => setState(() => _autoplay = v)),
               const Divider(height: 20),
-              _switchRow('ดาวน์โหลดผ่าน Wi-Fi เท่านั้น', 'ประหยัดแพ็กเกจเน็ต', _wifiOnly,
-                  (v) => setState(() => _wifiOnly = v)),
+              _switchRow('ดาวน์โหลดผ่าน Wi-Fi เท่านั้น', 'ประหยัดแพ็กเกจเน็ต',
+                  _wifiOnly, (v) => setState(() => _wifiOnly = v)),
             ],
           ),
         ),
@@ -79,7 +81,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('ภาษา', style: AppTypography.base(13, weight: FontWeight.w600)),
+              Text('ภาษา',
+                  style: AppTypography.base(13, weight: FontWeight.w600)),
               Text(
                 'ไทย',
                 style: AppTypography.base(13, color: AppColors.textSecondary),
@@ -92,7 +95,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('เวอร์ชันแอป', style: AppTypography.base(13, weight: FontWeight.w600)),
+              Text('เวอร์ชันแอป',
+                  style: AppTypography.base(13, weight: FontWeight.w600)),
               Text(
                 '1.0.0',
                 style: AppTypography.base(13, color: AppColors.textSecondary),

@@ -46,11 +46,14 @@ class WalletScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.title, style: AppTypography.base(13, weight: FontWeight.w600)),
+                      Text(t.title,
+                          style:
+                              AppTypography.base(13, weight: FontWeight.w600)),
                       const SizedBox(height: 2),
                       Text(
                         t.date,
-                        style: AppTypography.base(11, color: AppColors.textSecondary),
+                        style: AppTypography.base(11,
+                            color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -61,7 +64,8 @@ class WalletScreen extends StatelessWidget {
                   style: AppTypography.base(
                     13,
                     weight: FontWeight.w700,
-                    color: t.amount > 0 ? AppColors.pillSuccessFg : AppColors.text,
+                    color:
+                        t.amount > 0 ? AppColors.pillSuccessFg : AppColors.text,
                   ),
                 ),
               ],

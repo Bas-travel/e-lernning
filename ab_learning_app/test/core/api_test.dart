@@ -4,7 +4,7 @@ import 'package:ab_learning_app/core/network/api_client.dart';
 import 'package:ab_learning_app/core/network/api_exception.dart';
 import 'package:ab_learning_app/core/network/token_store.dart';
 import 'package:ab_learning_app/features/auth/data/auth_repository.dart';
-import 'package:ab_learning_app/features/auth/domain/auth_models.dart';
+// import 'package:ab_learning_app/features/auth/domain/auth_models.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -146,7 +146,8 @@ void main() {
   group('ApiAuthRepository other endpoints', () {
     test('register posts the documented fields', () async {
       final t = _setup(
-        (_) => _json('{"id":5,"email":"n@e.w","first_name":"N","last_name":"W"}', 201),
+        (_) => _json(
+            '{"id":5,"email":"n@e.w","first_name":"N","last_name":"W"}', 201),
       );
       final user = await t.repo.register(
         firstName: ' N ',
@@ -162,7 +163,8 @@ void main() {
       expect(body['phone'], '0812345678');
     });
 
-    test('register omits an empty phone and surfaces server messages', () async {
+    test('register omits an empty phone and surfaces server messages',
+        () async {
       final t = _setup((_) => _json('{"message":"email taken"}', 409));
       await expectLater(
         t.repo.register(
@@ -173,7 +175,8 @@ void main() {
           password: 'pw',
         ),
         throwsA(
-          isA<ApiException>().having((e) => e.message, 'message', 'email taken'),
+          isA<ApiException>()
+              .having((e) => e.message, 'message', 'email taken'),
         ),
       );
       expect((t.adapter.last.data as Map).containsKey('phone'), isFalse);

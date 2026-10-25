@@ -54,9 +54,8 @@ class AuthScaffold extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(AppRadius.modal),
-                    boxShadow: tinted
-                        ? AppShadows.authCard
-                        : AppShadows.neutralCard,
+                    boxShadow:
+                        tinted ? AppShadows.authCard : AppShadows.neutralCard,
                   ),
                   child: builder(context, true),
                 ),

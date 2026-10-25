@@ -1,21 +1,32 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:ab_learning_app/app.dart';
+import 'package:ab_learning_app/core/di/app_dependencies.dart';
+import 'package:ab_learning_app/features/auth/data/auth_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:ab_learning_app/app.dart';
-
 void main() {
-  testWidgets('app renders its initial splash experience',
-      (WidgetTester tester) async {
+  setUp(() {
+    AppDependencies.authRepository =
+        MockAuthRepository(latency: Duration.zero);
+  });
+
+  tearDown(() {
+    AppDependencies.reset();
+  });
+
+  testWidgets('app shows splash then onboarding', (tester) async {
     await tester.pumpWidget(const App());
+
     expect(find.text('AB LEARNING'), findsOneWidget);
+
+    // Advance through the splash timer and allow onboarding to render.
     await tester.pump(const Duration(seconds: 1));
-    await tester.pumpAndSettle();
-    expect(find.text('Onboarding slides placeholder'), findsOneWidget);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.text('Build real skills, not just watch videos'),
+      findsOneWidget,
+    );
+    expect(find.text('Skip'), findsOneWidget);
   });
 }

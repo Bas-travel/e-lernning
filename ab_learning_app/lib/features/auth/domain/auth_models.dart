@@ -29,7 +29,8 @@ class AuthUser {
     return source.isEmpty ? '?' : source.substring(0, 1).toUpperCase();
   }
 
-  factory AuthUser.fromJson(Map<String, dynamic> json, {String? fallbackEmail}) {
+  factory AuthUser.fromJson(Map<String, dynamic> json,
+      {String? fallbackEmail}) {
     return AuthUser(
       id: (json['id'] as num?)?.toInt(),
       email: (json['email'] as String?) ?? fallbackEmail ?? '',

@@ -58,8 +58,8 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
       _controller.clear();
     });
     try {
-      final reply = await AppDependencies.tutorRepository
-          .ask(message, action: action);
+      final reply =
+          await AppDependencies.tutorRepository.ask(message, action: action);
       if (!mounted) return;
       setState(() => _messages.add(_Message(reply, fromUser: false)));
     } on ApiException catch (e) {
@@ -97,23 +97,77 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
     );
   }
 
+//   @override
+//   Widget build(BuildContext context) {
+//     return SubPageScaffold(
+//       title: 'AI Tutor',
+//       fallbackRoute: '/home',
+//       children: [
+//         for (final m in _messages) _bubble(m),
+//         if (_sending)
+//           Padding(
+//             padding: const EdgeInsets.only(bottom: 8),
+//             child: Text(
+//               'กำลังพิมพ์...',
+//               style: AppTypography.base(12, color: AppColors.textSecondary),
+//             ),
+//           ),
+//         if (_error != null) InlineBanner(message: _error!),
+//       ],
+//       bottom: Container(
+//         decoration: const BoxDecoration(
+//           color: Colors.white,
+//           border: Border(top: BorderSide(color: AppColors.border)),
+//         ),
+//         padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             SingleChildScrollView(
+//               scrollDirection: Axis.horizontal,
+//               child: Row(
+//                 children: [
+//                   for (final q in _quickActions) ...[
+//                     AppChip(
+//                       label: q.label,
+//                       onTap: () => _send(action: q.action, text: q.label),
+//                     ),
+//                     const SizedBox(width: 6),
+//                   ],
+//                 ],
+//               ),
+//             ),
+//             const SizedBox(height: 8),
+//             Row(
+//               children: [
+//                 Expanded(
+//                   child: TextField(
+//                     controller: _controller,
+//                     textInputAction: TextInputAction.send,
+//                     onSubmitted: (_) => _send(),
+//                     decoration: const InputDecoration(hintText: 'พิมพ์คำถาม...'),
+//                   ),
+//                 ),
+//                 const SizedBox(width: 8),
+//                 IconButton.filled(
+//                   tooltip: 'ส่ง',
+//                   onPressed: _sending ? null : () => _send(),
+//                   icon: const Icon(Icons.send, size: 18),
+//                 ),
+//               ],
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
   @override
   Widget build(BuildContext context) {
     return SubPageScaffold(
       title: 'AI Tutor',
       fallbackRoute: '/home',
-      children: [
-        for (final m in _messages) _bubble(m),
-        if (_sending)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              'กำลังพิมพ์...',
-              style: AppTypography.base(12, color: AppColors.textSecondary),
-            ),
-          ),
-        if (_error != null) InlineBanner(message: _error!),
-      ],
       bottom: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -145,7 +199,9 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
                     controller: _controller,
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _send(),
-                    decoration: const InputDecoration(hintText: 'พิมพ์คำถาม...'),
+                    decoration: const InputDecoration(
+                      hintText: 'พิมพ์คำถาม...',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -159,6 +215,21 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           ],
         ),
       ),
+      children: [
+        for (final m in _messages) _bubble(m),
+        if (_sending)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              'กำลังพิมพ์...',
+              style: AppTypography.base(
+                12,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+        if (_error != null) InlineBanner(message: _error!),
+      ],
     );
   }
 }

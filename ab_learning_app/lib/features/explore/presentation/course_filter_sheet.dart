@@ -63,7 +63,8 @@ class _FilterSheetState extends State<_FilterSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('ตัวกรอง', style: AppTypography.base(16, weight: FontWeight.w700)),
+            Text('ตัวกรอง',
+                style: AppTypography.base(16, weight: FontWeight.w700)),
             _title('ราคา'),
             Wrap(
               spacing: 8,
@@ -96,7 +97,8 @@ class _FilterSheetState extends State<_FilterSheet> {
                 Expanded(
                   child: AppButton.secondary(
                     label: 'ล้าง',
-                    onPressed: () => Navigator.of(context).pop(const CourseFilter()),
+                    onPressed: () =>
+                        Navigator.of(context).pop(const CourseFilter()),
                   ),
                 ),
                 const SizedBox(width: 10),

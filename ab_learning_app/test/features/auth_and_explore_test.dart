@@ -10,8 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/test_helpers.dart';
 
-void _useMobileViewport(WidgetTester tester) =>
-    useViewport(tester, mobileSize);
+void _useMobileViewport(WidgetTester tester) => useViewport(tester, mobileSize);
 
 void main() {
   installMockAuth();

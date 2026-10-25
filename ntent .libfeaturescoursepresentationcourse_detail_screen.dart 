@@ -1,0 +1,9 @@
+warning: in the working copy of 'ab_learning_app/lib/app.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ab_learning_app/lib/core/router/app_router.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ab_learning_app/pubspec.lock', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'ab_learning_app/pubspec.yaml', LF will be replaced by CRLF the next time Git touches it
+ ab_learning_app/lib/app.dart                    |  57 [32m+[m[31m----[m
+ ab_learning_app/lib/core/router/app_router.dart | 282 [32m+++++++++++++[m[31m-----------[m
+ ab_learning_app/pubspec.lock                    |  75 [32m++++++[m[31m-[m
+ ab_learning_app/pubspec.yaml                    |  10 [32m+[m[31m-[m
+ 4 files changed, 230 insertions(+), 194 deletions(-)

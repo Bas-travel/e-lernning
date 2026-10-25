@@ -180,7 +180,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: ColoredBox(
               color: AppColors.background,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 28),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 60, vertical: 28),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -229,7 +230,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               children: [
-                                for (var i = 0; i < _desktopTabs.length; i++) ...[
+                                for (var i = 0;
+                                    i < _desktopTabs.length;
+                                    i++) ...[
                                   if (i > 0) const SizedBox(width: 8),
                                   AppChip(
                                     label: _desktopTabs[i],

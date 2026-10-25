@@ -47,7 +47,8 @@ class AppButton extends StatelessWidget {
     this.expand = false,
     this.loading = false,
     this.fontSize = 12,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    EdgeInsets padding =
+        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
   })  : _kind = _AppButtonKind.inverse,
         _padding = padding;
 
@@ -71,9 +72,8 @@ class AppButton extends StatelessWidget {
     );
     final VoidCallback? effectiveOnPressed = loading ? null : onPressed;
 
-    final Color spinnerColor = _kind == _AppButtonKind.primary
-        ? Colors.white
-        : AppColors.primary;
+    final Color spinnerColor =
+        _kind == _AppButtonKind.primary ? Colors.white : AppColors.primary;
     final Widget child = loading
         ? SizedBox(
             width: 16,

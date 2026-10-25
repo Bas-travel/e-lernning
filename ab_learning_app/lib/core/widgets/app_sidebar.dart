@@ -57,7 +57,8 @@ class AppSidebar extends StatelessWidget {
                     selected: item.key == activeKey,
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: onSelect == null ? null : () => onSelect!(item.key),
+                      onTap:
+                          onSelect == null ? null : () => onSelect!(item.key),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,

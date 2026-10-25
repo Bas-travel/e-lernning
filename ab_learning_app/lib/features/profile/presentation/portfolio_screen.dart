@@ -22,7 +22,8 @@ class PortfolioScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(p.title, style: AppTypography.base(14, weight: FontWeight.w700)),
+                Text(p.title,
+                    style: AppTypography.base(14, weight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 Text(
                   p.summary,

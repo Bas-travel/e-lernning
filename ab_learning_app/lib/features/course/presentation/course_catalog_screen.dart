@@ -35,7 +35,8 @@ class CourseCatalogScreen extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
                 title: Text(course['title'] as String),
-                subtitle: Text('${course['category']} • ${course['level']} • ฿${course['price']}'),
+                subtitle: Text(
+                    '${course['category']} • ${course['level']} • ฿${course['price']}'),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded),
                 onTap: () => context.go('/course/${course['id']}'),
               ),

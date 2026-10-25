@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'certificate_screen.dart';
 
 class QuizResultScreen extends StatelessWidget {
-  const QuizResultScreen({super.key, required this.score, required this.total, required this.percentage});
+  const QuizResultScreen(
+      {super.key,
+      required this.score,
+      required this.total,
+      required this.percentage});
 
   final int score;
   final int total;
@@ -29,7 +33,8 @@ class QuizResultScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 passed ? 'Excellent!' : 'Good effort!',
-                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Text(
@@ -41,7 +46,8 @@ class QuizResultScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const CertificateScreen(courseName: 'Go Backend Professional'),
+                      builder: (_) => const CertificateScreen(
+                          courseName: 'Go Backend Professional'),
                     ),
                   ),
                   child: const Text('View Certificate'),

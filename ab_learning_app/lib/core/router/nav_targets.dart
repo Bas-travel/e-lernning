@@ -16,7 +16,7 @@ class NavTargets {
     'explore': '/explore',
     'learn': '/learn',
     'community': '/community',
-    'ai': '/tutor',
+    'ai tutor': '/ai-tutor',
     'portfolio': '/portfolio',
     'wallet': '/wallet',
     'settings': '/settings',

@@ -15,17 +15,15 @@ class AppDependencies {
   static ApiClient get apiClient =>
       _client ??= ApiClient(tokenStore: PersistentTokenStore());
 
-  static AuthRepository get authRepository =>
-      _auth ??= ApiConfig.useMockAuth
-          ? MockAuthRepository()
-          : ApiAuthRepository(apiClient);
+  static AuthRepository get authRepository => _auth ??= ApiConfig.useMockAuth
+      ? MockAuthRepository()
+      : ApiAuthRepository(apiClient);
 
   static set authRepository(AuthRepository value) => _auth = value;
 
-  static TutorRepository get tutorRepository =>
-      _tutor ??= ApiConfig.useMockAuth
-          ? MockTutorRepository()
-          : ApiTutorRepository(apiClient);
+  static TutorRepository get tutorRepository => _tutor ??= ApiConfig.useMockAuth
+      ? MockTutorRepository()
+      : ApiTutorRepository(apiClient);
 
   static set tutorRepository(TutorRepository value) => _tutor = value;
 

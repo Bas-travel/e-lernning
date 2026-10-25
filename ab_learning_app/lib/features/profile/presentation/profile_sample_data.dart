@@ -43,17 +43,35 @@ class ProfileSampleData {
   static const walletBalance = 1250;
 
   static const transactions = <WalletTransaction>[
-    WalletTransaction(title: 'เติมเงินผ่าน PromptPay', date: '12 ต.ค. 2026', amount: 2000),
-    WalletTransaction(title: 'ซื้อคอร์ส Prompt Engineering', date: '10 ต.ค. 2026', amount: -1490),
-    WalletTransaction(title: 'โบนัสเรียนต่อเนื่อง 14 วัน', date: '2 ต.ค. 2026', amount: 100),
-    WalletTransaction(title: 'ซื้อคอร์ส SQL Masterclass', date: '28 ก.ย. 2026', amount: -1290),
-    WalletTransaction(title: 'เติมเงินผ่านบัตร', date: '27 ก.ย. 2026', amount: 1930),
+    WalletTransaction(
+        title: 'เติมเงินผ่าน PromptPay', date: '12 ต.ค. 2026', amount: 2000),
+    WalletTransaction(
+        title: 'ซื้อคอร์ส Prompt Engineering',
+        date: '10 ต.ค. 2026',
+        amount: -1490),
+    WalletTransaction(
+        title: 'โบนัสเรียนต่อเนื่อง 14 วัน', date: '2 ต.ค. 2026', amount: 100),
+    WalletTransaction(
+        title: 'ซื้อคอร์ส SQL Masterclass',
+        date: '28 ก.ย. 2026',
+        amount: -1290),
+    WalletTransaction(
+        title: 'เติมเงินผ่านบัตร', date: '27 ก.ย. 2026', amount: 1930),
   ];
 
   static const certificates = <CertificateItem>[
-    CertificateItem(course: 'Go Backend Masterclass', issued: '5 ต.ค. 2026', code: 'AB-GO-20261005'),
-    CertificateItem(course: 'SQL Masterclass', issued: '18 ก.ย. 2026', code: 'AB-SQL-20260918'),
-    CertificateItem(course: 'Prompt Engineering', issued: '1 ก.ย. 2026', code: 'AB-PE-20260901'),
+    CertificateItem(
+        course: 'Go Backend Masterclass',
+        issued: '5 ต.ค. 2026',
+        code: 'AB-GO-20261005'),
+    CertificateItem(
+        course: 'SQL Masterclass',
+        issued: '18 ก.ย. 2026',
+        code: 'AB-SQL-20260918'),
+    CertificateItem(
+        course: 'Prompt Engineering',
+        issued: '1 ก.ย. 2026',
+        code: 'AB-PE-20260901'),
   ];
 
   static const portfolio = <PortfolioItem>[

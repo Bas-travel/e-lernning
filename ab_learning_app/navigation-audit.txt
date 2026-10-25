@@ -1,0 +1,56 @@
+﻿lib\core\router\nav_targets.dart:25: static void onTab(BuildContext context, int index) {
+lib\core\router\nav_targets.dart:27: if (route != null) context.go(route);
+lib\core\router\nav_targets.dart:30: static void onSidebar(BuildContext context, String key) {
+lib\core\router\nav_targets.dart:32: if (route != null) context.go(route);
+lib\core\widgets\sub_page_scaffold.dart:35: context.go(fallbackRoute);
+lib\features\auth\presentation\forgot_password_screen.dart:105: onPressed: () => context.go('/login'),
+lib\features\auth\presentation\interests_screen.dart:63: context.go('/home');
+lib\features\auth\presentation\login_screen.dart:44: context.go('/home');
+lib\features\auth\presentation\login_screen.dart:232: onTap: () => context.push('/forgot-password'),
+lib\features\auth\presentation\login_screen.dart:293: onTap: () => context.push('/register'),
+lib\features\auth\presentation\onboarding_screen.dart:71: context.go('/login');
+lib\features\auth\presentation\onboarding_screen.dart:80: void _skip() => context.go('/login');
+lib\features\auth\presentation\onboarding_screen.dart:242: context.go('/login');
+lib\features\auth\presentation\otp_screen.dart:104: context.go('/interests');
+lib\features\auth\presentation\otp_screen.dart:130: context.go('/interests');
+lib\features\auth\presentation\register_screen.dart:75: context.go(
+lib\features\auth\presentation\register_screen.dart:251: onTap: () => context.go('/login'),
+lib\features\auth\presentation\splash_screen.dart:39: context.go(signedIn ? '/home' : '/onboarding');
+lib\features\checkout\presentation\checkout_screen.dart:73: onPressed: () => context.go('/learn'),
+lib\features\community\presentation\community_screen.dart:81: onTap: (i) => NavTargets.onTab(context, i),
+lib\features\community\presentation\community_screen.dart:90: onSelect: (k) => NavTargets.onSidebar(context, k),
+lib\features\course\presentation\certificate_screen.dart:112: onPressed: () => Navigator.of(context).pop(),
+lib\features\course\presentation\course_back_button.dart:12: if (!Navigator.of(context).canPop()) return const SizedBox.shrink();
+lib\features\course\presentation\course_back_button.dart:20: onTap: () => Navigator.of(context).maybePop(),
+lib\features\course\presentation\course_catalog_screen.dart:41: onTap: () => context.go('/course/${course['id']}'),
+lib\features\course\presentation\course_detail_screen.dart:379: lesson.locked ? null : () => context.push('/player/$_demoLessonId'),
+lib\features\course\presentation\quiz_result_screen.dart:47: onPressed: () => Navigator.of(context).push(
+lib\features\course\presentation\quiz_result_screen.dart:57: onPressed: () => Navigator.of(context).pop(),
+lib\features\course\presentation\quiz_screen.dart:52: context.go(
+lib\features\explore\presentation\course_filter_sheet.dart:101: Navigator.of(context).pop(const CourseFilter()),
+lib\features\explore\presentation\course_filter_sheet.dart:108: onPressed: () => Navigator.of(context)
+lib\features\explore\presentation\explore_screen.dart:31: void _openSearch() => context.push('/search');
+lib\features\explore\presentation\explore_screen.dart:134: onTap: () => context.push('/course/${c.id}'),
+lib\features\explore\presentation\explore_screen.dart:149: onTap: (i) => NavTargets.onTab(context, i),
+lib\features\explore\presentation\explore_screen.dart:165: onSelect: (k) => NavTargets.onSidebar(context, k),
+lib\features\explore\presentation\explore_screen.dart:227: onTap: () => context.push('/course/${c.id}'),
+lib\features\explore\presentation\search_screen.dart:42: if (Navigator.of(context).canPop()) {
+lib\features\explore\presentation\search_screen.dart:43: Navigator.of(context).pop();
+lib\features\explore\presentation\search_screen.dart:45: context.go('/explore');
+lib\features\explore\presentation\search_screen.dart:104: onTap: () => context.push('/course/${c.id}'),
+lib\features\explore\presentation\search_screen.dart:126: onSelect: (k) => NavTargets.onSidebar(context, k),
+lib\features\explore\presentation\search_screen.dart:173: onTap: () => context.push('/course/${c.id}'),
+lib\features\home\presentation\home_screen.dart:115: onTap: (index) => NavTargets.onTab(context, index),
+lib\features\home\presentation\home_screen.dart:151: context.push('/player/${HomeSampleData.continueLessonId}'),
+lib\features\home\presentation\home_screen.dart:199: onSelect: (key) => NavTargets.onSidebar(context, key),
+lib\features\home\presentation\home_screen.dart:329: onTap: () => context.push('/course/${course.id}'),
+lib\features\home\presentation\home_screen.dart:444: onPressed: () => context.push('/ai-tutor'),
+lib\features\home\presentation\home_screen.dart:492: onTap: () => context.push('/profile'),
+lib\features\learn\presentation\learn_screen.dart:31: context.push('/player/${c.nextLessonId}');
+lib\features\learn\presentation\learn_screen.dart:93: onTap: (i) => NavTargets.onTab(context, i),
+lib\features\learn\presentation\learn_screen.dart:106: onSelect: (k) => NavTargets.onSidebar(context, k),
+lib\features\profile\presentation\profile_screen.dart:76: context.go('/login');
+lib\features\profile\presentation\profile_screen.dart:94: context.go(route);
+lib\features\profile\presentation\profile_screen.dart:96: context.push(route);
+lib\features\profile\presentation\profile_screen.dart:163: onTap: (i) => NavTargets.onTab(context, i),
+lib\features\profile\presentation\profile_screen.dart:177: onSelect: (k) => NavTargets.onSidebar(context, k),

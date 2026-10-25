@@ -19,16 +19,16 @@ class ApiClient {
               ),
             ) {
     this.dio.interceptors.add(
-          InterceptorsWrapper(
-            onRequest: (options, handler) async {
-              final token = await tokenStore.readAccessToken();
-              if (token != null && token.isNotEmpty) {
-                options.headers['Authorization'] = 'Bearer $token';
-              }
-              handler.next(options);
-            },
-          ),
-        );
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await tokenStore.readAccessToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        },
+      ),
+    );
   }
 
   final TokenStore tokenStore;

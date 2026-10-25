@@ -23,17 +23,21 @@ Widget _app(String initial) {
     routerConfig: GoRouter(
       initialLocation: initial,
       routes: [
-        GoRoute(path: '/checkout/:id', builder: (_, s) {
-          return CheckoutScreen(courseId: s.pathParameters['id'] ?? '');
-        }),
-        GoRoute(path: '/community', builder: (_, __) => const CommunityScreen()),
+        GoRoute(
+            path: '/checkout/:id',
+            builder: (_, s) {
+              return CheckoutScreen(courseId: s.pathParameters['id'] ?? '');
+            }),
+        GoRoute(
+            path: '/community', builder: (_, __) => const CommunityScreen()),
         GoRoute(path: '/tutor', builder: (_, __) => const AiTutorScreen()),
         GoRoute(path: '/wallet', builder: (_, __) => const WalletScreen()),
         GoRoute(
           path: '/certificates',
           builder: (_, __) => const CertificatesScreen(),
         ),
-        GoRoute(path: '/portfolio', builder: (_, __) => const PortfolioScreen()),
+        GoRoute(
+            path: '/portfolio', builder: (_, __) => const PortfolioScreen()),
         GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
         GoRoute(path: '/help', builder: (_, __) => const HelpCenterScreen()),
         GoRoute(
