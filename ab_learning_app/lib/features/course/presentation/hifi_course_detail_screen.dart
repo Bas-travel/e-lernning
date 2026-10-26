@@ -20,7 +20,8 @@ const _outcomes = <String>[
 ];
 
 class _LessonRow {
-  const _LessonRow(this.prefix, this.title, this.duration, {this.locked = false});
+  const _LessonRow(this.prefix, this.title, this.duration,
+      {this.locked = false});
 
   final String prefix;
   final String title;
@@ -47,8 +48,8 @@ class HifiCourseDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ResponsiveBuilder(
-        mobile: (_) => const _CourseMobile(),
-        desktop: (_) => const _CourseDesktop(),
+        mobile: (_) => _CourseMobile(courseId: courseId),
+        desktop: (_) => _CourseDesktop(courseId: courseId),
       ),
     );
   }
@@ -57,7 +58,9 @@ class HifiCourseDetailScreen extends StatelessWidget {
 // ---------------------------------------------------------------- mobile
 
 class _CourseMobile extends StatelessWidget {
-  const _CourseMobile();
+  final String courseId;
+
+  const _CourseMobile({required this.courseId});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +74,8 @@ class _CourseMobile extends StatelessWidget {
                 children: [
                   Container(
                     height: 200,
-                    decoration: const BoxDecoration(gradient: AppGradients.brand),
+                    decoration:
+                        const BoxDecoration(gradient: AppGradients.brand),
                     child: const SafeArea(
                       bottom: false,
                       child: Align(
@@ -87,7 +91,8 @@ class _CourseMobile extends StatelessWidget {
                       children: [
                         Text(
                           _courseTitle,
-                          style: AppTypography.base(17, weight: FontWeight.w700),
+                          style:
+                              AppTypography.base(17, weight: FontWeight.w700),
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -143,7 +148,7 @@ class _CourseMobile extends StatelessWidget {
               child: CenteredContent(
                 child: AppButton.primary(
                   label: 'ซื้อคอร์สนี้เลย — ฿2,990',
-                  onPressed: () => context.push('/checkout/${widget.courseId}'),
+                  onPressed: () => context.push('/checkout/${courseId}'),
                   expand: true,
                 ),
               ),
@@ -158,7 +163,9 @@ class _CourseMobile extends StatelessWidget {
 // --------------------------------------------------------------- desktop
 
 class _CourseDesktop extends StatelessWidget {
-  const _CourseDesktop();
+  final String courseId;
+
+  const _CourseDesktop({required this.courseId});
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +233,9 @@ class _CourseDesktop extends StatelessWidget {
             const SizedBox(width: 32),
             SizedBox(
               width: 320,
-              child: const SingleChildScrollView(child: _PurchaseCard()),
+              child: SingleChildScrollView(
+                child: _PurchaseCard(courseId: courseId),
+              ),
             ),
           ],
         ),
@@ -236,7 +245,9 @@ class _CourseDesktop extends StatelessWidget {
 }
 
 class _PurchaseCard extends StatelessWidget {
-  const _PurchaseCard();
+  final String courseId;
+
+  const _PurchaseCard({required this.courseId});
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +291,7 @@ class _PurchaseCard extends StatelessWidget {
           // TODO(nav): no Cart screen yet, so "เพิ่มลงตะกร้า" stays inactive.
           AppButton.primary(
             label: 'ซื้อคอร์สนี้เลย',
-            onPressed: () => context.push('/checkout/${widget.courseId}'),
+            onPressed: () => context.push('/checkout/$courseId'),
             expand: true,
           ),
           const SizedBox(height: 8),
@@ -374,9 +385,8 @@ class _CurriculumCard extends StatelessWidget {
     final color = lesson.locked ? AppColors.textSecondary : AppColors.text;
     return AppCard(
       // Spec 12: tapping an unlocked lesson row navigates straight to the player.
-      onTap: lesson.locked
-          ? null
-          : () => context.push('/player/$_demoLessonId'),
+      onTap:
+          lesson.locked ? null : () => context.push('/player/$_demoLessonId'),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
