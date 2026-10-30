@@ -7,12 +7,12 @@ import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_avatar.dart';
 import '../../../core/widgets/app_bottom_nav.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/app_progress_bar.dart';
 import '../../../core/widgets/app_sidebar.dart';
-import '../../../core/widgets/kpi_card.dart';
+import '../../../core/widgets/stat_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../auth/domain/auth_models.dart';
 
@@ -248,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             columns: 3,
                             children: [
                               for (final s in _stats)
-                                KpiCard(label: s.label, value: s.value),
+                                StatCard(label: s.label, value: s.value),
                             ],
                           ),
                         ],

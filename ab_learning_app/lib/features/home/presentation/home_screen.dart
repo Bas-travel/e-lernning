@@ -8,11 +8,11 @@ import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_avatar.dart';
 import '../../../core/widgets/app_bottom_nav.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_progress_bar.dart';
 import '../../../core/widgets/app_sidebar.dart';
-import '../../../core/widgets/course_card.dart';
+import '../../../core/widgets/gradient_course_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../core/widgets/status_pill.dart';
 import 'home_sample_data.dart';
@@ -72,36 +72,35 @@ class _HomeMobile extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
+          const Expanded(
             child: SingleChildScrollView(
               child: CenteredContent(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       child: _HeroCard(
                         titleSize: 14,
                         subtitleSize: 11.5,
                         subtitle: 'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ',
-                        buttonPadding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
+                        buttonPadding:
+                            EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         buttonFontSize: 12,
                         titleGap: 4,
                         subtitleGap: 10,
                       ),
                     ),
-                    const _SectionTitle('เรียนต่อ', horizontalPadding: 16),
-                    const _ContinueRow(),
-                    const _SectionTitle('แนะนำสำหรับคุณ',
-                        horizontalPadding: 16),
-                    const _RecommendedRow(),
-                    const _SectionTitle(
+                    _SectionTitle('เรียนต่อ', horizontalPadding: 16),
+                    _ContinueRow(),
+                    _SectionTitle('แนะนำสำหรับคุณ', horizontalPadding: 16),
+                    _RecommendedRow(),
+                    _SectionTitle(
                       'Live กำลังจะเริ่ม',
                       horizontalPadding: 16,
                     ),
-                    const _LiveRow(),
-                    const SizedBox(height: 16),
+                    _LiveRow(),
+                    SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -125,15 +124,18 @@ class _ContinueRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return _HScroll(
       children: [
-        CourseCard(
+        GradientCourseCard(
           width: 230,
           title: HomeSampleData.continueTitle,
           extra: const AppProgressBar(value: HomeSampleData.continueProgress),
           meta: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Flexible(
-                child: Text('68% เสร็จแล้ว', overflow: TextOverflow.ellipsis),
+              Flexible(
+                child: Text(
+                  '${(HomeSampleData.continueProgress * 100).round()}% เสร็จแล้ว',
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(width: 8),
               Text(
@@ -238,14 +240,14 @@ class _HomeDesktop extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
+                          const Expanded(
                             flex: 2,
                             child: _HeroCard(
                               titleSize: 16,
                               subtitleSize: 12.5,
                               subtitle:
                                   'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณแบบเฉพาะบุคคล',
-                              buttonPadding: const EdgeInsets.symmetric(
+                              buttonPadding: EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 9,
                               ),
@@ -318,7 +320,7 @@ Widget _recommendedCard(
   HomeCourse course, {
   double? width,
 }) {
-  return CourseCard(
+  return GradientCourseCard(
     width: width,
     title: course.title,
     gradient: course.gradient,
@@ -331,7 +333,7 @@ Widget _recommendedCard(
 }
 
 Widget _liveCard({double? width}) {
-  return CourseCard(
+  return GradientCourseCard(
     width: width,
     title: HomeSampleData.liveTitle,
     gradient: AppGradients.live,

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/di/app_dependencies.dart';
-import '../../../core/network/api_exception.dart';
-import '../data/auth_repository.dart';
+import '../../../core/network/rest_exception.dart';
+import '../data/account_repository.dart';
 
 class LoginController extends ChangeNotifier {
-  LoginController({AuthRepository? repository})
+  LoginController({AccountRepository? repository})
       : _repository = repository ?? AppDependencies.authRepository;
 
-  final AuthRepository _repository;
+  final AccountRepository _repository;
 
   static const missingFieldsMessage = 'กรุณากรอกอีเมลหรือเบอร์โทร และรหัสผ่าน';
   static const unexpectedMessage = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่';
@@ -51,7 +51,7 @@ class LoginController extends ChangeNotifier {
         remember: remember,
       );
       return true;
-    } on ApiException catch (e) {
+    } on RestException catch (e) {
       _errorMessage = e.message;
       return false;
     } catch (_) {

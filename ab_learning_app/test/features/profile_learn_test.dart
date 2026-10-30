@@ -70,21 +70,17 @@ testWidgets('profile shows the signed-in user', (tester) async {
   useViewport(tester, mobileSize);
 
   final repository = AppDependencies.authRepository;
-  print('CHECK 1: repository type = ${repository.runtimeType}');
-  print('CHECK 2: starting login');
+
 
   final loginFuture = repository.login(
     identifier: 'real@user.test',
     password: 'pw',
   );
 
-  print('CHECK 3: login future created');
+  await tester.pump(const Duration(milliseconds: 300));
 
-  final session = await loginFuture.timeout(
-    const Duration(seconds: 5),
-  );
+  final session = await loginFuture;
 
-  print('CHECK 4: login completed');
   expect(session.user?.email, 'real@user.test');
 
   await tester.pumpWidget(_router('/profile'));
@@ -92,17 +88,20 @@ testWidgets('profile shows the signed-in user', (tester) async {
   await tester.pump(const Duration(milliseconds: 500));
 
   expect(find.text('real@user.test'), findsNWidgets(2));
-  print('CHECK 5: email found');
+
 });
 
 
   testWidgets('logout clears the session and opens login', (tester) async {
     useViewport(tester, mobileSize);
 
-    await AppDependencies.authRepository.login(
+    final loginFuture = AppDependencies.authRepository.login(
       identifier: 'real@user.test',
       password: 'pw',
     );
+
+    await tester.pump(const Duration(milliseconds: 1));
+    await loginFuture;
 
     await tester.pumpWidget(_router('/profile'));
     await tester.pump();

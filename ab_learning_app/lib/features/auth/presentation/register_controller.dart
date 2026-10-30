@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../core/di/app_dependencies.dart';
 import '../../../core/network/api_exception.dart';
 import '../data/auth_repository.dart';
 
 class RegisterController extends ChangeNotifier {
   RegisterController({AuthRepository? repository})
-      : _repository = repository ?? AppDependencies.authRepository;
+      : _repository = repository ?? AuthRepository();
 
   final AuthRepository _repository;
 
@@ -18,7 +17,6 @@ class RegisterController extends ChangeNotifier {
     required String lastName,
     required String email,
     required String password,
-    String? phone,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -29,23 +27,18 @@ class RegisterController extends ChangeNotifier {
         firstName: firstName,
         lastName: lastName,
         email: email,
-        phone: phone,
         password: password,
       );
-
-      isLoading = false;
-      notifyListeners();
       return null;
     } on ApiException catch (error) {
-      isLoading = false;
       errorMessage = error.message;
-      notifyListeners();
       return errorMessage;
     } catch (_) {
-      isLoading = false;
       errorMessage = 'สมัครสมาชิกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง';
-      notifyListeners();
       return errorMessage;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

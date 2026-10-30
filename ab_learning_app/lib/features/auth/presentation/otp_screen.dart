@@ -5,11 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/app_dependencies.dart';
-import '../../../core/network/api_exception.dart';
+import '../../../core/network/rest_exception.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/auth_scaffold.dart';
 import '../../../core/widgets/inline_banner.dart';
 
@@ -41,6 +41,7 @@ class OtpArgs {
 String? maskPhone(String phone) {
   final digits = phone.replaceAll(RegExp(r'\D'), '');
   if (digits.length < 7) return null;
+
   return '${digits.substring(0, 2)}X-XXX-${digits.substring(digits.length - 4)}';
 }
 
@@ -59,9 +60,11 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen> {
   final _controller = TextEditingController();
   final _focus = FocusNode();
+
   Timer? _timer;
   int _seconds = _resendSeconds;
   bool _loading = false;
+  bool _resending = false;
   String? _error;
 
   @override
@@ -80,32 +83,87 @@ class _OtpScreenState extends State<OtpScreen> {
 
   void _scheduleTimer() {
     _timer?.cancel();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
+
       setState(() => _seconds--);
-      if (_seconds <= 0) timer.cancel();
+
+      if (_seconds <= 0) {
+        timer.cancel();
+      }
     });
   }
 
-  void _resend() {
-    // TODO(api): POST /api/v1/auth/verify-otp resend endpoint.
-    _controller.clear();
-    setState(() => _seconds = _resendSeconds);
-    _scheduleTimer();
+  Future<void> _resend() async {
+    if (_resending) return;
+
+    final userId = widget.args?.userId;
+
+    setState(() {
+      _resending = true;
+      _error = null;
+    });
+
+    // Without a user id (prototype / deep link) there is nothing to request,
+    // so only the local countdown restarts.
+    var sent = true;
+    String? error;
+
+    try {
+      if (userId != null) {
+        sent = await AppDependencies.authRepository.resendOtp(
+          userId: userId,
+        );
+      }
+    } on RestException catch (e) {
+      error = e.message;
+    } catch (_) {
+      error = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่';
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _resending = false;
+
+      if (error != null) {
+        _error = error;
+      } else if (!sent) {
+        _error =
+            'ระบบยังไม่เปิดให้ส่งรหัสซ้ำ กรุณาใช้รหัสเดิมหรือติดต่อฝ่ายสนับสนุน';
+      } else {
+        _controller.clear();
+        _seconds = _resendSeconds;
+      }
+    });
+
+    if (error == null && sent) {
+      _scheduleTimer();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ส่งรหัสใหม่แล้ว')),
+      );
+    }
   }
 
   Future<void> _verify() async {
     if (_loading) return;
+
     final args = widget.args;
     final userId = args?.userId;
+    final code = _controller.text.trim();
 
-    // Without a user id (prototype / mock flow) there is nothing to verify.
+    // Prototype / deep-link flow: no server-side OTP verification required.
     if (userId == null) {
       context.go('/interests');
       return;
     }
-    if (_controller.text.length != _otpLength) {
-      setState(() => _error = 'กรุณากรอกรหัส $_otpLength หลัก');
+
+    if (code.length != _otpLength) {
+      setState(() {
+        _error = 'กรุณากรอกรหัส $_otpLength หลัก';
+      });
       return;
     }
 
@@ -113,35 +171,60 @@ class _OtpScreenState extends State<OtpScreen> {
       _loading = true;
       _error = null;
     });
-    final repo = AppDependencies.authRepository;
+
     try {
-      await repo.verifyOtp(userId: userId, code: _controller.text);
-      // verify-otp returns no tokens: sign in with the credentials from
-      // Register so the preferences step is authenticated. Failure is not
-      // fatal; the user can log in manually later.
+      final repo = AppDependencies.authRepository;
+
+      await repo.verifyOtp(
+        userId: userId,
+        code: code,
+      );
+
+      // Verification does not return tokens, so attempt sign-in using
+      // the credentials supplied during registration.
       final identifier = args?.identifier;
       final password = args?.password;
+
       if (identifier != null && password != null) {
         try {
-          await repo.login(identifier: identifier, password: password);
-        } catch (_) {}
+          await repo.login(
+            identifier: identifier,
+            password: password,
+          );
+        } catch (_) {
+          // Keep existing behavior: login failure does not block
+          // the user from continuing to the interests screen.
+        }
       }
+
       if (!mounted) return;
+
       context.go('/interests');
-    } on ApiException catch (e) {
-      if (mounted) setState(() => _error = e.message);
+    } on RestException catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.message;
+        });
+      }
     } catch (_) {
       if (mounted) {
-        setState(() => _error = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่');
+        setState(() {
+          _error = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่';
+        });
       }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
 
   String get _countdownText {
     final m = (_seconds ~/ 60).toString().padLeft(2, '0');
     final s = (_seconds % 60).toString().padLeft(2, '0');
+
     return 'ขอรหัสใหม่ได้ใน $m:$s';
   }
 
@@ -149,7 +232,10 @@ class _OtpScreenState extends State<OtpScreen> {
   Widget build(BuildContext context) {
     return AuthScaffold(
       cardWidth: 400,
-      mobilePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      mobilePadding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 32,
+      ),
       builder: (context, desktop) {
         final boxW = desktop ? 44.0 : 40.0;
         final boxH = desktop ? 52.0 : 48.0;
@@ -174,7 +260,8 @@ class _OtpScreenState extends State<OtpScreen> {
             ),
             SizedBox(height: desktop ? 8 : 6),
             Text(
-              'กรอกรหัส 6 หลักที่ส่งไปยัง ${widget.args?.destination ?? _fallbackDestination}',
+              'กรอกรหัส 6 หลักที่ส่งไปยัง '
+              '${widget.args?.destination ?? _fallbackDestination}',
               textAlign: TextAlign.center,
               style: AppTypography.base(
                 desktop ? 13 : 12.5,
@@ -238,7 +325,9 @@ class _OtpScreenState extends State<OtpScreen> {
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
-                          autofillHints: const [AutofillHints.oneTimeCode],
+                          autofillHints: const [
+                            AutofillHints.oneTimeCode,
+                          ],
                           decoration: const InputDecoration(
                             counterText: '',
                             border: InputBorder.none,

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-
+import '../../data/mock/models.dart';
 import '../theme/colors.dart';
 import '../theme/radius.dart';
 import '../theme/typography.dart';
 
-/// `.kpi`: label + large value.
+/// Horizontal-scroll KPI card used on Instructor / Corporate / Employer /
+/// Admin dashboards (screens 31, 36, 39, 40).
 class KpiCard extends StatelessWidget {
-  const KpiCard({super.key, required this.label, required this.value});
+  final KpiStat stat;
 
-  final String label;
-  final String value;
+  const KpiCard({super.key, required this.stat});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: 140,
+      margin: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.card),
@@ -24,12 +26,56 @@ class KpiCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
-            style: AppTypography.base(11.5, color: AppColors.textSecondary),
+            stat.label,
+            style:
+                AppTypography.caption.copyWith(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 6),
-          Text(value, style: AppTypography.base(22, weight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Text(stat.value, style: AppTypography.h1.copyWith(fontSize: 20)),
+          if (stat.deltaLabel != null) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  stat.deltaIsPositive
+                      ? Icons.trending_up
+                      : Icons.trending_down,
+                  size: 14,
+                  color: stat.deltaIsPositive
+                      ? AppColors.success
+                      : AppColors.error,
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  stat.deltaLabel!,
+                  style: AppTypography.micro.copyWith(
+                    color: stat.deltaIsPositive
+                        ? AppColors.success
+                        : AppColors.error,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// Horizontal-scroll row of [KpiCard]s.
+class KpiRow extends StatelessWidget {
+  final List<KpiStat> stats;
+
+  const KpiRow({super.key, required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 92,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: stats.map((s) => KpiCard(stat: s)).toList(),
       ),
     );
   }

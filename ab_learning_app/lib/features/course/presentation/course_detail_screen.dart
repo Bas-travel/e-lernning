@@ -3,62 +3,55 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../core/widgets/status_pill.dart';
+import '../../../data/mock/mock_repository.dart';
+import '../../../data/mock/models.dart';
 import 'course_back_button.dart';
 
-/// Demo content from `02-hifi-mockups.html` (screen 11).
-/// TODO(api): replace with `GET /api/v1/courses/{id}`.
-const _courseTitle = 'Go Backend Professional';
-const _outcomes = <String>[
-  'ออกแบบ REST API ด้วย Go',
-  'เชื่อมต่อฐานข้อมูล MySQL',
-  'Authentication ด้วย JWT',
-  'Deploy สู่ Production',
-];
-
-class _LessonRow {
-  const _LessonRow(this.prefix, this.title, this.duration,
-      {this.locked = false});
-
-  final String prefix;
-  final String title;
-  final String duration;
-  final bool locked;
-}
-
-const _lessons = <_LessonRow>[
-  _LessonRow('✓', 'Introduction', '12 min'),
-  _LessonRow('▶', 'Go Fundamentals', '1h 20m'),
-  _LessonRow('🔒', 'Production Deployment', '40 min', locked: true),
-];
-
-// Prototype: all unlocked lessons open the same demo lesson.
-const _demoLessonId = 'lesson1';
-
 class CourseDetailScreen extends StatelessWidget {
-  /// Route parameter. TODO(api): fetch course data by this id.
   final String courseId;
 
-  const CourseDetailScreen({super.key, required this.courseId});
+  const CourseDetailScreen({
+    super.key,
+    required this.courseId,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final course = MockRepository.courseById(courseId);
+    final isEnrolled = MockRepository.isEnrolled(courseId);
+    final sections = MockRepository.curriculumFor(courseId);
+
     return Scaffold(
       body: ResponsiveBuilder(
-        mobile: (_) => const _CourseMobile(),
-        desktop: (_) => const _CourseDesktop(),
+        mobile: (_) => _CourseMobile(
+          course: course,
+          sections: sections,
+          isEnrolled: isEnrolled,
+        ),
+        desktop: (_) => _CourseDesktop(
+          course: course,
+          sections: sections,
+          isEnrolled: isEnrolled,
+        ),
       ),
     );
   }
 }
 
-// ---------------------------------------------------------------- mobile
-
 class _CourseMobile extends StatelessWidget {
-  const _CourseMobile();
+  final Course course;
+  final List<CourseSection> sections;
+  final bool isEnrolled;
+
+  const _CourseMobile({
+    required this.course,
+    required this.sections,
+    required this.isEnrolled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +65,9 @@ class _CourseMobile extends StatelessWidget {
                 children: [
                   Container(
                     height: 200,
-                    decoration:
-                        const BoxDecoration(gradient: AppGradients.brand),
+                    decoration: const BoxDecoration(
+                      gradient: AppGradients.brand,
+                    ),
                     child: const SafeArea(
                       bottom: false,
                       child: Align(
@@ -87,43 +81,23 @@ class _CourseMobile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _CourseInformation(course: course),
+                        const _SectionHeading('รายละเอียดหลักสูตร'),
                         Text(
-                          _courseTitle,
-                          style:
-                              AppTypography.base(17, weight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '⭐ 4.9 (2,140) · 8,421 students · Dr. Krit',
-                          style: AppTypography.base(
-                            12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        const _PriceRow(
-                          priceSize: 22,
-                          discountLabel: '-40%',
-                          oldPriceSize: 13,
-                        ),
-                        const SizedBox(height: 16),
-                        const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
-                        Text(
-                          [for (final o in _outcomes) '✓ $o'].join('\n'),
+                          course.description,
                           style: AppTypography.base(
                             12.5,
                             color: AppColors.textSecondary,
                             height: 1.8,
                           ),
                         ),
+                        const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
+                        _LearningOutcomes(outcomes: course.whatYouLearn),
                         const _SectionHeading('หลักสูตร'),
-                        for (var i = 0; i < _lessons.length; i++) ...[
-                          if (i > 0) const SizedBox(height: 8),
-                          _CurriculumCard(
-                            lesson: _lessons[i],
-                            durationSize: 11,
-                          ),
-                        ],
+                        _CurriculumList(
+                          sections: sections,
+                          isEnrolled: isEnrolled,
+                        ),
                       ],
                     ),
                   ),
@@ -132,22 +106,25 @@ class _CourseMobile extends StatelessWidget {
             ),
           ),
         ),
-        // Sticky bottom CTA
         Container(
           width: double.infinity,
           decoration: const BoxDecoration(
             color: Colors.white,
-            border: Border(top: BorderSide(color: AppColors.border)),
+            border: Border(
+              top: BorderSide(color: AppColors.border),
+            ),
           ),
           child: SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               child: CenteredContent(
-                child: AppButton.primary(
-                  label: 'ซื้อคอร์สนี้เลย — ฿2,990',
-                  // TODO(nav): Checkout/Payment route does not exist yet.
-                  onPressed: () {},
+                child: _CourseActionButton(
+                  course: course,
+                  isEnrolled: isEnrolled,
                   expand: true,
                 ),
               ),
@@ -159,16 +136,25 @@ class _CourseMobile extends StatelessWidget {
   }
 }
 
-// --------------------------------------------------------------- desktop
-
 class _CourseDesktop extends StatelessWidget {
-  const _CourseDesktop();
+  final Course course;
+  final List<CourseSection> sections;
+  final bool isEnrolled;
+
+  const _CourseDesktop({
+    required this.course,
+    required this.sections,
+    required this.isEnrolled,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 28),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 60,
+          vertical: 28,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -189,27 +175,24 @@ class _CourseDesktop extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    _CourseInformation(course: course),
+                    const _SectionHeading('รายละเอียดหลักสูตร'),
                     Text(
-                      _courseTitle,
-                      style: AppTypography.base(24, weight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '⭐ 4.9 (2,140 รีวิว) · 8,421 students · สอนโดย Dr. Krit',
+                      course.description,
                       style: AppTypography.base(
                         13,
                         color: AppColors.textSecondary,
+                        height: 1.8,
                       ),
                     ),
-                    const SizedBox(height: 18),
                     const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
                     CardGrid(
                       columns: 3,
                       children: [
-                        for (final o in _outcomes.take(3))
+                        for (final outcome in course.whatYouLearn)
                           AppCard(
                             child: Text(
-                              '✓ $o',
+                              '✓ $outcome',
                               style: AppTypography.base(
                                 12.5,
                                 color: AppColors.textSecondary,
@@ -219,10 +202,10 @@ class _CourseDesktop extends StatelessWidget {
                       ],
                     ),
                     const _SectionHeading('หลักสูตร'),
-                    for (var i = 0; i < _lessons.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 8),
-                      _CurriculumCard(lesson: _lessons[i], durationSize: 11.5),
-                    ],
+                    _CurriculumList(
+                      sections: sections,
+                      isEnrolled: isEnrolled,
+                    ),
                   ],
                 ),
               ),
@@ -230,7 +213,12 @@ class _CourseDesktop extends StatelessWidget {
             const SizedBox(width: 32),
             SizedBox(
               width: 320,
-              child: const SingleChildScrollView(child: _PurchaseCard()),
+              child: SingleChildScrollView(
+                child: _PurchaseCard(
+                  course: course,
+                  isEnrolled: isEnrolled,
+                ),
+              ),
             ),
           ],
         ),
@@ -239,8 +227,196 @@ class _CourseDesktop extends StatelessWidget {
   }
 }
 
+class _CourseInformation extends StatelessWidget {
+  final Course course;
+
+  const _CourseInformation({required this.course});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          course.title,
+          style: AppTypography.base(
+            22,
+            weight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '⭐ ${course.rating} · ${course.students} students · '
+          'สอนโดย ${course.instructor}',
+          style: AppTypography.base(
+            13,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _PriceRow(
+          price: course.priceLabel,
+          oldPrice: course.originalPriceLabel,
+          priceSize: 22,
+          oldPriceSize: 13,
+        ),
+      ],
+    );
+  }
+}
+
+class _LearningOutcomes extends StatelessWidget {
+  final List<String> outcomes;
+
+  const _LearningOutcomes({required this.outcomes});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      [for (final outcome in outcomes) '✓ $outcome'].join('\n'),
+      style: AppTypography.base(
+        12.5,
+        color: AppColors.textSecondary,
+        height: 1.8,
+      ),
+    );
+  }
+}
+
+class _CurriculumList extends StatelessWidget {
+  final List<CourseSection> sections;
+  final bool isEnrolled;
+
+  const _CurriculumList({
+    required this.sections,
+    required this.isEnrolled,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final section in sections) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            child: Text(
+              section.title,
+              style: AppTypography.base(
+                13,
+                weight: FontWeight.w600,
+              ),
+            ),
+          ),
+          for (final lesson in section.lessons) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _CurriculumCard(
+                lesson: lesson,
+                isEnrolled: isEnrolled,
+              ),
+            ),
+          ],
+        ],
+      ],
+    );
+  }
+}
+
+class _CurriculumCard extends StatelessWidget {
+  final LessonItem lesson;
+  final bool isEnrolled;
+
+  const _CurriculumCard({
+    required this.lesson,
+    required this.isEnrolled,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final locked = lesson.state == LessonState.locked || !isEnrolled;
+    final color = locked ? AppColors.textSecondary : AppColors.text;
+
+    final prefix = switch (lesson.state) {
+      LessonState.completed => '✓',
+      LessonState.inProgress => '▶',
+      LessonState.locked => '🔒',
+    };
+
+    return AppCard(
+      onTap: locked
+          ? null
+          : () {
+              if (lesson.hasQuiz) {
+                context.push('/quiz/${lesson.id}');
+              } else {
+                context.push('/player/${lesson.id}');
+              }
+            },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              '$prefix ${lesson.title}',
+              style: AppTypography.base(
+                13,
+                color: color,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            lesson.duration,
+            style: AppTypography.base(
+              11.5,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CourseActionButton extends StatelessWidget {
+  final Course course;
+  final bool isEnrolled;
+  final bool expand;
+
+  const _CourseActionButton({
+    required this.course,
+    required this.isEnrolled,
+    required this.expand,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppButton.primary(
+      label: isEnrolled ? 'เรียนต่อ' : 'ซื้อคอร์สนี้เลย — ${course.priceLabel}',
+      onPressed: () {
+        if (isEnrolled) {
+          context.push('/course/${course.id}/curriculum');
+        } else {
+          context.push(
+            '/checkout/${course.id}',
+            extra: course.title,
+          );
+        }
+      },
+      expand: expand,
+    );
+  }
+}
+
 class _PurchaseCard extends StatelessWidget {
-  const _PurchaseCard();
+  final Course course;
+  final bool isEnrolled;
+
+  const _PurchaseCard({
+    required this.course,
+    required this.isEnrolled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -249,45 +425,32 @@ class _PurchaseCard extends StatelessWidget {
       color: AppColors.textSecondary,
       height: 2,
     );
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                '฿2,990',
-                style: AppTypography.base(
-                  24,
-                  weight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '฿4,990',
-                style: AppTypography.base(
-                  13,
-                  color: AppColors.textSecondary,
-                ).copyWith(decoration: TextDecoration.lineThrough),
-              ),
-            ],
+          _PriceRow(
+            price: course.priceLabel,
+            oldPrice: course.originalPriceLabel,
+            priceSize: 24,
+            oldPriceSize: 13,
           ),
-          const SizedBox(height: 4),
-          const StatusPill(
-            label: 'ประหยัด 40%',
-            variant: StatusPillVariant.error,
-          ),
+          const SizedBox(height: 12),
+          if (!isEnrolled)
+            const StatusPill(
+              label: 'ราคาพิเศษ',
+              variant: StatusPillVariant.error,
+            )
+          else
+            const StatusPill(
+              label: 'ลงทะเบียนแล้ว',
+              variant: StatusPillVariant.success,
+            ),
           const SizedBox(height: 16),
-          // TODO(nav): Checkout/Payment and Cart routes do not exist yet.
-          AppButton.primary(
-              label: 'ซื้อคอร์สนี้เลย', onPressed: () {}, expand: true),
-          const SizedBox(height: 8),
-          AppButton.secondary(
-            label: 'เพิ่มลงตะกร้า',
-            onPressed: () {},
+          _CourseActionButton(
+            course: course,
+            isEnrolled: isEnrolled,
             expand: true,
           ),
           const SizedBox(height: 16),
@@ -295,10 +458,14 @@ class _PurchaseCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.only(top: 12),
             decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: AppColors.cardBorder)),
+              border: Border(
+                top: BorderSide(color: AppColors.cardBorder),
+              ),
             ),
             child: Text(
-              '📹 18h 30m วิดีโอ\n📄 42 บทเรียน\n🏆 ใบเกียรติบัตรเมื่อจบหลักสูตร',
+              '📄 ${course.totalLessons} บทเรียน\n'
+              '✓ เรียนแล้ว ${course.completedLessons} บทเรียน\n'
+              '🏆 ใบเกียรติบัตรเมื่อจบหลักสูตร',
               style: infoStyle,
             ),
           ),
@@ -308,8 +475,6 @@ class _PurchaseCard extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------- shared
-
 class _SectionHeading extends StatelessWidget {
   const _SectionHeading(this.text);
 
@@ -318,21 +483,32 @@ class _SectionHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 18, bottom: 10),
-      child: Text(text, style: AppTypography.base(14, weight: FontWeight.w600)),
+      padding: const EdgeInsets.only(
+        top: 18,
+        bottom: 10,
+      ),
+      child: Text(
+        text,
+        style: AppTypography.base(
+          14,
+          weight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }
 
 class _PriceRow extends StatelessWidget {
   const _PriceRow({
+    required this.price,
+    required this.oldPrice,
     required this.priceSize,
-    required this.discountLabel,
     required this.oldPriceSize,
   });
 
+  final String price;
+  final String? oldPrice;
   final double priceSize;
-  final String discountLabel;
   final double oldPriceSize;
 
   @override
@@ -342,60 +518,26 @@ class _PriceRow extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
-          '฿2,990',
+          price,
           style: AppTypography.base(
             priceSize,
             weight: FontWeight.w700,
             color: AppColors.primary,
           ),
         ),
-        const SizedBox(width: 8),
-        Text(
-          '฿4,990',
-          style: AppTypography.base(
-            oldPriceSize,
-            color: AppColors.textSecondary,
-          ).copyWith(decoration: TextDecoration.lineThrough),
-        ),
-        const SizedBox(width: 8),
-        StatusPill(label: discountLabel, variant: StatusPillVariant.error),
-      ],
-    );
-  }
-}
-
-class _CurriculumCard extends StatelessWidget {
-  const _CurriculumCard({required this.lesson, required this.durationSize});
-
-  final _LessonRow lesson;
-  final double durationSize;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = lesson.locked ? AppColors.textSecondary : AppColors.text;
-    return AppCard(
-      // Spec 12: tapping an unlocked lesson row navigates straight to the player.
-      onTap:
-          lesson.locked ? null : () => context.push('/player/$_demoLessonId'),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              '${lesson.prefix} ${lesson.title}',
-              style: AppTypography.base(13, color: color),
-            ),
-          ),
+        if (oldPrice != null) ...[
           const SizedBox(width: 8),
           Text(
-            lesson.duration,
+            oldPrice!,
             style: AppTypography.base(
-              durationSize,
+              oldPriceSize,
               color: AppColors.textSecondary,
+            ).copyWith(
+              decoration: TextDecoration.lineThrough,
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 }

@@ -8,7 +8,7 @@ import '../../../core/widgets/app_bottom_nav.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_progress_bar.dart';
 import '../../../core/widgets/app_sidebar.dart';
-import '../../../core/widgets/course_card.dart';
+import '../../../core/widgets/gradient_course_card.dart';
 import '../../../core/widgets/responsive.dart';
 import 'learn_sample_data.dart';
 
@@ -123,7 +123,7 @@ class LearnScreen extends StatelessWidget {
                       columns: 3,
                       children: [
                         for (final c in LearnSampleData.enrolled)
-                          CourseCard(
+                          GradientCourseCard(
                             title: c.title,
                             gradient: c.gradient,
                             extra: AppProgressBar(value: c.progress),

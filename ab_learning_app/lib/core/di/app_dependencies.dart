@@ -1,31 +1,37 @@
-import '../../features/auth/data/auth_repository.dart';
+
+import '../../features/auth/data/account_repository.dart';
 import '../../features/tutor/data/tutor_repository.dart';
-import '../network/api_client.dart';
 import '../network/api_config.dart';
+import '../network/rest_client.dart';
 import '../network/token_store.dart';
 
-/// Minimal service locator (the app does not use Riverpod providers yet).
-/// Tests replace repositories with fakes and call [reset] afterwards.
+/// Service locator for legacy screens and repositories.
 class AppDependencies {
-  static ApiClient? _client;
-  static AuthRepository? _auth;
+  static RestClient? _client;
+  static AccountRepository? _auth;
   static TutorRepository? _tutor;
 
-  /// One client (and token store) shared by every API repository.
-  static ApiClient get apiClient =>
-      _client ??= ApiClient(tokenStore: PersistentTokenStore());
+  /// Shared REST client and token store.
+  static RestClient get apiClient =>
+      _client ??= RestClient(tokenStore: SecureTokenStore());
 
-  static AuthRepository get authRepository => _auth ??= ApiConfig.useMockAuth
-      ? MockAuthRepository()
-      : ApiAuthRepository(apiClient);
+  static AccountRepository get authRepository =>
+      _auth ??= ApiConfig.useMockAuth
+          ? MockAccountRepository()
+          : ApiAccountRepository(apiClient);
 
-  static set authRepository(AuthRepository value) => _auth = value;
+  static set authRepository(AccountRepository value) {
+    _auth = value;
+  }
 
-  static TutorRepository get tutorRepository => _tutor ??= ApiConfig.useMockAuth
-      ? MockTutorRepository()
-      : ApiTutorRepository(apiClient);
+  static TutorRepository get tutorRepository =>
+      _tutor ??= ApiConfig.useMockAuth
+          ? MockTutorRepository()
+          : ApiTutorRepository(apiClient);
 
-  static set tutorRepository(TutorRepository value) => _tutor = value;
+  static set tutorRepository(TutorRepository value) {
+    _tutor = value;
+  }
 
   static void reset() {
     _client = null;

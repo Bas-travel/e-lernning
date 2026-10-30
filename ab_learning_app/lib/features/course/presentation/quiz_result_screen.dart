@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-
-import 'certificate_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class QuizResultScreen extends StatelessWidget {
-  const QuizResultScreen(
-      {super.key,
-      required this.score,
-      required this.total,
-      required this.percentage});
+  const QuizResultScreen({
+    super.key,
+    required this.score,
+    required this.total,
+    required this.percentage,
+  });
 
   final int score;
   final int total;
@@ -18,7 +18,9 @@ class QuizResultScreen extends StatelessWidget {
     final passed = percentage >= 70;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Quiz Result')),
+      appBar: AppBar(
+        title: const Text('Quiz Result'),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -33,8 +35,10 @@ class QuizResultScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 passed ? 'Excellent!' : 'Good effort!',
-                style:
-                    const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               Text(
@@ -44,17 +48,18 @@ class QuizResultScreen extends StatelessWidget {
               const SizedBox(height: 24),
               if (passed)
                 ElevatedButton(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const CertificateScreen(
-                          courseName: 'Go Backend Professional'),
-                    ),
-                  ),
+                  onPressed: () {
+                    context.push(
+                      '/certificate/Go-Backend-Professional',
+                    );
+                  },
                   child: const Text('View Certificate'),
                 )
               else
                 ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    context.pop();
+                  },
                   child: const Text('Back to Course'),
                 ),
             ],

@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../storage/token_storage.dart';
+
 /// Holds the JWT pair. [persist] = false keeps tokens in memory only
 /// ("Remember me" unchecked).
 abstract class TokenStore {
@@ -95,4 +97,39 @@ class PersistentTokenStore implements TokenStore {
     await prefs.remove(_accessKey);
     await prefs.remove(_refreshKey);
   }
+}
+
+/// Stores the JWT pair in the platform keystore through [TokenStorage]
+/// (flutter_secure_storage). This is the same storage the Riverpod
+/// `DioApiClient` reads, so a login made through [RestClient] also
+/// authenticates the role dashboards.
+///
+/// [persist] is ignored: both clients read from the shared keystore, so the
+/// tokens are always written there. "Remember me" therefore only affects UI
+/// state until a session-only mode is added to [TokenStorage].
+class SecureTokenStore implements TokenStore {
+  SecureTokenStore({TokenStorage? storage})
+      : _storage = storage ?? TokenStorage();
+
+  final TokenStorage _storage;
+
+  @override
+  Future<String?> readAccessToken() => _storage.readAccessToken();
+
+  @override
+  Future<String?> readRefreshToken() => _storage.readRefreshToken();
+
+  @override
+  Future<void> save({
+    required String accessToken,
+    String? refreshToken,
+    bool persist = true,
+  }) =>
+      _storage.saveTokens(
+        accessToken: accessToken,
+        refreshToken: refreshToken ?? '',
+      );
+
+  @override
+  Future<void> clear() => _storage.clear();
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/di/app_dependencies.dart';
-import '../../../core/network/api_exception.dart';
+import '../../../core/network/rest_exception.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
@@ -17,14 +17,14 @@ class _Message {
 }
 
 /// AI Tutor chat. Talks to `POST /ai/tutor` through [TutorRepository].
-class AiTutorScreen extends StatefulWidget {
-  const AiTutorScreen({super.key});
+class HifiAiTutorScreen extends StatefulWidget {
+  const HifiAiTutorScreen({super.key});
 
   @override
-  State<AiTutorScreen> createState() => _AiTutorScreenState();
+  State<HifiAiTutorScreen> createState() => _AiTutorScreenState();
 }
 
-class _AiTutorScreenState extends State<AiTutorScreen> {
+class _AiTutorScreenState extends State<HifiAiTutorScreen> {
   static const _quickActions = <({String label, String action})>[
     (label: 'อธิบายให้หน่อย', action: 'explain'),
     (label: 'ขอตัวอย่าง', action: 'example'),
@@ -62,7 +62,7 @@ class _AiTutorScreenState extends State<AiTutorScreen> {
           await AppDependencies.tutorRepository.ask(message, action: action);
       if (!mounted) return;
       setState(() => _messages.add(_Message(reply, fromUser: false)));
-    } on ApiException catch (e) {
+    } on RestException catch (e) {
       if (!mounted) return;
       setState(() => _error = e.message);
     } catch (_) {

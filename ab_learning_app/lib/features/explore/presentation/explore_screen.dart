@@ -5,11 +5,11 @@ import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_bottom_nav.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/app_sidebar.dart';
-import '../../../core/widgets/app_text_field.dart';
-import '../../../core/widgets/course_card.dart';
+import '../../../core/widgets/hifi_text_field.dart';
+import '../../../core/widgets/gradient_course_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../data/course_catalog_sample.dart';
 import 'course_filter_sheet.dart';
@@ -28,15 +28,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
   int _category = 0;
   CourseFilter _filter = const CourseFilter();
 
-  void _openSearch() => context.push('/search');
+  void _openSearch() {
+    context.push('/search');
+  }
 
   Future<void> _openFilter() async {
     final result = await showCourseFilterSheet(context, _filter);
-    if (result != null && mounted) setState(() => _filter = result);
+
+    if (result != null && mounted) {
+      setState(() => _filter = result);
+    }
   }
 
-  List<CatalogCourse> get _filteredAll =>
-      CourseCatalogSample.all.where(_filter.matches).toList();
+  List<CatalogCourse> get _filteredAll {
+    return CourseCatalogSample.all.where(_filter.matches).toList();
+  }
 
   Widget _categoryChips(List<String> categories) {
     return SingleChildScrollView(
@@ -48,7 +54,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
             AppChip(
               label: categories[i],
               active: i == _category,
-              onTap: () => setState(() => _category = i),
+              onTap: () {
+                setState(() => _category = i);
+              },
             ),
           ],
         ],
@@ -58,7 +66,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveBuilder(mobile: _buildMobile, desktop: _buildDesktop);
+    return ResponsiveBuilder(
+      mobile: _buildMobile,
+      desktop: _buildDesktop,
+    );
   }
 
   // ---------------------------------------------------------------- mobile
@@ -80,7 +91,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: AppTextField(
+                        child: HifiTextField(
                           hint: _searchHint,
                           readOnly: true,
                           onTap: _openSearch,
@@ -127,11 +138,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: [
-                      for (final c
-                          in _filteredAll.skip(_filter.isActive ? 0 : 2)) ...[
+                      for (final course in _filteredAll) ...[
                         CourseListTile(
-                          course: c,
-                          onTap: () => context.push('/course/${c.id}'),
+                          course: course,
+                          onTap: () {
+                            context.push('/course/${course.id}');
+                          },
                         ),
                         const SizedBox(height: 10),
                       ],
@@ -159,24 +171,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Not in the Explore mockup, but kept so desktop users can navigate.
           AppSidebar(
             activeKey: 'explore',
-            onSelect: (k) => NavTargets.onSidebar(context, k),
+            onSelect: (key) => NavTargets.onSidebar(context, key),
           ),
           Expanded(
             child: ColoredBox(
               color: AppColors.background,
               child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Row(
                       children: [
                         Expanded(
-                          child: AppTextField(
+                          child: HifiTextField(
                             hint: _searchHint,
                             fontSize: 13.5,
                             readOnly: true,
@@ -195,13 +208,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     const SizedBox(height: 20),
                     Text(
                       'คอร์สทั้งหมด',
-                      style: AppTypography.base(14, weight: FontWeight.w600),
+                      style: AppTypography.base(
+                        14,
+                        weight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 14),
                     CardGrid(
                       columns: 4,
                       children: [
-                        for (final c in _filteredAll) _courseCard(context, c),
+                        for (final course in _filteredAll)
+                          _courseCard(context, course),
                       ],
                     ),
                   ],
@@ -215,16 +232,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 }
 
-Widget _courseCard(BuildContext context, CatalogCourse c, {double? width}) {
-  return CourseCard(
+Widget _courseCard(
+  BuildContext context,
+  CatalogCourse course, {
+  double? width,
+}) {
+  return GradientCourseCard(
     width: width,
-    title: c.title,
-    gradient: c.gradient,
+    title: course.title,
+    gradient: course.gradient,
     meta: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Text(c.rating), Text(c.price)],
+      children: [
+        Text(course.rating),
+        Text(course.price),
+      ],
     ),
-    onTap: () => context.push('/course/${c.id}'),
+    onTap: () {
+      context.push('/course/${course.id}');
+    },
   );
 }
 
@@ -237,7 +263,13 @@ class _MobileSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
-      child: Text(text, style: AppTypography.base(14, weight: FontWeight.w600)),
+      child: Text(
+        text,
+        style: AppTypography.base(
+          14,
+          weight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }

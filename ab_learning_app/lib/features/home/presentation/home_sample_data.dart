@@ -28,31 +28,31 @@ class HomeSampleData {
   static const coins = '2,450';
   static const careerProgress = 0.78;
 
-  static const continueTitle = 'Go Backend Masterclass';
-  static const continueProgress = 0.68;
-  static const continueLessonId = 'lesson1';
-  static const continueCourseId = 'go-backend';
+  static const continueTitle = 'Go Backend Essentials';
+  static const continueProgress = 0.0;
+  static const continueLessonId = 'l3';
+  static const continueCourseId = 'c3';
 
   static const recommended = <HomeCourse>[
     HomeCourse(
-      id: 'ai-for-business',
-      title: 'AI for Business',
-      rating: '4.9 ★',
-      price: '฿1,990',
+      id: 'c1',
+      title: 'Flutter for Beginners',
+      rating: '4.8 ★',
+      price: '฿1,290',
       gradient: AppGradients.brand,
     ),
     HomeCourse(
-      id: 'flutter-professional',
-      title: 'Flutter Professional',
-      rating: '4.8 ★',
-      price: '฿2,490',
+      id: 'c2',
+      title: 'UX Research Fundamentals',
+      rating: '4.6 ★',
+      price: '฿990',
       gradient: AppGradients.accentPrimary,
     ),
     HomeCourse(
-      id: 'digital-marketing',
-      title: 'Digital Marketing',
-      rating: '4.7 ★',
-      price: '฿1,590',
+      id: 'c5',
+      title: 'Growth Marketing Playbook',
+      rating: '4.4 ★',
+      price: '฿1,090',
       gradient: AppGradients.accentSecondary,
     ),
   ];

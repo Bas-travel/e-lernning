@@ -12,13 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    defaults:
+      run:
+        working-directory: ab-learning-api
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: '1.22.x'
 
       - name: Cache Go modules
         uses: actions/cache@v4
@@ -80,16 +83,20 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    defaults:
+      run:
+        working-directory: ab_learning_app
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          # pubspec.lock was generated with Dart >= 3.10, so the old pinned
-          # Flutter 3.13 cannot resolve it. Use the stable channel.
-          channel: stable
+          flutter-version: '3.44.2'
           cache: true
+
+      - name: Set flutter version env
+        run: echo "FLUTTER_VERSION=3.44.2" >> $GITHUB_ENV
 
       - name: Flutter pub get
         working-directory: ab_learning_app
@@ -118,9 +125,7 @@ jobs:
         if: always()
         run: |
           LCOV_FILE=""
-          if [ -f ab_learning_app/coverage/lcov.info ]; then
-            LCOV_FILE=ab_learning_app/coverage/lcov.info
-          elif [ -f coverage/lcov.info ]; then
+          if [ -f coverage/lcov.info ]; then
             LCOV_FILE=coverage/lcov.info
           fi
           if [ -n "$LCOV_FILE" ]; then
