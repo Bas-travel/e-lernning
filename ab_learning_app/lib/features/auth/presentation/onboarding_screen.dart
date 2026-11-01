@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/responsive.dart';
 
 class _Slide {

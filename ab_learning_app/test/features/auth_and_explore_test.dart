@@ -1,9 +1,9 @@
 import 'package:ab_learning_app/app.dart';
 import 'package:ab_learning_app/features/auth/presentation/forgot_password_screen.dart';
 import 'package:ab_learning_app/features/auth/presentation/otp_screen.dart';
-import 'package:ab_learning_app/features/auth/presentation/register_screen.dart';
+import 'package:ab_learning_app/features/auth/presentation/hifi_register_screen.dart';
 import 'package:ab_learning_app/features/explore/data/course_catalog_sample.dart';
-import 'package:ab_learning_app/features/explore/presentation/explore_screen.dart';
+import 'package:ab_learning_app/features/explore/presentation/hifi_explore_screen.dart';
 import 'package:ab_learning_app/features/explore/presentation/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -95,7 +95,7 @@ void main() {
   testWidgets('register flags mismatching passwords', (tester) async {
     _useMobileViewport(tester);
 
-    await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
+    await tester.pumpWidget(const MaterialApp(home: HifiRegisterScreen()));
     final fields = find.byType(TextField);
     await tester.enterText(fields.at(4), 'secret-1');
     await tester.enterText(fields.at(5), 'secret-2');
@@ -140,7 +140,7 @@ void main() {
   testWidgets('explore shows trending and all courses', (tester) async {
     _useMobileViewport(tester);
 
-    await tester.pumpWidget(const MaterialApp(home: ExploreScreen()));
+    await tester.pumpWidget(const MaterialApp(home: HifiExploreScreen()));
     expect(find.text('กำลังมาแรง'), findsOneWidget);
     expect(find.text('คอร์สทั้งหมด'), findsOneWidget);
 

@@ -1,158 +1,96 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_radius.dart';
 
-import '../theme/colors.dart';
-import '../theme/radius.dart';
-import '../theme/typography.dart';
-
-enum _AppButtonKind { primary, secondary, ghost, inverse }
-
-/// Buttons from the mockup: `.btn-p`, `.btn-s`, `.btn-g` and the white
-/// "on gradient" button used inside hero cards.
-class AppButton extends StatelessWidget {
-  const AppButton.primary({
-    super.key,
+/// Corresponds to `Button/Primary` in the Figma component library.
+class PrimaryButton extends StatelessWidget {
+  const PrimaryButton({
     required this.label,
     required this.onPressed,
-    this.expand = false,
-    this.loading = false,
-    this.fontSize = 13,
-  })  : _kind = _AppButtonKind.primary,
-        _padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 11);
-
-  const AppButton.secondary({
+    this.isLoading = false,
+    this.fullWidth = true,
     super.key,
-    required this.label,
-    required this.onPressed,
-    this.expand = false,
-    this.loading = false,
-    this.fontSize = 13,
-  })  : _kind = _AppButtonKind.secondary,
-        _padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 11);
-
-  const AppButton.ghost({
-    super.key,
-    required this.label,
-    required this.onPressed,
-    this.expand = false,
-    this.loading = false,
-    this.fontSize = 12,
-  })  : _kind = _AppButtonKind.ghost,
-        _padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 9);
-
-  /// White button with primary text, for use on gradient cards.
-  const AppButton.inverse({
-    super.key,
-    required this.label,
-    required this.onPressed,
-    this.expand = false,
-    this.loading = false,
-    this.fontSize = 12,
-    EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-  })  : _kind = _AppButtonKind.inverse,
-        _padding = padding;
+  });
 
   final String label;
   final VoidCallback? onPressed;
-  final bool expand;
-  final bool loading;
-  final double fontSize;
-  final _AppButtonKind _kind;
-  final EdgeInsets _padding;
+  final bool isLoading;
+  final bool fullWidth;
 
   @override
   Widget build(BuildContext context) {
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppRadius.button),
+    final Widget button = ElevatedButton(
+      onPressed: isLoading ? null : onPressed,
+      child: isLoading
+          ? const SizedBox(
+              height: 18,
+              width: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.2,
+                color: Colors.white,
+              ),
+            )
+          : Text(label),
     );
-    final textStyle = AppTypography.base(
-      fontSize,
-      weight: _kind == _AppButtonKind.ghost ? FontWeight.w400 : FontWeight.w600,
-      height: 1.2,
+    return fullWidth ? SizedBox(width: double.infinity, child: button) : button;
+  }
+}
+
+/// Corresponds to `Button/Secondary` — outlined, primary-colored.
+class SecondaryButton extends StatelessWidget {
+  const SecondaryButton({
+    required this.label,
+    required this.onPressed,
+    this.fullWidth = true,
+    super.key,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final bool fullWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget button = OutlinedButton(
+      onPressed: onPressed,
+      child: Text(label),
     );
-    final VoidCallback? effectiveOnPressed = loading ? null : onPressed;
+    return fullWidth ? SizedBox(width: double.infinity, child: button) : button;
+  }
+}
 
-    final Color spinnerColor = _kind == _AppButtonKind.primary
-        ? Colors.white
-        : AppColors.primary;
-    final Widget child = loading
-        ? SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: spinnerColor,
-            ),
-          )
-        : Text(label, textAlign: TextAlign.center);
+/// A low-emphasis pill button, used for social login and quick actions.
+class GhostButton extends StatelessWidget {
+  const GhostButton({
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    super.key,
+  });
 
-    final Widget button;
-    switch (_kind) {
-      case _AppButtonKind.primary:
-        button = ElevatedButton(
-          onPressed: effectiveOnPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.btnPrimaryBg,
-            foregroundColor: Colors.white,
-            // While loading keep the full-strength colour; a null onPressed
-            // without loading means "disabled" and is dimmed.
-            disabledBackgroundColor:
-                loading ? AppColors.btnPrimaryBg : AppColors.primaryDisabled,
-            disabledForegroundColor: Colors.white,
-            elevation: 0,
-            padding: _padding,
-            minimumSize: Size.zero,
-            shape: shape,
-            textStyle: textStyle,
-          ),
-          child: child,
-        );
-        break;
-      case _AppButtonKind.inverse:
-        button = ElevatedButton(
-          onPressed: effectiveOnPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: AppColors.primary,
-            elevation: 0,
-            padding: _padding,
-            minimumSize: Size.zero,
-            shape: shape,
-            textStyle: textStyle,
-          ),
-          child: child,
-        );
-        break;
-      case _AppButtonKind.secondary:
-        button = OutlinedButton(
-          onPressed: effectiveOnPressed,
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: AppColors.primary,
-            side: const BorderSide(color: AppColors.btnOutlineBorder),
-            padding: _padding,
-            minimumSize: Size.zero,
-            shape: shape,
-            textStyle: textStyle,
-          ),
-          child: child,
-        );
-        break;
-      case _AppButtonKind.ghost:
-        button = OutlinedButton(
-          onPressed: effectiveOnPressed,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.textSecondary,
-            side: const BorderSide(color: AppColors.border),
-            padding: _padding,
-            minimumSize: Size.zero,
-            shape: shape,
-            textStyle: textStyle,
-          ),
-          child: child,
-        );
-        break;
-    }
+  final String label;
+  final VoidCallback? onPressed;
+  final Widget? icon;
 
-    return expand ? SizedBox(width: double.infinity, child: button) : button;
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.textSecondary,
+        side: const BorderSide(color: AppColors.border),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.button),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          if (icon != null) ...<Widget>[icon!, const SizedBox(width: 6)],
+          Text(label),
+        ],
+      ),
+    );
   }
 }

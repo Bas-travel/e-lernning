@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../data/course_catalog_sample.dart';
 

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/app_dependencies.dart';
-import '../../../core/network/api_exception.dart';
+import '../../../core/network/rest_exception.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/hifi_button.dart';
+import '../../../core/widgets/hifi_text_field.dart';
 import '../../../core/widgets/auth_scaffold.dart';
 import '../../../core/widgets/inline_banner.dart';
 
@@ -43,7 +43,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       await AppDependencies.authRepository.forgotPassword(email: _email.text);
       if (mounted) setState(() => _sent = true);
-    } on ApiException catch (e) {
+    } on RestException catch (e) {
       if (mounted) setState(() => _error = e.message);
     } catch (_) {
       if (mounted) {
@@ -123,7 +123,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               InlineBanner(message: _error!),
               const SizedBox(height: 14),
             ],
-            AppTextField(
+            HifiTextField(
               controller: _email,
               hint: 'Email',
               fontSize: desktop ? 13.5 : 13,

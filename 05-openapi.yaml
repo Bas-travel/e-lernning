@@ -355,6 +355,22 @@ paths:
       tags: [Auth]
       responses:
         '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+    put:
+      tags: [Auth]
+      summary: Update the signed-in user's display name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name]
+              properties:
+                first_name: { type: string, maxLength: 100 }
+                last_name: { type: string, maxLength: 100 }
+      responses:
+        '200': { description: Saved, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '422': { description: Validation failed }
 
   /me/preferences:
     post:

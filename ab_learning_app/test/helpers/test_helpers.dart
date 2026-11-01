@@ -1,5 +1,5 @@
 import 'package:ab_learning_app/core/di/app_dependencies.dart';
-import 'package:ab_learning_app/features/auth/data/auth_repository.dart';
+import 'package:ab_learning_app/features/auth/data/account_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,7 +16,7 @@ void useViewport(WidgetTester tester, Size size) {
 /// for the current test file.
 void installMockAuth() {
   setUp(() {
-    AppDependencies.authRepository = MockAuthRepository(latency: Duration.zero);
+    AppDependencies.authRepository = MockAccountRepository(latency: Duration.zero);
   });
   tearDown(AppDependencies.reset);
 }

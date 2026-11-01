@@ -5,8 +5,8 @@ import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_sidebar.dart';
-import '../../../core/widgets/app_text_field.dart';
-import '../../../core/widgets/course_card.dart';
+import '../../../core/widgets/hifi_text_field.dart';
+import '../../../core/widgets/gradient_course_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../data/course_catalog_sample.dart';
 import 'course_list_tile.dart';
@@ -78,7 +78,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                       Expanded(
-                        child: AppTextField(
+                        child: HifiTextField(
                           controller: _controller,
                           hint: 'ค้นหาคอร์ส, สกิล, อาจารย์...',
                           autofocus: widget.initialQuery.isEmpty,
@@ -136,7 +136,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       alignment: Alignment.centerLeft,
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 600),
-                        child: AppTextField(
+                        child: HifiTextField(
                           controller: _controller,
                           hint: 'ค้นหาคอร์ส, สกิล, อาจารย์...',
                           fontSize: 14,
@@ -161,7 +161,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       columns: 3,
                       children: [
                         for (final c in results)
-                          CourseCard(
+                          GradientCourseCard(
                             title: c.title,
                             gradient: c.gradient,
                             meta: Row(

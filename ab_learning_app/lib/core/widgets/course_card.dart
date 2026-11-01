@@ -1,87 +1,111 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_radius.dart';
+import '../theme/app_typography.dart';
 
-import '../theme/colors.dart';
-import '../theme/radius.dart';
-import '../theme/typography.dart';
-
-/// `.ccard`: gradient thumbnail (96px) + title + optional extra + meta row.
+/// Corresponds to `Card/Course` in the Figma component library.
+/// Used on Home (08), Explore (09), Search (10), and Career Path (24).
 class CourseCard extends StatelessWidget {
   const CourseCard({
-    super.key,
     required this.title,
-    required this.meta,
-    this.gradient = const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [AppColors.primary, AppColors.secondary],
-    ),
-    this.width,
-    this.extra,
+    required this.width,
+    this.instructorName,
+    this.ratingAvg,
+    this.price,
+    this.progressPct,
+    this.gradient = AppColors.primaryGradient,
     this.onTap,
+    super.key,
   });
 
   final String title;
-
-  /// Bottom row (e.g. rating + price, or progress label + CTA).
-  final Widget meta;
+  final double width;
+  final String? instructorName;
+  final double? ratingAvg;
+  final double? price;
+  final double? progressPct;
   final Gradient gradient;
-  final double? width;
-
-  /// Optional widget between the title and meta (e.g. a progress bar).
-  final Widget? extra;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
+    return SizedBox(
       width: width,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: Colors.white,
+      child: Material(
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: AppColors.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            height: 96,
-            decoration: BoxDecoration(gradient: gradient),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border.all(color: AppColors.border),
+            ),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.base(
-                    12.5,
-                    weight: FontWeight.w600,
-                    height: 1.2,
-                  ),
+              children: <Widget>[
+                Container(
+                  height: 96,
+                  decoration: BoxDecoration(gradient: gradient),
                 ),
-                const SizedBox(height: 4),
-                if (extra != null) ...[extra!, const SizedBox(height: 6)],
-                DefaultTextStyle(
-                  style: AppTypography.base(
-                    11,
-                    color: AppColors.textSecondary,
-                    height: 1.2,
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.body.copyWith(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      if (progressPct != null) ...<Widget>[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.badge),
+                          child: LinearProgressIndicator(
+                            value: progressPct! / 100,
+                            minHeight: 6,
+                            backgroundColor: AppColors.border,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.primary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${progressPct!.toStringAsFixed(0)}% เสร็จแล้ว',
+                          style: AppTypography.micro,
+                        ),
+                      ] else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            if (ratingAvg != null)
+                              Text('$ratingAvg ★', style: AppTypography.micro),
+                            if (price != null)
+                              Text(
+                                '฿${price!.toStringAsFixed(0)}',
+                                style: AppTypography.micro.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                          ],
+                        ),
+                    ],
                   ),
-                  child: meta,
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
-    );
-    if (onTap == null) return card;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: card,
     );
   }
 }

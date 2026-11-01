@@ -1,0 +1,13 @@
+warning: in the working copy of 'ab_learning_app/.gitignore', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/ab_learning_app/.gitignore b/ab_learning_app/.gitignore[m
+[1mindex 003663d..1bc216d 100644[m
+[1m--- a/ab_learning_app/.gitignore[m
+[1m+++ b/ab_learning_app/.gitignore[m
+[36m@@ -8,6 +8,7 @@[m [mbuild/[m
+ .pub/[m
+ *.g.dart[m
+ *.freezed.dart[m
+[32m+[m[32mcoverage/[m
+ [m
+ # IDE[m
+ .idea/[m
