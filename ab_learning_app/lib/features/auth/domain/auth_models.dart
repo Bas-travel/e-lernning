@@ -16,6 +16,15 @@ class AuthUser {
   final String? role;
   final String? avatarUrl;
 
+  AuthUser copyWith({String? firstName, String? lastName}) => AuthUser(
+        id: id,
+        email: email,
+        firstName: firstName ?? this.firstName,
+        lastName: lastName ?? this.lastName,
+        role: role,
+        avatarUrl: avatarUrl,
+      );
+
   String get displayName {
     final parts = [firstName, lastName]
         .whereType<String>()
@@ -29,8 +38,7 @@ class AuthUser {
     return source.isEmpty ? '?' : source.substring(0, 1).toUpperCase();
   }
 
-  factory AuthUser.fromJson(Map<String, dynamic> json,
-      {String? fallbackEmail}) {
+  factory AuthUser.fromJson(Map<String, dynamic> json, {String? fallbackEmail}) {
     return AuthUser(
       id: (json['id'] as num?)?.toInt(),
       email: (json['email'] as String?) ?? fallbackEmail ?? '',

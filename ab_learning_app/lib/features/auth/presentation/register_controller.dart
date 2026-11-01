@@ -1,24 +1,43 @@
 import 'package:flutter/foundation.dart';
-
-import '../../../core/di/app_dependencies.dart';
 import '../../../core/network/api_exception.dart';
 import '../data/auth_repository.dart';
 
 class RegisterController extends ChangeNotifier {
   RegisterController({AuthRepository? repository})
-      : _repository = repository ?? AppDependencies.authRepository;
+      : _repository = repository ?? AuthRepository();
 
   final AuthRepository _repository;
 
   bool isLoading = false;
   String? errorMessage;
 
+  // Future<String?> register({
+  //   required String name,
+  //   required String email,
+  //   required String password,
+  // }) async {
+  //   isLoading = true;
+  //   errorMessage = null;
+  //   notifyListeners();
+
+  //   try {
+  //     await _repository.register(name: name, email: email, password: password);
+  //     isLoading = false;
+  //     notifyListeners();
+  //     return null;
+  //   } catch (e) {
+  //     isLoading = false;
+  //     errorMessage = 'Registration failed. Please check your details and try again.';
+  //     notifyListeners();
+  //     return errorMessage;
+  //   }
+  // }
+
   Future<String?> register({
     required String firstName,
     required String lastName,
     required String email,
     required String password,
-    String? phone,
   }) async {
     isLoading = true;
     errorMessage = null;
@@ -29,10 +48,8 @@ class RegisterController extends ChangeNotifier {
         firstName: firstName,
         lastName: lastName,
         email: email,
-        phone: phone,
         password: password,
       );
-
       isLoading = false;
       notifyListeners();
       return null;

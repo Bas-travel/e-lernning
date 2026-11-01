@@ -7,12 +7,12 @@ import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_avatar.dart';
 import '../../../core/widgets/app_bottom_nav.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/app_progress_bar.dart';
 import '../../../core/widgets/app_sidebar.dart';
-import '../../../core/widgets/kpi_card.dart';
+import '../../../core/widgets/stat_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../auth/domain/auth_models.dart';
 
@@ -180,8 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: ColoredBox(
               color: AppColors.background,
               child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 60, vertical: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 28),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -230,9 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               children: [
-                                for (var i = 0;
-                                    i < _desktopTabs.length;
-                                    i++) ...[
+                                for (var i = 0; i < _desktopTabs.length; i++) ...[
                                   if (i > 0) const SizedBox(width: 8),
                                   AppChip(
                                     label: _desktopTabs[i],
@@ -248,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             columns: 3,
                             children: [
                               for (final s in _stats)
-                                KpiCard(label: s.label, value: s.value),
+                                StatCard(label: s.label, value: s.value),
                             ],
                           ),
                         ],

@@ -4,20 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../core/di/app_dependencies.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/auth_scaffold.dart';
 
 // TODO(api): options come from `skills` / preferences; chips below are the
 // mockup's content. Initial selection also mirrors the mockup.
 const _interestsMobile = [
-  'Programming',
-  'AI',
-  'Data',
-  'Marketing',
-  'Design',
-  'Business',
-  'Finance',
+  'Programming', 'AI', 'Data', 'Marketing', 'Design', 'Business', 'Finance',
   'English',
 ];
 const _interestsDesktop = ['Programming', 'AI', 'Data', 'Design', 'Marketing'];

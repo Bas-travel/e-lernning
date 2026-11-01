@@ -1,59 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../theme/app_typography.dart';
 
-import '../theme/typography.dart';
-
-/// Text input styled by the global [InputDecorationTheme] (10px radius, #E2E8F0).
+/// Corresponds to `Input/Text` and `Input/Password` in the Figma library.
 class AppTextField extends StatelessWidget {
   const AppTextField({
-    super.key,
+    required this.label,
     this.controller,
-    this.hint,
-    this.fontSize = 13,
-    this.obscure = false,
+    this.hintText,
+    this.obscureText = false,
     this.keyboardType,
-    this.textInputAction,
+    this.validator,
     this.autofillHints,
-    this.onSubmitted,
-    this.onChanged,
-    this.onTap,
-    this.readOnly = false,
-    this.errorText,
-    this.inputFormatters,
-    this.autofocus = false,
+    super.key,
   });
 
+  final String label;
   final TextEditingController? controller;
-  final String? hint;
-  final double fontSize;
-  final bool obscure;
+  final String? hintText;
+  final bool obscureText;
   final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
+  final String? Function(String?)? validator;
   final Iterable<String>? autofillHints;
-  final ValueChanged<String>? onSubmitted;
-  final ValueChanged<String>? onChanged;
-  final VoidCallback? onTap;
-  final bool readOnly;
-  final String? errorText;
-  final List<TextInputFormatter>? inputFormatters;
-  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: obscure,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      autofillHints: autofillHints,
-      onSubmitted: onSubmitted,
-      onChanged: onChanged,
-      onTap: onTap,
-      readOnly: readOnly,
-      autofocus: autofocus,
-      inputFormatters: inputFormatters,
-      style: AppTypography.base(fontSize),
-      decoration: InputDecoration(hintText: hint, errorText: errorText),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(label, style: AppTypography.micro),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          validator: validator,
+          autofillHints: autofillHints,
+          style: AppTypography.body.copyWith(fontSize: 14),
+          decoration: InputDecoration(hintText: hintText),
+        ),
+      ],
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/typography.dart';
-import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../data/course_catalog_sample.dart';
 
@@ -63,8 +63,7 @@ class _FilterSheetState extends State<_FilterSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('ตัวกรอง',
-                style: AppTypography.base(16, weight: FontWeight.w700)),
+            Text('ตัวกรอง', style: AppTypography.base(16, weight: FontWeight.w700)),
             _title('ราคา'),
             Wrap(
               spacing: 8,
@@ -97,8 +96,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                 Expanded(
                   child: AppButton.secondary(
                     label: 'ล้าง',
-                    onPressed: () =>
-                        Navigator.of(context).pop(const CourseFilter()),
+                    onPressed: () => Navigator.of(context).pop(const CourseFilter()),
                   ),
                 ),
                 const SizedBox(width: 10),

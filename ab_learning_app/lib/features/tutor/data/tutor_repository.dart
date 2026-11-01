@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/network/api_client.dart';
-import '../../../core/network/api_exception.dart';
+import '../../../core/network/rest_client.dart';
+import '../../../core/network/rest_exception.dart';
 
 /// `POST /ai/tutor` ({message, action?} -> {reply, conversation_id}).
 abstract class TutorRepository {
@@ -11,7 +11,7 @@ abstract class TutorRepository {
 class ApiTutorRepository implements TutorRepository {
   ApiTutorRepository(this._client);
 
-  final ApiClient _client;
+  final RestClient _client;
 
   @override
   Future<String> ask(String message, {String? action}) async {
@@ -23,9 +23,9 @@ class ApiTutorRepository implements TutorRepository {
       final data = response.data;
       final reply = data is Map ? data['reply'] : null;
       if (reply is String && reply.isNotEmpty) return reply;
-      throw const ApiException('ไม่ได้รับคำตอบจากเซิร์ฟเวอร์');
+      throw const RestException('ไม่ได้รับคำตอบจากเซิร์ฟเวอร์');
     } on DioException catch (e) {
-      throw ApiException.fromDio(e);
+      throw RestException.fromDio(e);
     }
   }
 }
