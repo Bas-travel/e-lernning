@@ -285,7 +285,11 @@ class MockAccountRepository implements AccountRepository {
   AuthUser? _user;
   bool _signedIn = false;
 
-  Future<void> _wait() => Future<void>.delayed(latency);
+  // A zero latency must not schedule a timer: under the widget-test fake
+  // clock an awaited zero-length `Future.delayed` never completes.
+  Future<void> _wait() => latency == Duration.zero
+      ? Future<void>.value()
+      : Future<void>.delayed(latency);
 
   @override
   AuthUser? get currentUser => _user;

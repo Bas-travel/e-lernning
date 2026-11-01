@@ -103,7 +103,7 @@ void main() {
         (tester) async {
       useViewport(tester, mobileSize);
       await tester.pumpWidget(
-        MaterialApp(home: OtpScreen(args: const OtpArgs(userId: 5))),
+        MaterialApp(home: const OtpScreen(args: OtpArgs(userId: 5))),
       );
 
       await tester.pump(const Duration(seconds: 60));
@@ -122,7 +122,7 @@ void main() {
       useViewport(tester, mobileSize);
       AppDependencies.authRepository = _NoResendRepository();
       await tester.pumpWidget(
-        MaterialApp(home: OtpScreen(args: const OtpArgs(userId: 5))),
+        MaterialApp(home: const OtpScreen(args: OtpArgs(userId: 5))),
       );
 
       await tester.pump(const Duration(seconds: 60));

@@ -148,7 +148,7 @@ class _CourseMobile extends StatelessWidget {
               child: CenteredContent(
                 child: AppButton.primary(
                   label: 'ซื้อคอร์สนี้เลย — ฿2,990',
-                  onPressed: () => context.push('/checkout/${courseId}'),
+                  onPressed: () => context.push('/checkout/$courseId'),
                   expand: true,
                 ),
               ),

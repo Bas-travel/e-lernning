@@ -102,18 +102,6 @@ class _AiTutorScreenState extends State<HifiAiTutorScreen> {
     return SubPageScaffold(
       title: 'AI Tutor',
       fallbackRoute: '/home',
-      children: [
-        for (final m in _messages) _bubble(m),
-        if (_sending)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              'กำลังพิมพ์...',
-              style: AppTypography.base(12, color: AppColors.textSecondary),
-            ),
-          ),
-        if (_error != null) InlineBanner(message: _error!),
-      ],
       bottom: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -159,6 +147,18 @@ class _AiTutorScreenState extends State<HifiAiTutorScreen> {
           ],
         ),
       ),
+      children: [
+        for (final m in _messages) _bubble(m),
+        if (_sending)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              'กำลังพิมพ์...',
+              style: AppTypography.base(12, color: AppColors.textSecondary),
+            ),
+          ),
+        if (_error != null) InlineBanner(message: _error!),
+      ],
     );
   }
 }

@@ -4,7 +4,6 @@ import 'package:ab_learning_app/core/network/rest_client.dart';
 import 'package:ab_learning_app/core/network/rest_exception.dart';
 import 'package:ab_learning_app/core/network/token_store.dart';
 import 'package:ab_learning_app/features/auth/data/account_repository.dart';
-import 'package:ab_learning_app/features/auth/domain/auth_models.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
