@@ -31,15 +31,11 @@ jobs:
             ~/.cache/go-build
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
-      - name: Set lint/tool versions
-        run: echo "GOLANGCI_LINT_VERSION=v1.64.0" >> $GITHUB_ENV
-
-      - name: Install golangci-lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
-
-      - name: Run linter
-        run: golangci-lint run ./...
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.0
+          working-directory: ab-learning-api
 
       - name: Run tests with coverage
         run: |
