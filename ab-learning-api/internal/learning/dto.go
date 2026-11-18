@@ -128,6 +128,7 @@ func toLessonResponse(l Lesson, p LessonProgress) LessonResponse {
 	}
 }
 
+//nolint:unused // kept for the lesson-progress endpoint response
 func toLessonProgressResponse(p LessonProgress) LessonProgressResponse {
 	return LessonProgressResponse{
 		LessonID:       p.LessonID,

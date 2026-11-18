@@ -73,11 +73,11 @@ type RefundRequest struct {
 }
 
 type RefundResult struct {
-	RefundID       int64   `json:"refund_id"`
-	PaymentID      int64   `json:"payment_id"`
-	Amount         float64 `json:"amount"`
-	TotalRefunded  float64 `json:"total_refunded"`
-	OrderStatus    string  `json:"order_status"`
+	RefundID      int64   `json:"refund_id"`
+	PaymentID     int64   `json:"payment_id"`
+	Amount        float64 `json:"amount"`
+	TotalRefunded float64 `json:"total_refunded"`
+	OrderStatus   string  `json:"order_status"`
 }
 
 type RejectRequest struct {

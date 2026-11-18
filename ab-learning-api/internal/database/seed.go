@@ -28,7 +28,7 @@ func SeedDev(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	roleID := func(code string) int64 {
 		var id int64

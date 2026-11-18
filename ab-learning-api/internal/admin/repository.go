@@ -75,7 +75,7 @@ func (r *Repository) Moderate(courseID, adminID int64, approve bool, reason stri
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 	var status string
 	if err := tx.QueryRow(`SELECT status FROM courses WHERE id = ? FOR UPDATE`, courseID).Scan(&status); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -178,7 +178,7 @@ func (r *Repository) UpdateUser(id, adminID int64, in UserUpdate) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 	var exists int
 	if err := tx.QueryRow(`SELECT COUNT(*) FROM users WHERE id = ? FOR UPDATE`, id).Scan(&exists); err != nil {
 		return err
@@ -188,12 +188,10 @@ func (r *Repository) UpdateUser(id, adminID int64, in UserUpdate) error {
 	}
 	meta := map[string]any{}
 	if in.Role != nil {
-		res, err := tx.Exec(`UPDATE users SET role_id = (SELECT id FROM roles WHERE code = ?) WHERE id = ?`, *in.Role, id)
-		if err != nil {
+		// An unknown role code makes the subquery NULL, which violates NOT NULL
+		// and fails here, so the affected-row count needs no separate check.
+		if _, err := tx.Exec(`UPDATE users SET role_id = (SELECT id FROM roles WHERE code = ?) WHERE id = ?`, *in.Role, id); err != nil {
 			return err
-		}
-		if n, _ := res.RowsAffected(); n == 0 {
-			// role code unknown -> subquery NULL violates NOT NULL and errors above; unchanged value is fine
 		}
 		meta["role"] = *in.Role
 	}
@@ -220,7 +218,7 @@ func (r *Repository) Suspend(id, adminID int64, reason string) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 	res, err := tx.Exec(`UPDATE users SET status='suspended' WHERE id = ?`, id)
 	if err != nil {
 		return err
@@ -279,7 +277,7 @@ func (r *Repository) Refund(paymentID, adminID int64, req RefundRequest) (Refund
 	if err != nil {
 		return RefundResult{}, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	var orderID int64
 	var amount float64
