@@ -34,7 +34,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.64.0
+          version: v1.64
           working-directory: ab-learning-api
 
       - name: Run tests with coverage
