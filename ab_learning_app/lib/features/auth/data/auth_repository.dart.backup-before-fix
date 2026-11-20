@@ -1,0 +1,208 @@
+import '../../../core/network/api_client.dart';
+import '../../../core/network/mock_api_client.dart';
+import '../../../core/storage/token_storage.dart';
+import '../models/user.dart';
+
+class AuthResult {
+  const AuthResult({required this.user});
+
+  final User user;
+}
+
+class AuthRepository {
+  AuthRepository({ApiClient? apiClient, TokenStorage? tokenStorage})
+      : _apiClient = apiClient ?? MockApiClient(),
+        _tokenStorage = tokenStorage ?? TokenStorage();
+
+  final ApiClient _apiClient;
+  final TokenStorage _tokenStorage;
+
+  Future<AuthResult> login(
+      {required String identifier, required String password}) async {
+    final response =
+        await _apiClient.login(identifier: identifier, password: password);
+    final userJson = response['user'];
+    if (userJson is! Map<String, dynamic>) {
+      throw const FormatException('Login response does not contain a user.');
+    }
+    await _tokenStorage.saveTokens(
+      accessToken: response['access_token'] as String? ?? '',
+      refreshToken: response['refresh_token'] as String? ?? '',
+    );
+    return AuthResult(user: User.fromJson(userJson));
+  }
+
+  Future<void> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+<<<<<<< HEAD
+    String? phone,
+    required String password,
+  }) {
+    final cleanPhone = phone?.trim() ?? '';
+    return _guard(() async {
+      final response = await _dio.post<Object?>(
+        '/auth/register',
+        data: {
+          'first_name': firstName.trim(),
+          'last_name': lastName.trim(),
+          'email': email.trim(),
+          if (cleanPhone.isNotEmpty) 'phone': cleanPhone,
+          'password': password,
+        },
+      );
+      return AuthUser.fromJson(
+        _asMap(response.data),
+        fallbackEmail: email.trim(),
+      );
+    });
+  }
+
+  @override
+  Future<void> verifyOtp({required int userId, required String code}) {
+    return _guard(() async {
+      await _dio.post<Object?>(
+        '/auth/verify-otp',
+        data: {'user_id': userId, 'code': code},
+      );
+    });
+  }
+
+  @override
+  Future<void> forgotPassword({required String email}) {
+    return _guard(() async {
+      await _dio.post<Object?>(
+        '/auth/forgot-password',
+        data: {'email': email.trim()},
+      );
+    });
+  }
+
+  @override
+  Future<void> savePreferences({
+    required List<String> interests,
+    required String level,
+    required List<String> goals,
+  }) {
+    return _guard(() async {
+      await _dio.post<Object?>(
+        '/me/preferences',
+        data: {
+          'interests': interests,
+          'level': level.toLowerCase(),
+          if (goals.isNotEmpty) 'goal': goals.first,
+        },
+      );
+    });
+  }
+
+  @override
+  Future<AuthUser?> fetchProfile() async {
+    try {
+      final response = await _dio.get<Object?>('/me');
+      final user = AuthUser.fromJson(
+        _asMap(response.data),
+        fallbackEmail: _user?.email,
+      );
+      _user = user;
+      return user;
+    } on DioException catch (e) {
+      final error = ApiException.fromDio(e);
+      if (error.isUnauthorized) {
+        await logout();
+        return null;
+      }
+      // Offline or server trouble: keep showing what we already know.
+      return _user;
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    await _client.tokenStore.clear();
+    _user = null;
+  }
+}
+
+/// In-memory [AuthRepository] for demos (`--dart-define=USE_MOCK_AUTH=true`)
+/// and tests. Accepts any credentials.
+class MockAuthRepository implements AuthRepository {
+  MockAuthRepository({this.latency = const Duration(milliseconds: 300)});
+
+  final Duration latency;
+  AuthUser? _user;
+  bool _signedIn = false;
+
+  Future<void> _wait() {
+    if (latency == Duration.zero) {
+      return Future<void>.value();
+    }
+
+    return Future<void>.delayed(latency);
+  }
+
+  @override
+  AuthUser? get currentUser => _user;
+
+  @override
+  Future<bool> hasSession() async => _signedIn;
+
+  @override
+  Future<AuthSession> login({
+    required String identifier,
+    required String password,
+    bool remember = true,
+  }) async {
+    await _wait();
+    _signedIn = true;
+    _user = AuthUser(email: identifier.trim());
+    return AuthSession(accessToken: 'mock-access-token', user: _user);
+  }
+
+  @override
+  Future<AuthUser> register({
+    required String firstName,
+    required String lastName,
+    required String email,
+    String? phone,
+=======
+>>>>>>> ui/flutter-hifi-fidelity
+    required String password,
+  }) async {
+    await _apiClient.register(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+    );
+  }
+
+<<<<<<< HEAD
+  @override
+  Future<void> verifyOtp({required int userId, required String code}) =>
+      _wait();
+
+  @override
+  Future<void> forgotPassword({required String email}) => _wait();
+
+  @override
+  Future<void> savePreferences({
+    required List<String> interests,
+    required String level,
+    required List<String> goals,
+  }) =>
+      _wait();
+
+  @override
+  Future<AuthUser?> fetchProfile() async => _signedIn ? _user : null;
+
+  @override
+  Future<void> logout() async {
+    _signedIn = false;
+    _user = null;
+  }
+=======
+  Future<void> logout() => _tokenStorage.clear();
+>>>>>>> ui/flutter-hifi-fidelity
+}

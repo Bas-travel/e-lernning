@@ -56,8 +56,8 @@ class _LoginScreenState extends State<HifiLoginScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(maxWidth: Breakpoints.mobileContentMax),
+                constraints: const BoxConstraints(
+                    maxWidth: Breakpoints.mobileContentMax),
                 child: _LoginForm(
                   desktop: false,
                   emailController: _emailController,
@@ -110,7 +110,8 @@ void _socialUnavailable(BuildContext context, String provider) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(
-      SnackBar(content: Text('การเข้าสู่ระบบด้วย $provider ยังไม่เปิดให้บริการ')),
+      SnackBar(
+          content: Text('การเข้าสู่ระบบด้วย $provider ยังไม่เปิดให้บริการ')),
     );
 }
 

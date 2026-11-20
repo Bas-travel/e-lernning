@@ -16,7 +16,8 @@ void useViewport(WidgetTester tester, Size size) {
 /// for the current test file.
 void installMockAuth() {
   setUp(() {
-    AppDependencies.authRepository = MockAccountRepository(latency: Duration.zero);
+    AppDependencies.authRepository =
+        MockAccountRepository(latency: Duration.zero);
   });
   tearDown(AppDependencies.reset);
 }

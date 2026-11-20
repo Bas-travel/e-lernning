@@ -23,6 +23,7 @@ abstract class ApiClient {
     required String email,
     required String password,
   });
+
   /// GET /api/v1/home
   Future<Map<String, dynamic>> getHome();
 

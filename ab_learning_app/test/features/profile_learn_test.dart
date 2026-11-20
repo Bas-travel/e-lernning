@@ -1,4 +1,3 @@
-
 import 'package:ab_learning_app/core/di/app_dependencies.dart';
 import 'package:ab_learning_app/features/learn/presentation/learn_screen.dart';
 import 'package:ab_learning_app/features/profile/presentation/profile_screen.dart';
@@ -65,32 +64,28 @@ void main() {
     expect(find.text('learner@ablearning.com'), findsOneWidget);
   });
 
+  testWidgets('profile shows the signed-in user', (tester) async {
+    useViewport(tester, mobileSize);
 
-testWidgets('profile shows the signed-in user', (tester) async {
-  useViewport(tester, mobileSize);
+    final repository = AppDependencies.authRepository;
 
-  final repository = AppDependencies.authRepository;
+    final loginFuture = repository.login(
+      identifier: 'real@user.test',
+      password: 'pw',
+    );
 
+    await tester.pump(const Duration(milliseconds: 300));
 
-  final loginFuture = repository.login(
-    identifier: 'real@user.test',
-    password: 'pw',
-  );
+    final session = await loginFuture;
 
-  await tester.pump(const Duration(milliseconds: 300));
+    expect(session.user?.email, 'real@user.test');
 
-  final session = await loginFuture;
+    await tester.pumpWidget(_router('/profile'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
-  expect(session.user?.email, 'real@user.test');
-
-  await tester.pumpWidget(_router('/profile'));
-  await tester.pump();
-  await tester.pump(const Duration(milliseconds: 500));
-
-  expect(find.text('real@user.test'), findsNWidgets(2));
-
-});
-
+    expect(find.text('real@user.test'), findsNWidgets(2));
+  });
 
   testWidgets('logout clears the session and opens login', (tester) async {
     useViewport(tester, mobileSize);
@@ -119,8 +114,7 @@ testWidgets('profile shows the signed-in user', (tester) async {
     expect(await AppDependencies.authRepository.hasSession(), isFalse);
   });
 
-  testWidgets('profile "My Courses" opens the learning list',
-      (tester) async {
+  testWidgets('profile "My Courses" opens the learning list', (tester) async {
     useViewport(tester, mobileSize);
 
     await tester.pumpWidget(_router('/profile'));

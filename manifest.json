@@ -1,0 +1,32 @@
+{
+  "repo_files": [
+    "ab_learning_app/.gitignore",
+    "ab_learning_app/.metadata",
+    "ab_learning_app/README.md",
+    "ab_learning_app/analysis_options.yaml",
+    "ab_learning_app/lib/core/router/app_router.dart",
+    "ab_learning_app/lib/features/auth/data/auth_repository.dart",
+    "ab_learning_app/lib/features/auth/presentation/login_screen.dart",
+    "ab_learning_app/lib/features/auth/presentation/register_controller.dart",
+    "ab_learning_app/lib/features/auth/presentation/register_screen.dart",
+    "ab_learning_app/lib/features/auth/presentation/splash_screen.dart",
+    "ab_learning_app/lib/features/course/presentation/course_detail_screen.dart",
+    "ab_learning_app/lib/features/course/presentation/video_player_screen.dart",
+    "ab_learning_app/lib/features/explore/presentation/explore_screen.dart",
+    "ab_learning_app/lib/features/home/presentation/home_screen.dart",
+    "ab_learning_app/pubspec.lock",
+    "ab_learning_app/test/core/api_test.dart",
+    "ab_learning_app/test/features/sub_pages_test.dart",
+    "ab_learning_app/test/widget_test.dart",
+    "README.md"
+  ],
+  "unmerged_count": 18,
+  "additional_root_readme": true,
+  "strategy": {
+    "router": "Hi-Fi router with legacy paths restored and role guard corrected for classic auth routes",
+    "legacy_screens": "Stage 2 implementations retained for splash, course detail, player, explore and home; Hi-Fi screens remain in separate hifi_* files",
+    "auth": "Keep current clean AuthRepository/RegisterController implementation; use incoming auth screens compatible with router injection",
+    "tests": "Use Stage 3 tests for current RestClient/AccountRepository and Hi-Fi test flows",
+    "lockfile": "Stage 3 lockfile selected; run flutter pub get after applying"
+  }
+}

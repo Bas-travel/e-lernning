@@ -1,4 +1,3 @@
-
 import '../../features/auth/data/account_repository.dart';
 import '../../features/tutor/data/tutor_repository.dart';
 import '../network/api_config.dart';
@@ -15,19 +14,17 @@ class AppDependencies {
   static RestClient get apiClient =>
       _client ??= RestClient(tokenStore: SecureTokenStore());
 
-  static AccountRepository get authRepository =>
-      _auth ??= ApiConfig.useMockAuth
-          ? MockAccountRepository()
-          : ApiAccountRepository(apiClient);
+  static AccountRepository get authRepository => _auth ??= ApiConfig.useMockAuth
+      ? MockAccountRepository()
+      : ApiAccountRepository(apiClient);
 
   static set authRepository(AccountRepository value) {
     _auth = value;
   }
 
-  static TutorRepository get tutorRepository =>
-      _tutor ??= ApiConfig.useMockAuth
-          ? MockTutorRepository()
-          : ApiTutorRepository(apiClient);
+  static TutorRepository get tutorRepository => _tutor ??= ApiConfig.useMockAuth
+      ? MockTutorRepository()
+      : ApiTutorRepository(apiClient);
 
   static set tutorRepository(TutorRepository value) {
     _tutor = value;

@@ -323,7 +323,8 @@ class MockAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<void> verifyOtp({required int userId, required String code}) => _wait();
+  Future<void> verifyOtp({required int userId, required String code}) =>
+      _wait();
 
   @override
   Future<void> forgotPassword({required String email}) => _wait();
