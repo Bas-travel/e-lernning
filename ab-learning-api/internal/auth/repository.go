@@ -54,7 +54,7 @@ func (r *Repository) CreateLearner(req RegisterRequest, hash string) (int64, err
 	if err != nil {
 		return 0, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	var taken int
 	if err := tx.QueryRow(`SELECT COUNT(*) FROM users WHERE email = ? OR (? <> '' AND phone = ?)`, req.Email, req.Phone, req.Phone).Scan(&taken); err != nil {

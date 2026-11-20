@@ -131,7 +131,7 @@ func (r *Repository) AddEmployee(ctx context.Context, orgID int64, in AddEmploye
 	if err != nil {
 		return Employee{}, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 	var userID int64
 	if err := tx.QueryRowContext(ctx, `SELECT id FROM users WHERE email = ?`, in.Email).Scan(&userID); errors.Is(err, sql.ErrNoRows) {
 		return Employee{}, ErrNotFound
@@ -235,7 +235,7 @@ func (r *Repository) CreatePath(ctx context.Context, orgID int64, in CreatePathI
 	if err != nil {
 		return 0, err
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 	// Only published courses can be assigned.
 	for _, cid := range in.CourseIDs {
 		var x int
