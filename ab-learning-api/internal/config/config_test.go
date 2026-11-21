@@ -25,6 +25,7 @@ func TestValidateRequiresProductionSecretsAndOrigins(t *testing.T) {
 		{"seed data enabled", func(c *Config) { c.SeedDev = true }},
 		{"wildcard CORS", func(c *Config) { c.CORSAllowOrigin = "*" }},
 		{"missing CORS origin", func(c *Config) { c.CORSAllowOrigin = "" }},
+		{"dev-only code delivery", func(c *Config) { c.AuthDelivery = "log" }},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

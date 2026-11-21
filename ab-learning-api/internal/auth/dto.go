@@ -24,6 +24,29 @@ type UpdateProfileRequest struct {
 	LastName  string `json:"last_name"`
 }
 
+// VerifyOTPRequest is the body of `POST /auth/verify-otp`.
+type VerifyOTPRequest struct {
+	UserID int64  `json:"user_id"`
+	Code   string `json:"code"`
+}
+
+// ResendOTPRequest is the body of `POST /auth/resend-otp`.
+type ResendOTPRequest struct {
+	UserID int64 `json:"user_id"`
+}
+
+// ForgotPasswordRequest is the body of `POST /auth/forgot-password`.
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+// PreferencesRequest is the body of `POST /me/preferences`.
+type PreferencesRequest struct {
+	Interests []string `json:"interests"`
+	Level     string   `json:"level"`
+	Goal      string   `json:"goal"`
+}
+
 // ---- Responses ----
 
 // UserResponse matches the `User` schema.

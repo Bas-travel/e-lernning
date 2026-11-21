@@ -72,7 +72,11 @@ func main() {
 		httpx.JSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 
-	auth.Register(mux, guard, auth.NewService(auth.NewRepository(db), cfg.JWTSecret))
+	authSvc := auth.NewService(auth.NewRepository(db), cfg.JWTSecret)
+	if cfg.AuthDelivery == "log" {
+		authSvc.WithNotifier(auth.LogNotifier{})
+	}
+	auth.Register(mux, guard, authSvc)
 	courses.Register(mux, courses.NewService(courses.NewRepository(db)))
 	home.NewHandler(home.NewService(home.NewRepository(db))).RegisterRoutes(mux, protected)
 	learning.NewHandler(learning.NewService(learningRepo, learningRepo, certificateRepo)).RegisterRoutes(mux, protected)

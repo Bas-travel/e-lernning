@@ -22,8 +22,9 @@ var (
 )
 
 type Service struct {
-	repo   *Repository
-	secret string
+	repo     *Repository
+	secret   string
+	notifier Notifier // nil until delivery is configured
 }
 
 func NewService(repo *Repository, secret string) *Service {
@@ -84,7 +85,14 @@ func (s *Service) Register(req RegisterRequest) (User, error) {
 		return User{}, err
 	}
 	u, err := s.repo.ByID(id)
-	return u.User, err
+	if err != nil {
+		return u.User, err
+	}
+	if s.notifier != nil {
+		// Best effort: the user can request another code with resend-otp.
+		_ = s.issueOTP(u.User)
+	}
+	return u.User, nil
 }
 
 func (s *Service) Me(id int64) (User, error) {

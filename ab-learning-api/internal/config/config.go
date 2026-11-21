@@ -20,6 +20,9 @@ type Config struct {
 	CORSAllowOrigin    string
 	RateLimitRequests  int
 	RateLimitWindowSec int64
+	// AuthDelivery selects how OTP / reset codes are delivered. "log" (dev
+	// only) prints them to the server log; empty disables the endpoints (501).
+	AuthDelivery string
 }
 
 func Load() Config {
@@ -42,6 +45,7 @@ func Load() Config {
 		CORSAllowOrigin:    get("CORS_ALLOW_ORIGIN", corsDefault),
 		RateLimitRequests:  int(getInt("RATE_LIMIT_REQUESTS", 120)),
 		RateLimitWindowSec: getInt("RATE_LIMIT_WINDOW_SECONDS", 60),
+		AuthDelivery:       get("AUTH_DELIVERY", ""),
 	}
 	if c.JWTSecret == "" {
 		if c.Env == "production" || c.Env == "staging" {
@@ -71,6 +75,9 @@ func (c Config) Validate() error {
 	}
 	if c.DBDSN == "" {
 		return fmt.Errorf("DB_DSN must be set in staging and production")
+	}
+	if c.AuthDelivery == "log" {
+		return fmt.Errorf("AUTH_DELIVERY=log is for development only and must not be used in staging or production")
 	}
 	if c.SeedDev {
 		return fmt.Errorf("SEED_DEV must be disabled in staging and production")
