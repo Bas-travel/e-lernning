@@ -1,4 +1,5 @@
 import '../../features/auth/data/account_repository.dart';
+import '../../features/catalog/data/catalog_repository.dart';
 import '../../features/tutor/data/tutor_repository.dart';
 import '../network/rest_client.dart';
 import '../network/api_config.dart';
@@ -10,6 +11,7 @@ class AppDependencies {
   static RestClient? _client;
   static AccountRepository? _auth;
   static TutorRepository? _tutor;
+  static CatalogRepository? _catalog;
 
   /// One client (and token store) shared by every API repository.
   static RestClient get apiClient =>
@@ -27,9 +29,17 @@ class AppDependencies {
 
   static set tutorRepository(TutorRepository value) => _tutor = value;
 
+  static CatalogRepository get catalogRepository =>
+      _catalog ??= ApiConfig.useMockAuth
+          ? const OfflineCatalogRepository()
+          : ApiCatalogRepository(apiClient);
+
+  static set catalogRepository(CatalogRepository value) => _catalog = value;
+
   static void reset() {
     _client = null;
     _auth = null;
     _tutor = null;
+    _catalog = null;
   }
 }
