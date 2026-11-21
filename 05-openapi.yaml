@@ -333,6 +333,27 @@ paths:
                 code: { type: string }
       responses:
         '200': { description: Verified }
+        '422': { description: Invalid or expired code }
+
+  /auth/resend-otp:
+    post:
+      tags: [Auth]
+      summary: Send a new sign-up code (at most one per minute)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id: { type: integer }
+      responses:
+        '200': { description: Sent }
+        '404': { description: Unknown user }
+        '429': { description: Requested again within 60 seconds }
+        '501': { description: Code delivery is not configured on this server }
 
   /auth/forgot-password:
     post:
@@ -348,7 +369,9 @@ paths:
               properties:
                 email: { type: string }
       responses:
-        '200': { description: Reset link sent }
+        '200': { description: Accepted (also for unknown e-mails, by design) }
+        '422': { description: Invalid e-mail }
+        '501': { description: Code delivery is not configured on this server }
 
   /me:
     get:
@@ -384,9 +407,10 @@ paths:
               properties:
                 interests: { type: array, items: { type: string } }
                 level: { type: string }
-                goal: { type: string }
+                goal: { type: string, description: 'get_job, upskill, career_change, freelance or business; the app labels such as "Get a Job" are also accepted' }
       responses:
         '200': { description: Saved }
+        '422': { description: Validation failed }
 
   /home:
     get:
