@@ -79,12 +79,12 @@ class _HomeMobile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       child: _HeroCard(
                         titleSize: 14,
                         subtitleSize: 11.5,
                         subtitle: 'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ',
-                        buttonPadding: EdgeInsets.symmetric(
+                        buttonPadding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
                         buttonFontSize: 12,
                         titleGap: 4,
@@ -245,7 +245,7 @@ class _HomeDesktop extends StatelessWidget {
                               subtitleSize: 12.5,
                               subtitle:
                                   'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณแบบเฉพาะบุคคล',
-                              buttonPadding: EdgeInsets.symmetric(
+                              buttonPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 9,
                               ),
