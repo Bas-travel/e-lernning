@@ -35,7 +35,8 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  List<CatalogCourse> get _results => CourseCatalogSample.search(_controller.text);
+  List<CatalogCourse> get _results =>
+      CourseCatalogSample.search(_controller.text);
 
   void _back() {
     if (Navigator.of(context).canPop()) {
@@ -128,7 +129,8 @@ class _SearchScreenState extends State<SearchScreen> {
             child: ColoredBox(
               color: AppColors.background,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 60, vertical: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

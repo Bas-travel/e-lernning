@@ -16,6 +16,7 @@ class AppColors {
   static const pillErrorBg = Color(0xFFFEE2E2);
   // Button & card tokens
   static const btnPrimaryBg = Color(0xFF4338CA);
+
   /// Primary button when disabled (primary at 40% opacity).
   static const primaryDisabled = Color(0x664338CA);
   static const btnOutlineBorder = Color(0xFF4338CA);
@@ -24,20 +25,28 @@ class AppColors {
   // --- Additional values used by 02-hifi-mockups.html (not in design-tokens.json) ---
   /// Hairline borders for topbar, inputs, ghost buttons, bottom nav (#E2E8F0).
   static const border = Color(0xFFE2E8F0);
+
   /// Progress track / inactive dot (#E2E8F0).
   static const track = Color(0xFFE2E8F0);
+
   /// Neutral chip background (#F1F5F9).
   static const chipBg = Color(0xFFF1F5F9);
+
   /// Active sidebar item background and role badge (#EEF2FF).
   static const primaryTint = Color(0xFFEEF2FF);
+
   /// Second stop of the brand-tinted auth background (#F5F3FF).
   static const secondaryTint = Color(0xFFF5F3FF);
+
   /// Video player surface (#0F172A).
   static const playerSurface = Color(0xFF0F172A);
+
   /// Muted text on dark surfaces (#94A3B8).
   static const textOnDarkMuted = Color(0xFF94A3B8);
+
   /// Teal used as the end stop of "live" gradients (#0891B2).
   static const live = Color(0xFF0891B2);
+
   /// Orange used as the end stop of warning gradients (#F97316).
   static const orange = Color(0xFFF97316);
 

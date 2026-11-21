@@ -115,7 +115,8 @@ class _OtpScreenState extends State<OtpScreen> {
       if (error != null) {
         _error = error;
       } else if (!sent) {
-        _error = 'ระบบยังไม่เปิดให้ส่งรหัสซ้ำ กรุณาใช้รหัสเดิมหรือติดต่อฝ่ายสนับสนุน';
+        _error =
+            'ระบบยังไม่เปิดให้ส่งรหัสซ้ำ กรุณาใช้รหัสเดิมหรือติดต่อฝ่ายสนับสนุน';
       } else {
         _controller.clear();
         _seconds = _resendSeconds;

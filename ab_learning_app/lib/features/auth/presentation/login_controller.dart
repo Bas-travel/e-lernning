@@ -10,8 +10,7 @@ class LoginController extends ChangeNotifier {
 
   final AccountRepository _repository;
 
-  static const missingFieldsMessage =
-      'กรุณากรอกอีเมลหรือเบอร์โทร และรหัสผ่าน';
+  static const missingFieldsMessage = 'กรุณากรอกอีเมลหรือเบอร์โทร และรหัสผ่าน';
   static const unexpectedMessage = 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่';
 
   bool _isLoading = false;

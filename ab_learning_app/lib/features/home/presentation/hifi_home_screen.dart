@@ -53,7 +53,8 @@ class _HomeMobile extends StatelessWidget {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -83,8 +84,8 @@ class _HomeMobile extends StatelessWidget {
                         titleSize: 14,
                         subtitleSize: 11.5,
                         subtitle: 'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ',
-                        buttonPadding:
-                            const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        buttonPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         buttonFontSize: 12,
                         titleGap: 4,
                         subtitleGap: 10,
@@ -92,7 +93,8 @@ class _HomeMobile extends StatelessWidget {
                     ),
                     const _SectionTitle('เรียนต่อ', horizontalPadding: 16),
                     const _ContinueRow(),
-                    const _SectionTitle('แนะนำสำหรับคุณ', horizontalPadding: 16),
+                    const _SectionTitle('แนะนำสำหรับคุณ',
+                        horizontalPadding: 16),
                     const _RecommendedRow(),
                     const _SectionTitle(
                       'Live กำลังจะเริ่ม',
@@ -200,7 +202,8 @@ class _HomeDesktop extends StatelessWidget {
             child: ColoredBox(
               color: AppColors.background,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

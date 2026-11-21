@@ -23,7 +23,8 @@ void main() {
       expect(taps, 1);
     });
 
-    testWidgets('is disabled and shows a spinner while loading', (tester) async {
+    testWidgets('is disabled and shows a spinner while loading',
+        (tester) async {
       var taps = 0;
       await tester.pumpWidget(
         _wrap(

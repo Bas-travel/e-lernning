@@ -23,24 +23,29 @@ Widget _app(String initial) {
     routerConfig: GoRouter(
       initialLocation: initial,
       routes: [
-        GoRoute(path: '/checkout/:id', builder: (_, s) {
-          return CheckoutScreen(courseId: s.pathParameters['id'] ?? '');
-        }),
-        GoRoute(path: '/community', builder: (_, __) => const CommunityScreen()),
+        GoRoute(
+            path: '/checkout/:id',
+            builder: (_, s) {
+              return CheckoutScreen(courseId: s.pathParameters['id'] ?? '');
+            }),
+        GoRoute(
+            path: '/community', builder: (_, __) => const CommunityScreen()),
         GoRoute(path: '/tutor', builder: (_, __) => const HifiAiTutorScreen()),
         GoRoute(path: '/wallet', builder: (_, __) => const WalletScreen()),
         GoRoute(
           path: '/certificates',
           builder: (_, __) => const CertificatesScreen(),
         ),
-        GoRoute(path: '/portfolio', builder: (_, __) => const PortfolioScreen()),
+        GoRoute(
+            path: '/portfolio', builder: (_, __) => const PortfolioScreen()),
         GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
         GoRoute(path: '/help', builder: (_, __) => const HelpCenterScreen()),
         GoRoute(
           path: '/profile/edit',
           builder: (_, __) => const EditProfileScreen(),
         ),
-        GoRoute(path: '/explore', builder: (_, __) => const HifiExploreScreen()),
+        GoRoute(
+            path: '/explore', builder: (_, __) => const HifiExploreScreen()),
         GoRoute(path: '/learn', builder: (_, __) => stub('LEARN PAGE')),
         GoRoute(path: '/home', builder: (_, __) => stub('HOME PAGE')),
         GoRoute(path: '/profile', builder: (_, __) => stub('PROFILE PAGE')),

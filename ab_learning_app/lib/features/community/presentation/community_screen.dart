@@ -20,8 +20,13 @@ class _Post {
 
 /// Demo feed. TODO(api): `GET /community/posts`, `POST /community/posts`.
 const _posts = <_Post>[
-  _Post('Nattaya P.', 'เพิ่งเรียน Go จบบทที่ 5 ใครมีเทคนิคจัดโครงสร้างโปรเจกต์ แนะนำหน่อยครับ', 12, 4),
-  _Post('Somchai K.', 'แชร์โน้ต SQL JOIN แบบเข้าใจง่าย ใช้ตัวอย่างร้านกาแฟ', 31, 9),
+  _Post(
+      'Nattaya P.',
+      'เพิ่งเรียน Go จบบทที่ 5 ใครมีเทคนิคจัดโครงสร้างโปรเจกต์ แนะนำหน่อยครับ',
+      12,
+      4),
+  _Post('Somchai K.', 'แชร์โน้ต SQL JOIN แบบเข้าใจง่าย ใช้ตัวอย่างร้านกาแฟ', 31,
+      9),
   _Post('Pim W.', 'มีใครตั้งกลุ่มติว Prompt Engineering สัปดาห์นี้บ้าง?', 7, 2),
 ];
 
@@ -32,7 +37,8 @@ class CommunityScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
-        Text('Community', style: AppTypography.base(18, weight: FontWeight.w700)),
+        Text('Community',
+            style: AppTypography.base(18, weight: FontWeight.w700)),
         const SizedBox(height: 12),
         for (final p in _posts) ...[
           AppCard(

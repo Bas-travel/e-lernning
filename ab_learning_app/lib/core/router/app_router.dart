@@ -113,7 +113,8 @@ class AppRouter {
                       : AuthRepository(apiClient: apiClient),
                 )),
         GoRoute(
-            path: '/classic/home', builder: (context, state) => const MainShell()),
+            path: '/classic/home',
+            builder: (context, state) => const MainShell()),
         GoRoute(
             path: '/classic/course/:id',
             builder: (context, state) =>

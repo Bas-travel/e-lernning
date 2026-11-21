@@ -58,8 +58,8 @@ class _AiTutorScreenState extends State<HifiAiTutorScreen> {
       _controller.clear();
     });
     try {
-      final reply = await AppDependencies.tutorRepository
-          .ask(message, action: action);
+      final reply =
+          await AppDependencies.tutorRepository.ask(message, action: action);
       if (!mounted) return;
       setState(() => _messages.add(_Message(reply, fromUser: false)));
     } on RestException catch (e) {
@@ -133,7 +133,8 @@ class _AiTutorScreenState extends State<HifiAiTutorScreen> {
                     controller: _controller,
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _send(),
-                    decoration: const InputDecoration(hintText: 'พิมพ์คำถาม...'),
+                    decoration:
+                        const InputDecoration(hintText: 'พิมพ์คำถาม...'),
                   ),
                 ),
                 const SizedBox(width: 8),

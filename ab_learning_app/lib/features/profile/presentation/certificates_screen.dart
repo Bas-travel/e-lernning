@@ -27,7 +27,8 @@ class CertificatesScreen extends StatelessWidget {
                     gradient: AppGradients.warm,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.workspace_premium, color: Colors.white),
+                  child:
+                      const Icon(Icons.workspace_premium, color: Colors.white),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -41,7 +42,8 @@ class CertificatesScreen extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         'ออกเมื่อ ${c.issued} · ${c.code}',
-                        style: AppTypography.base(11, color: AppColors.textSecondary),
+                        style: AppTypography.base(11,
+                            color: AppColors.textSecondary),
                       ),
                     ],
                   ),

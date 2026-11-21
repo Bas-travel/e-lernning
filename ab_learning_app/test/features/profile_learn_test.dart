@@ -39,7 +39,8 @@ Widget _router(String initial) {
 void main() {
   installMockAuth();
 
-  testWidgets('profile falls back to demo data when signed out', (tester) async {
+  testWidgets('profile falls back to demo data when signed out',
+      (tester) async {
     useViewport(tester, mobileSize);
 
     await tester.pumpWidget(_router('/profile'));

@@ -230,7 +230,8 @@ class _RegisterScreenState extends State<HifiRegisterScreen> {
             SizedBox(height: desktop ? 18 : 16),
             AppButton.primary(
               label: 'Create Account',
-              onPressed: (_acceptTerms && _confirmError == null) ? _submit : null,
+              onPressed:
+                  (_acceptTerms && _confirmError == null) ? _submit : null,
               loading: _loading,
               expand: true,
             ),

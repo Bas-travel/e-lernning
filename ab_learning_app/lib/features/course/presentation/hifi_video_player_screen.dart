@@ -159,7 +159,8 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
                       children: [
                         Text(
                           _lessonTitle,
-                          style: AppTypography.base(14, weight: FontWeight.w600),
+                          style:
+                              AppTypography.base(14, weight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -260,8 +261,11 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
                   color: AppColors.playerSurface,
                   child: Row(
                     children: [
-                      for (final (i, label)
-                          in const ['Transcript', 'Notes', 'Discussion'].indexed) ...[
+                      for (final (i, label) in const [
+                        'Transcript',
+                        'Notes',
+                        'Discussion'
+                      ].indexed) ...[
                         if (i > 0) const SizedBox(width: 16),
                         i == 0
                             ? AppChip(label: label, active: true)
@@ -315,7 +319,8 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
                       children: [
                         Text(
                           '▶ $_lessonTitle',
-                          style: AppTypography.base(12.5, weight: FontWeight.w600),
+                          style:
+                              AppTypography.base(12.5, weight: FontWeight.w600),
                         ),
                         Text(
                           '24:35 · กำลังเล่น',
