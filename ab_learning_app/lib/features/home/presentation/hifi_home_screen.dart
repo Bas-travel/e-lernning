@@ -79,29 +79,30 @@ class _HomeMobile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       child: _HeroCard(
                         titleSize: 14,
                         subtitleSize: 11.5,
                         subtitle: 'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ',
-                        buttonPadding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
+                        buttonPadding: EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         buttonFontSize: 12,
                         titleGap: 4,
                         subtitleGap: 10,
                       ),
                     ),
-                    const _SectionTitle('เรียนต่อ', horizontalPadding: 16),
-                    const _ContinueRow(),
-                    const _SectionTitle('แนะนำสำหรับคุณ',
-                        horizontalPadding: 16),
-                    const _RecommendedRow(),
-                    const _SectionTitle(
+                    _SectionTitle('เรียนต่อ', horizontalPadding: 16),
+                    _ContinueRow(),
+                    _SectionTitle('แนะนำสำหรับคุณ', horizontalPadding: 16),
+                    _RecommendedRow(),
+                    _SectionTitle(
                       'Live กำลังจะเริ่ม',
                       horizontalPadding: 16,
                     ),
-                    const _LiveRow(),
-                    const SizedBox(height: 16),
+                    _LiveRow(),
+                    SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -245,7 +246,7 @@ class _HomeDesktop extends StatelessWidget {
                               subtitleSize: 12.5,
                               subtitle:
                                   'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณแบบเฉพาะบุคคล',
-                              buttonPadding: const EdgeInsets.symmetric(
+                              buttonPadding: EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 9,
                               ),
