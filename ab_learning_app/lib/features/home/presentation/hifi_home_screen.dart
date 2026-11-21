@@ -72,19 +72,19 @@ class _HomeMobile extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
+          const Expanded(
             child: SingleChildScrollView(
               child: CenteredContent(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       child: _HeroCard(
                         titleSize: 14,
                         subtitleSize: 11.5,
                         subtitle: 'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ',
-                        buttonPadding: const EdgeInsets.symmetric(
+                        buttonPadding: EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
                         buttonFontSize: 12,
                         titleGap: 4,
@@ -238,14 +238,14 @@ class _HomeDesktop extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
+                          const Expanded(
                             flex: 2,
                             child: _HeroCard(
                               titleSize: 16,
                               subtitleSize: 12.5,
                               subtitle:
                                   'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณแบบเฉพาะบุคคล',
-                              buttonPadding: const EdgeInsets.symmetric(
+                              buttonPadding: EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 9,
                               ),

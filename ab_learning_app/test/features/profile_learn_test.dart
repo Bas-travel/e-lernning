@@ -56,7 +56,8 @@ void main() {
 
     await tester.pumpWidget(_router('/profile'));
     await tester.pumpAndSettle();
-    expect(find.text('real@user.test'), findsOneWidget);
+    // The e-mail shows in both the header and the account details.
+    expect(find.text('real@user.test'), findsWidgets);
   });
 
   testWidgets('logout clears the session and opens login', (tester) async {

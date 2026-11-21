@@ -129,8 +129,8 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
                     child: Container(
                       height: 210,
                       color: AppColors.playerSurface,
-                      child: Stack(
-                        children: const [
+                      child: const Stack(
+                        children: [
                           Center(
                             child: Icon(
                               Icons.play_arrow,
@@ -233,8 +233,8 @@ class _VideoPlayerScreenState extends State<HifiVideoPlayerScreen> {
                 Expanded(
                   child: Semantics(
                     label: 'Video player, lesson ${widget.lessonId}',
-                    child: Stack(
-                      children: const [
+                    child: const Stack(
+                      children: [
                         Center(
                           child: Icon(
                             Icons.play_arrow,
