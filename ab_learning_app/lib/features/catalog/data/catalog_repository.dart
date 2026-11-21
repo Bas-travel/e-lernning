@@ -12,6 +12,10 @@ import 'catalog_models.dart';
 /// as "use the bundled sample data", so the app keeps working offline and the
 /// slug-based demo content (`go-backend`, `lesson1`) keeps resolving.
 abstract class CatalogRepository {
+  /// True when this repository never has server data (offline stand-in), so
+  /// screens can show their bundled content immediately instead of loading.
+  bool get bundledOnly;
+
   Future<HomeFeed?> homeFeed();
   Future<CatalogCourse?> course(String id);
   Future<List<CatalogSection>?> curriculum(String courseId);
@@ -30,6 +34,9 @@ class ApiCatalogRepository implements CatalogRepository {
   ApiCatalogRepository(this._client);
 
   final RestClient _client;
+
+  @override
+  bool get bundledOnly => false;
 
   /// Only numeric ids exist on the server.
   static int? numericId(String id) => int.tryParse(id.trim());
@@ -115,6 +122,9 @@ class ApiCatalogRepository implements CatalogRepository {
 /// available, so every screen shows its bundled sample content.
 class OfflineCatalogRepository implements CatalogRepository {
   const OfflineCatalogRepository();
+
+  @override
+  bool get bundledOnly => true;
 
   @override
   Future<HomeFeed?> homeFeed() async => null;
