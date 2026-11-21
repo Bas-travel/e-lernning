@@ -74,6 +74,35 @@ jobs:
           flags: backend
           fail_ci_if_error: false
 
+  migrations:
+    name: Backend — MySQL migrations
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci_root_pw
+          MYSQL_DATABASE: ab_learning_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci_root_pw"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    defaults:
+      run:
+        working-directory: ab-learning-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.x'
+      - name: Apply migrations twice (idempotency)
+        env:
+          TEST_DB_DSN: root:ci_root_pw@tcp(127.0.0.1:3306)/ab_learning_test?charset=utf8mb4&parseTime=true
+        run: go test ./internal/database/... -run TestMigrateFromEmpty -v -count=1
+
   frontend:
     name: Frontend — Analyze & Test
     runs-on: ubuntu-latest
