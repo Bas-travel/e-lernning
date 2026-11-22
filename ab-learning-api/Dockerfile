@@ -19,9 +19,15 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -ldflags="-s -w" -o /app/ab-api
 
 FROM alpine:3.18
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates \
+    && addgroup -S app && adduser -S app -G app
 
+WORKDIR /app
 COPY --from=builder /app/ab-api /usr/local/bin/ab-api
+# The API applies these at startup (MIGRATIONS_DIR).
+COPY db/migrations /app/db/migrations
+RUN mkdir -p /app/uploads && chown -R app:app /app
+USER app
 
 EXPOSE 8080
 

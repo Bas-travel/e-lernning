@@ -39,3 +39,6 @@ coverage/
 
 # Flutter-generated plugin registrants (recreated by flutter pub get)
 ab_learning_app/windows/flutter/generated_*
+
+# Local MySQL data dir (never commit database files)
+ab-learning-api/mysql/

@@ -103,6 +103,42 @@ jobs:
           TEST_DB_DSN: root:ci_root_pw@tcp(127.0.0.1:3306)/ab_learning_test?charset=utf8mb4&parseTime=true
         run: go test ./internal/database/... -run TestMigrateFromEmpty -v -count=1
 
+  local-stack:
+    name: Backend — Docker stack smoke
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ab-learning-api
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start MySQL + API
+        run: docker compose up --build -d
+      - name: Wait for health
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/api/v1/health; then exit 0; fi
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - name: Login as seeded learner and read catalog
+        run: |
+          TOKEN=$(curl -fsS -X POST http://localhost:8080/api/v1/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"identifier":"learner@ablearning.co","password":"Password123!"}' \
+            | python3 -c 'import sys,json; print(json.load(sys.stdin)["access_token"])')
+          test -n "$TOKEN"
+          curl -fsS http://localhost:8080/api/v1/courses | python3 -c 'import sys,json; d=json.load(sys.stdin); assert d, "no courses"'
+          curl -fsS -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/home > /dev/null
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/v1/home)
+          test "$code" = "401"
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v
+
   frontend:
     name: Frontend — Analyze & Test
     runs-on: ubuntu-latest

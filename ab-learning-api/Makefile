@@ -21,8 +21,8 @@ fmt:
 
 up:
 	docker compose up --build -d
-	@echo "API:    http://localhost:8080/health"
-	@echo "MySQL:  localhost:3306 (ab_app / ab_app_pw)"
+	@echo "API:    http://localhost:8080/api/v1/health"
+	@echo "MySQL:  127.0.0.1:3307 (ab_app / ab_app_pw), local only"
 
 down:
 	docker compose down
@@ -30,8 +30,8 @@ down:
 logs:
 	docker compose logs -f api
 
-# Wipes the MySQL volume so db/init/*.sql reruns from scratch on next `up`.
-# Use after editing 04-schema.sql or seed.sql during development.
+# Wipes the LOCAL MySQL volume; migrations + dev seed rerun on the next `up`.
+# Destroys local data only. Never point it at a shared database.
 reseed:
 	docker compose down -v
 	$(MAKE) up

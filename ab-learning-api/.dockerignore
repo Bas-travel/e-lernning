@@ -1,0 +1,8 @@
+.env
+.env.*
+env/
+mysql/
+uploads/
+bin/
+coverage.out
+*.md

@@ -5,10 +5,10 @@ DEPLOY_DIR=deployments/docker
 .PHONY: up build api-run api-build seed migrate test fmt
 
 up:
-	cd $(DEPLOY_DIR) && docker compose up --build
+	cd $(API_DIR) && docker compose up --build -d
 
 build:
-	cd $(DEPLOY_DIR) && docker compose build
+	cd $(API_DIR) && docker compose build
 
 api-run:
 	cd $(API_DIR) && go run ./cmd/api
