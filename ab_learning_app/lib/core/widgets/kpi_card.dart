@@ -72,7 +72,7 @@ class KpiRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 92,
+      height: 104,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: stats.map((s) => KpiCard(stat: s)).toList(),
