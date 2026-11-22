@@ -70,7 +70,7 @@ class AppRouter {
             ? null
             : CurrentUser.homeRouteFor(CurrentUser.role);
       },
-      routes: <GoRoute>[
+      routes: <RouteBase>[
         // --- Auth / onboarding (hi-fi UI) ---------------------------------
         GoRoute(
             path: '/', builder: (context, state) => const HifiSplashScreen()),
