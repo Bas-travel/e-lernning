@@ -139,6 +139,13 @@ class LessonDetail {
 
   bool get isCompleted => status == 'completed';
 
+  /// "12:05" style label.
+  String get durationLabel {
+    final m = durationSeconds ~/ 60;
+    final s = (durationSeconds % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   factory LessonDetail.fromJson(Map<String, dynamic> json) {
     final video = json['video_url'] as String?;
     return LessonDetail(
