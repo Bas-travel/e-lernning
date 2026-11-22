@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import '../models/home_feed.dart';
 import 'home_sample_data.dart';
 
@@ -39,9 +37,9 @@ class HomeContent {
 
   /// The demo content from the mockup (offline / slug ids).
   factory HomeContent.sample() {
-    return HomeContent(
+    return const HomeContent(
       careerProgress: HomeSampleData.careerProgress,
-      continueItems: const [
+      continueItems: [
         HomeContinue(
           title: HomeSampleData.continueTitle,
           progress: HomeSampleData.continueProgress,
@@ -49,7 +47,7 @@ class HomeContent {
         ),
       ],
       recommended: HomeSampleData.recommended,
-      live: const HomeLive(
+      live: HomeLive(
         title: HomeSampleData.liveTitle,
         startsIn: HomeSampleData.liveStartsIn,
       ),
