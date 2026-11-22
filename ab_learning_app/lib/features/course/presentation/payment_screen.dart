@@ -1,10 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/di/app_dependencies.dart';
+import '../../../core/format/baht.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
 import '../../../core/theme/typography.dart';
 import '../../../data/mock/mock_repository.dart';
 import '../../../data/mock/models.dart';
+import '../../catalog/data/catalog_models.dart';
+import '../../catalog/data/catalog_repository.dart';
+import '../../checkout/data/orders_repository.dart';
 
 enum _PaymentMethod { promptPay, card, mobileBanking, abWallet }
 
@@ -21,6 +28,50 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   _PaymentMethod _selectedMethod = _PaymentMethod.promptPay;
   bool _isProcessing = false;
+
+  /// Server course for a numeric id; null means the bundled demo flow.
+  CatalogCourse? _apiCourse;
+  bool _loadingCourse = false;
+
+  /// Reused by every tap of "pay", so a retry never creates a second order.
+  final String _idempotencyKey = _newIdempotencyKey();
+
+  static String _newIdempotencyKey() {
+    final r = Random.secure();
+    final hex = List.generate(16, (_) => r.nextInt(16).toRadixString(16));
+    return 'app-${hex.join()}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final catalog = AppDependencies.catalogRepository;
+    if (!catalog.bundledOnly &&
+        ApiCatalogRepository.numericId(widget.courseId) != null) {
+      _loadingCourse = true;
+      _loadCourse(catalog);
+    }
+  }
+
+  Future<void> _loadCourse(CatalogRepository catalog) async {
+    final course = await catalog.course(widget.courseId);
+    if (!mounted) return;
+    setState(() {
+      _apiCourse = course;
+      _loadingCourse = false;
+    });
+  }
+
+  /// The server only supports PromptPay and card; the other tiles belong to
+  /// the demo flow.
+  List<_MethodDetails> get _availableMethods => _apiCourse == null
+      ? _methods
+      : [
+          for (final m in _methods)
+            if (m.method == _PaymentMethod.promptPay ||
+                m.method == _PaymentMethod.card)
+              m,
+        ];
 
   static const _methods = [
     _MethodDetails(
@@ -53,13 +104,82 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String get _selectedMethodLabel =>
       _methods.firstWhere((item) => item.method == _selectedMethod).title;
 
+  /// What the order summary and the pay button show, from either source.
+  _Summary _summary(Course course, String title) {
+    final api = _apiCourse;
+    if (api == null) {
+      return _Summary(
+        title: title,
+        instructor: course.instructor,
+        priceLabel: course.priceLabel,
+        originalPriceLabel: course.originalPriceLabel,
+        colorHex: course.coverColorHex,
+      );
+    }
+    final discounted =
+        api.discountPrice != null && api.discountPrice! < api.price;
+    return _Summary(
+      title: widget.courseTitle ?? api.title,
+      instructor: api.instructorName,
+      priceLabel: formatBaht(api.effectivePrice),
+      originalPriceLabel: discounted ? formatBaht(api.price) : null,
+      colorHex: '4F46E5',
+    );
+  }
+
+  /// Real purchase through the API (sandbox gateway).
+  Future<void> _payWithApi(CatalogCourse api) async {
+    setState(() => _isProcessing = true);
+    final result = await AppDependencies.ordersRepository.payForCourse(
+      api.id,
+      method: _selectedMethod == _PaymentMethod.card ? 'card' : 'promptpay',
+      idempotencyKey: _idempotencyKey,
+    );
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    final order = result.order;
+    if (order == null) {
+      final message = switch (result.failure) {
+        CheckoutFailure.alreadyOwned => 'คุณมีคอร์สนี้อยู่แล้ว',
+        CheckoutFailure.unavailable => 'ไม่สามารถซื้อคอร์สนี้ได้ในขณะนี้',
+        _ => 'ชำระเงินไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+      };
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      if (result.failure == CheckoutFailure.alreadyOwned) {
+        context.go('/course/${api.id}/curriculum');
+      }
+      return;
+    }
+    await _showSuccess(api.title, order.code);
+  }
+
   Future<void> _pay(Course course) async {
+    final api = _apiCourse;
+    if (api != null) {
+      await _payWithApi(api);
+      return;
+    }
     setState(() => _isProcessing = true);
     await Future<void>.delayed(const Duration(milliseconds: 650));
     if (!mounted) return;
     setState(() => _isProcessing = false);
 
     MockRepository.enrollInCourse(course.id);
+    await _showSuccess(
+      course.title,
+      'AB${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      demo: true,
+    );
+  }
+
+  Future<void> _showSuccess(
+    String courseTitle,
+    String orderCode, {
+    bool demo = false,
+  }) async {
     final shouldContinue = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -70,14 +190,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('ลงทะเบียน ${course.title} เรียบร้อยแล้ว'),
+            Text('ลงทะเบียน $courseTitle เรียบร้อยแล้ว'),
             const SizedBox(height: 12),
             Text('ช่องทาง: $_selectedMethodLabel',
                 style: AppTypography.caption
                     .copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: 4),
-            Text(
-                'เลขที่คำสั่งซื้อ: AB${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+            Text('เลขที่คำสั่งซื้อ: $orderCode',
                 style: AppTypography.micro
                     .copyWith(color: AppColors.textSecondary)),
             const SizedBox(height: 12),
@@ -99,14 +218,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
     if (shouldContinue == true && mounted) {
-      context.go('/course/${course.id}/curriculum');
+      context.go('/course/${widget.courseId}/curriculum');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingCourse) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final Course course = MockRepository.courseById(widget.courseId);
     final String title = widget.courseTitle ?? course.title;
+    final summary = _summary(course, title);
     final isDesktop = MediaQuery.sizeOf(context).width >= 800;
 
     return Scaffold(
@@ -140,11 +263,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       Expanded(child: _buildPaymentMethods()),
                       const SizedBox(width: 20),
                       SizedBox(
-                          width: 330, child: _buildOrderSummary(course, title)),
+                          width: 330, child: _buildOrderSummary(summary)),
                     ],
                   )
                 else ...[
-                  _buildOrderSummary(course, title),
+                  _buildOrderSummary(summary),
                   const SizedBox(height: 24),
                   _buildPaymentMethods(),
                 ],
@@ -206,7 +329,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       : const Icon(Icons.lock_outline),
                   label: Text(_isProcessing
                       ? 'กำลังดำเนินการ...'
-                      : 'ชำระเงิน ${course.priceLabel}'),
+                      : 'ชำระเงิน ${summary.priceLabel}'),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
@@ -232,7 +355,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       children: [
         const Text('ช่องทางการชำระเงิน', style: AppTypography.h2),
         const SizedBox(height: 10),
-        for (final details in _methods) ...[
+        for (final details in _availableMethods) ...[
           _PaymentMethodTile(
             details: details,
             selected: _selectedMethod == details.method,
@@ -244,11 +367,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildOrderSummary(Course course, String title) {
-    final currentPrice = _priceValue(course.priceLabel);
-    final originalPrice = course.originalPriceLabel == null
+  Widget _buildOrderSummary(_Summary summary) {
+    final currentPrice = _priceValue(summary.priceLabel);
+    final originalPrice = summary.originalPriceLabel == null
         ? null
-        : _priceValue(course.originalPriceLabel!);
+        : _priceValue(summary.originalPriceLabel!);
     final savings = originalPrice == null ? 0 : originalPrice - currentPrice;
 
     return Container(
@@ -270,25 +393,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 height: 58,
                 decoration: BoxDecoration(
                   color:
-                      Color(int.parse('FF${course.coverColorHex}', radix: 16))
+                      Color(int.parse('FF${summary.colorHex}', radix: 16))
                           .withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(AppRadius.input),
                 ),
                 child: Icon(Icons.school_outlined,
                     color: Color(
-                        int.parse('FF${course.coverColorHex}', radix: 16))),
+                        int.parse('FF${summary.colorHex}', radix: 16))),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
+                    Text(summary.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.body
                             .copyWith(fontWeight: FontWeight.w600)),
-                    Text(course.instructor,
+                    Text(summary.instructor,
                         style: AppTypography.caption
                             .copyWith(color: AppColors.textSecondary)),
                   ],
@@ -299,8 +422,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           const Divider(height: 28),
           _SummaryRow(
             label: 'ราคาคอร์ส',
-            value: course.originalPriceLabel ?? course.priceLabel,
-            valueColor: course.originalPriceLabel == null
+            value: summary.originalPriceLabel ?? summary.priceLabel,
+            valueColor: summary.originalPriceLabel == null
                 ? null
                 : AppColors.textSecondary,
           ),
@@ -314,7 +437,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           const Divider(height: 24),
           _SummaryRow(
               label: 'ยอดชำระทั้งหมด',
-              value: course.priceLabel,
+              value: summary.priceLabel,
               emphasize: true),
           const SizedBox(height: 12),
           const Row(
@@ -339,6 +462,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
         RegExp(r'\B(?=(\d{3})+(?!\d))'),
         (match) => ',',
       );
+}
+
+class _Summary {
+  const _Summary({
+    required this.title,
+    required this.instructor,
+    required this.priceLabel,
+    required this.originalPriceLabel,
+    required this.colorHex,
+  });
+
+  final String title;
+  final String instructor;
+  final String priceLabel;
+  final String? originalPriceLabel;
+  final String colorHex;
 }
 
 class _MethodDetails {

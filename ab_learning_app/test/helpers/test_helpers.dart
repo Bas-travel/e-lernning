@@ -1,6 +1,7 @@
 import 'package:ab_learning_app/core/di/app_dependencies.dart';
 import 'package:ab_learning_app/features/auth/data/account_repository.dart';
 import 'package:ab_learning_app/features/catalog/data/catalog_repository.dart';
+import 'package:ab_learning_app/features/checkout/data/orders_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -20,6 +21,7 @@ void installMockAuth() {
     AppDependencies.authRepository =
         MockAccountRepository(latency: Duration.zero);
     AppDependencies.catalogRepository = const OfflineCatalogRepository();
+    AppDependencies.ordersRepository = const OfflineOrdersRepository();
   });
   tearDown(AppDependencies.reset);
 }
