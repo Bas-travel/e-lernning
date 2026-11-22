@@ -1,3 +1,4 @@
+import '../../../core/format/baht.dart';
 import '../models/home_feed.dart';
 import 'home_sample_data.dart';
 
@@ -74,7 +75,7 @@ class HomeContent {
             rating: c.ratingAvg == null
                 ? ''
                 : '${c.ratingAvg!.toStringAsFixed(1)} ★',
-            price: _baht(c.discountPrice ?? c.price),
+            price: formatBaht(c.discountPrice ?? c.price),
             gradient: c.thumbnailGradient,
           ),
       ],
@@ -90,15 +91,4 @@ class HomeContent {
   final HomeLive? live;
 
   static double _fraction(double percent) => (percent / 100).clamp(0.0, 1.0);
-
-  /// 1990 -> "฿1,990"; free or unknown -> "ฟรี".
-  static String _baht(double? amount) {
-    if (amount == null || amount <= 0) return 'ฟรี';
-    final digits = amount.round().toString();
-    final grouped = digits.replaceAllMapped(
-      RegExp(r'\B(?=(\d{3})+(?!\d))'),
-      (_) => ',',
-    );
-    return '฿$grouped';
-  }
 }

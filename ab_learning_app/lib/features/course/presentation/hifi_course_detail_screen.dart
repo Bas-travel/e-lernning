@@ -1,55 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/app_dependencies.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/hifi_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../core/widgets/status_pill.dart';
+import '../../catalog/data/catalog_repository.dart';
 import 'course_back_button.dart';
+import 'course_content.dart';
 
-/// Demo content from `02-hifi-mockups.html` (screen 11).
-/// TODO(api): replace with `GET /api/v1/courses/{id}`.
-const _courseTitle = 'Go Backend Professional';
-const _outcomes = <String>[
-  'ออกแบบ REST API ด้วย Go',
-  'เชื่อมต่อฐานข้อมูล MySQL',
-  'Authentication ด้วย JWT',
-  'Deploy สู่ Production',
-];
-
-class _LessonRow {
-  const _LessonRow(this.prefix, this.title, this.duration,
-      {this.locked = false});
-
-  final String prefix;
-  final String title;
-  final String duration;
-  final bool locked;
-}
-
-const _lessons = <_LessonRow>[
-  _LessonRow('✓', 'Introduction', '12 min'),
-  _LessonRow('▶', 'Go Fundamentals', '1h 20m'),
-  _LessonRow('🔒', 'Production Deployment', '40 min', locked: true),
-];
-
-// Prototype: all unlocked lessons open the same demo lesson.
-const _demoLessonId = 'lesson1';
-
-class HifiCourseDetailScreen extends StatelessWidget {
-  /// Route parameter. TODO(api): fetch course data by this id.
+class HifiCourseDetailScreen extends StatefulWidget {
+  /// Route parameter: a numeric id loads from the API, anything else (the
+  /// bundled `go-backend` slug) shows the sample content.
   final String courseId;
 
   const HifiCourseDetailScreen({super.key, required this.courseId});
 
   @override
+  State<HifiCourseDetailScreen> createState() => _HifiCourseDetailScreenState();
+}
+
+class _HifiCourseDetailScreenState extends State<HifiCourseDetailScreen> {
+  CourseContent? _content;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = AppDependencies.catalogRepository;
+    if (repo.bundledOnly) {
+      _content = CourseContent.sample();
+    } else {
+      _load(repo);
+    }
+  }
+
+  /// Falls back to the bundled demo content when the server has nothing for
+  /// this id (slug id, offline, 404/5xx), so the screen is never blank.
+  Future<void> _load(CatalogRepository repo) async {
+    final course = await repo.course(widget.courseId);
+    final sections =
+        course == null ? null : await repo.curriculum(widget.courseId);
+    if (!mounted) return;
+    setState(() {
+      _content = course == null
+          ? CourseContent.sample()
+          : CourseContent.fromApi(course, sections ?? const []);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final content = _content;
+    if (content == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final courseId = widget.courseId;
     return Scaffold(
       body: ResponsiveBuilder(
-        mobile: (_) => _CourseMobile(courseId: courseId),
-        desktop: (_) => _CourseDesktop(courseId: courseId),
+        mobile: (_) => _CourseMobile(courseId: courseId, content: content),
+        desktop: (_) => _CourseDesktop(courseId: courseId, content: content),
       ),
     );
   }
@@ -59,8 +71,9 @@ class HifiCourseDetailScreen extends StatelessWidget {
 
 class _CourseMobile extends StatelessWidget {
   final String courseId;
+  final CourseContent content;
 
-  const _CourseMobile({required this.courseId});
+  const _CourseMobile({required this.courseId, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -90,39 +103,44 @@ class _CourseMobile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _courseTitle,
+                          content.title,
                           style:
                               AppTypography.base(17, weight: FontWeight.w700),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '⭐ 4.9 (2,140) · 8,421 students · Dr. Krit',
+                          content.metaMobile,
                           style: AppTypography.base(
                             12,
                             color: AppColors.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 10),
-                        const _PriceRow(
+                        _PriceRow(
                           priceSize: 22,
-                          discountLabel: '-40%',
+                          priceLabel: content.priceLabel,
+                          oldPriceLabel: content.oldPriceLabel,
+                          discountLabel: content.discountBadge,
                           oldPriceSize: 13,
                         ),
                         const SizedBox(height: 16),
-                        const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
-                        Text(
-                          [for (final o in _outcomes) '✓ $o'].join('\n'),
-                          style: AppTypography.base(
-                            12.5,
-                            color: AppColors.textSecondary,
-                            height: 1.8,
+                        if (content.outcomes.isNotEmpty) ...[
+                          const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
+                          Text(
+                            [for (final o in content.outcomes) '✓ $o']
+                                .join('\n'),
+                            style: AppTypography.base(
+                              12.5,
+                              color: AppColors.textSecondary,
+                              height: 1.8,
+                            ),
                           ),
-                        ),
+                        ],
                         const _SectionHeading('หลักสูตร'),
-                        for (var i = 0; i < _lessons.length; i++) ...[
+                        for (var i = 0; i < content.lessons.length; i++) ...[
                           if (i > 0) const SizedBox(height: 8),
                           _CurriculumCard(
-                            lesson: _lessons[i],
+                            lesson: content.lessons[i],
                             durationSize: 11,
                           ),
                         ],
@@ -147,7 +165,7 @@ class _CourseMobile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: CenteredContent(
                 child: AppButton.primary(
-                  label: 'ซื้อคอร์สนี้เลย — ฿2,990',
+                  label: 'ซื้อคอร์สนี้เลย — ${content.priceLabel}',
                   onPressed: () => context.push('/checkout/$courseId'),
                   expand: true,
                 ),
@@ -164,8 +182,9 @@ class _CourseMobile extends StatelessWidget {
 
 class _CourseDesktop extends StatelessWidget {
   final String courseId;
+  final CourseContent content;
 
-  const _CourseDesktop({required this.courseId});
+  const _CourseDesktop({required this.courseId, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -193,38 +212,43 @@ class _CourseDesktop extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      _courseTitle,
+                      content.title,
                       style: AppTypography.base(24, weight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '⭐ 4.9 (2,140 รีวิว) · 8,421 students · สอนโดย Dr. Krit',
+                      content.metaDesktop,
                       style: AppTypography.base(
                         13,
                         color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 18),
-                    const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
-                    CardGrid(
-                      columns: 3,
-                      children: [
-                        for (final o in _outcomes.take(3))
-                          AppCard(
-                            child: Text(
-                              '✓ $o',
-                              style: AppTypography.base(
-                                12.5,
-                                color: AppColors.textSecondary,
+                    if (content.outcomes.isNotEmpty) ...[
+                      const _SectionHeading('สิ่งที่คุณจะได้เรียนรู้'),
+                      CardGrid(
+                        columns: 3,
+                        children: [
+                          for (final o in content.outcomes.take(3))
+                            AppCard(
+                              child: Text(
+                                '✓ $o',
+                                style: AppTypography.base(
+                                  12.5,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                     const _SectionHeading('หลักสูตร'),
-                    for (var i = 0; i < _lessons.length; i++) ...[
+                    for (var i = 0; i < content.lessons.length; i++) ...[
                       if (i > 0) const SizedBox(height: 8),
-                      _CurriculumCard(lesson: _lessons[i], durationSize: 11.5),
+                      _CurriculumCard(
+                        lesson: content.lessons[i],
+                        durationSize: 11.5,
+                      ),
                     ],
                   ],
                 ),
@@ -234,7 +258,7 @@ class _CourseDesktop extends StatelessWidget {
             SizedBox(
               width: 320,
               child: SingleChildScrollView(
-                child: _PurchaseCard(courseId: courseId),
+                child: _PurchaseCard(courseId: courseId, content: content),
               ),
             ),
           ],
@@ -246,8 +270,9 @@ class _CourseDesktop extends StatelessWidget {
 
 class _PurchaseCard extends StatelessWidget {
   final String courseId;
+  final CourseContent content;
 
-  const _PurchaseCard({required this.courseId});
+  const _PurchaseCard({required this.courseId, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -265,28 +290,32 @@ class _PurchaseCard extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                '฿2,990',
+                content.priceLabel,
                 style: AppTypography.base(
                   24,
                   weight: FontWeight.w700,
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                '฿4,990',
-                style: AppTypography.base(
-                  13,
-                  color: AppColors.textSecondary,
-                ).copyWith(decoration: TextDecoration.lineThrough),
-              ),
+              if (content.oldPriceLabel != null) ...[
+                const SizedBox(width: 8),
+                Text(
+                  content.oldPriceLabel!,
+                  style: AppTypography.base(
+                    13,
+                    color: AppColors.textSecondary,
+                  ).copyWith(decoration: TextDecoration.lineThrough),
+                ),
+              ],
             ],
           ),
-          const SizedBox(height: 4),
-          const StatusPill(
-            label: 'ประหยัด 40%',
-            variant: StatusPillVariant.error,
-          ),
+          if (content.savingsBadge != null) ...[
+            const SizedBox(height: 4),
+            StatusPill(
+              label: content.savingsBadge!,
+              variant: StatusPillVariant.error,
+            ),
+          ],
           const SizedBox(height: 16),
           // TODO(nav): no Cart screen yet, so "เพิ่มลงตะกร้า" stays inactive.
           AppButton.primary(
@@ -307,10 +336,7 @@ class _PurchaseCard extends StatelessWidget {
             decoration: const BoxDecoration(
               border: Border(top: BorderSide(color: AppColors.cardBorder)),
             ),
-            child: Text(
-              '📹 18h 30m วิดีโอ\n📄 42 บทเรียน\n🏆 ใบเกียรติบัตรเมื่อจบหลักสูตร',
-              style: infoStyle,
-            ),
+            child: Text(content.infoLines, style: infoStyle),
           ),
         ],
       ),
@@ -337,12 +363,16 @@ class _SectionHeading extends StatelessWidget {
 class _PriceRow extends StatelessWidget {
   const _PriceRow({
     required this.priceSize,
+    required this.priceLabel,
+    required this.oldPriceLabel,
     required this.discountLabel,
     required this.oldPriceSize,
   });
 
   final double priceSize;
-  final String discountLabel;
+  final String priceLabel;
+  final String? oldPriceLabel;
+  final String? discountLabel;
   final double oldPriceSize;
 
   @override
@@ -352,23 +382,30 @@ class _PriceRow extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
-          '฿2,990',
+          priceLabel,
           style: AppTypography.base(
             priceSize,
             weight: FontWeight.w700,
             color: AppColors.primary,
           ),
         ),
-        const SizedBox(width: 8),
-        Text(
-          '฿4,990',
-          style: AppTypography.base(
-            oldPriceSize,
-            color: AppColors.textSecondary,
-          ).copyWith(decoration: TextDecoration.lineThrough),
-        ),
-        const SizedBox(width: 8),
-        StatusPill(label: discountLabel, variant: StatusPillVariant.error),
+        if (oldPriceLabel != null) ...[
+          const SizedBox(width: 8),
+          Text(
+            oldPriceLabel!,
+            style: AppTypography.base(
+              oldPriceSize,
+              color: AppColors.textSecondary,
+            ).copyWith(decoration: TextDecoration.lineThrough),
+          ),
+        ],
+        if (discountLabel != null) ...[
+          const SizedBox(width: 8),
+          StatusPill(
+            label: discountLabel!,
+            variant: StatusPillVariant.error,
+          ),
+        ],
       ],
     );
   }
@@ -377,7 +414,7 @@ class _PriceRow extends StatelessWidget {
 class _CurriculumCard extends StatelessWidget {
   const _CurriculumCard({required this.lesson, required this.durationSize});
 
-  final _LessonRow lesson;
+  final CourseLessonRow lesson;
   final double durationSize;
 
   @override
@@ -385,8 +422,9 @@ class _CurriculumCard extends StatelessWidget {
     final color = lesson.locked ? AppColors.textSecondary : AppColors.text;
     return AppCard(
       // Spec 12: tapping an unlocked lesson row navigates straight to the player.
-      onTap:
-          lesson.locked ? null : () => context.push('/player/$_demoLessonId'),
+      onTap: lesson.locked
+          ? null
+          : () => context.push('/player/${lesson.lessonId}'),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
