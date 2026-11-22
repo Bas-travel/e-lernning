@@ -89,6 +89,11 @@ func TestPaymentsAgainstMySQL(t *testing.T) {
 	if err != nil || applied {
 		t.Fatalf("replay must be ignored: applied=%v err=%v", applied, err)
 	}
+	var notices int
+	_ = db.QueryRow(`SELECT COUNT(*) FROM notifications WHERE user_id = ? AND type = 'order_paid'`, userID).Scan(&notices)
+	if notices != 1 {
+		t.Fatalf("expected exactly 1 order_paid notification after paid + replay, got %d", notices)
+	}
 	var events int
 	_ = db.QueryRow(`SELECT COUNT(*) FROM payment_events WHERE provider = 'sandbox' AND event_id = 'evt_it_1'`).Scan(&events)
 	if events != 1 {

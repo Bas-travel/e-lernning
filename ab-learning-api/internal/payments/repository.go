@@ -281,6 +281,10 @@ func (r *SQLRepository) ApplyEvent(ctx context.Context, provider string, ev Even
 					return false, fmt.Errorf("count coupon: %w", err)
 				}
 			}
+			if err := notifyOrder(ctx, tx, orderID, "order_paid",
+				"ชำระเงินสำเร็จ", "คำสั่งซื้อ "+ev.OrderCode+" ชำระเงินแล้ว เริ่มเรียนได้ทันที"); err != nil {
+				return false, err
+			}
 		} else {
 			if _, err := tx.ExecContext(ctx,
 				`UPDATE payments SET status = 'failed' WHERE order_id = ?`, orderID); err != nil {
@@ -289,10 +293,25 @@ func (r *SQLRepository) ApplyEvent(ctx context.Context, provider string, ev Even
 			if _, err := tx.ExecContext(ctx, `UPDATE orders SET status = 'failed' WHERE id = ?`, orderID); err != nil {
 				return false, fmt.Errorf("mark order: %w", err)
 			}
+			if err := notifyOrder(ctx, tx, orderID, "order_failed",
+				"ชำระเงินไม่สำเร็จ", "คำสั่งซื้อ "+ev.OrderCode+" ชำระเงินไม่สำเร็จ กรุณาลองใหม่"); err != nil {
+				return false, err
+			}
 		}
 	}
 	if err := tx.Commit(); err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+// notifyOrder adds an inbox entry for the order's owner inside the caller's
+// transaction, so the notice exists if and only if the status change does.
+func notifyOrder(ctx context.Context, tx *sql.Tx, orderID int64, typ, title, body string) error {
+	if _, err := tx.ExecContext(ctx,
+		`INSERT INTO notifications (user_id, type, title, body)
+		 SELECT user_id, ?, ?, ? FROM orders WHERE id = ?`, typ, title, body, orderID); err != nil {
+		return fmt.Errorf("notify: %w", err)
+	}
+	return nil
 }
