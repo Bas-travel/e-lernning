@@ -372,7 +372,8 @@ class _HomeDesktop extends StatelessWidget {
                       const SizedBox(height: 22),
                       const _SectionTitle('Live กำลังจะเริ่ม'),
                       const SizedBox(height: 12),
-                      CardGrid(columns: 3, children: [_liveCard(content.live!)]),
+                      CardGrid(
+                          columns: 3, children: [_liveCard(content.live!)]),
                     ],
                   ],
                 ),
