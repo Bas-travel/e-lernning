@@ -48,8 +48,9 @@ services:
       SEED_DEV: "true"
       # OTP and reset codes are printed in `docker compose logs api`.
       AUTH_DELIVERY: "log"
-      # Flutter web picks a random localhost port; dev allows any origin.
-      CORS_ALLOW_ORIGIN: "*"
+      # Run the app on this fixed port:
+      #   flutter run -d chrome --web-port 56901
+      CORS_ALLOW_ORIGIN: "${CORS_ALLOW_ORIGIN:-http://localhost:56901}"
       UPLOAD_DIR: "/app/uploads"
       RATE_LIMIT_REQUESTS: "120"
       RATE_LIMIT_WINDOW_SECONDS: "60"
