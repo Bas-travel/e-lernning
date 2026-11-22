@@ -128,24 +128,43 @@ class AppRouter {
             builder: (context, state) => const MainShell(initialIndex: 2)),
 
         // --- Learner (hi-fi screens) ----------------------------------------
-        GoRoute(
-            path: '/home', builder: (context, state) => const HifiHomeScreen()),
-        GoRoute(
-            path: '/explore',
-            builder: (context, state) => const HifiExploreScreen()),
+        // The five learner tabs live in one indexed stack, so switching tabs
+        // keeps each tab alive (no rebuild, no refetch, scroll position kept).
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) => navigationShell,
+          branches: <StatefulShellBranch>[
+            StatefulShellBranch(routes: <RouteBase>[
+              GoRoute(
+                  path: '/home',
+                  builder: (context, state) => const HifiHomeScreen()),
+            ]),
+            StatefulShellBranch(routes: <RouteBase>[
+              GoRoute(
+                  path: '/explore',
+                  builder: (context, state) => const HifiExploreScreen()),
+            ]),
+            StatefulShellBranch(routes: <RouteBase>[
+              GoRoute(
+                  path: '/learn',
+                  builder: (context, state) => const LearnScreen()),
+            ]),
+            StatefulShellBranch(routes: <RouteBase>[
+              GoRoute(
+                  path: '/community',
+                  builder: (context, state) => const CommunityScreen()),
+            ]),
+            StatefulShellBranch(routes: <RouteBase>[
+              GoRoute(
+                  path: '/profile',
+                  builder: (context, state) => const ProfileScreen()),
+            ]),
+          ],
+        ),
         GoRoute(
           path: '/search',
           builder: (context, state) =>
               SearchScreen(initialQuery: state.queryParameters['q'] ?? ''),
         ),
-        GoRoute(
-            path: '/learn', builder: (context, state) => const LearnScreen()),
-        GoRoute(
-            path: '/community',
-            builder: (context, state) => const CommunityScreen()),
-        GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfileScreen()),
         GoRoute(
             path: '/profile/edit',
             builder: (context, state) => const EditProfileScreen()),
