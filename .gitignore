@@ -36,3 +36,6 @@ backup_*/
 resolved/
 *-audit.txt
 coverage/
+
+# Flutter-generated plugin registrants (recreated by flutter pub get)
+ab_learning_app/windows/flutter/generated_*
