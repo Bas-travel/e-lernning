@@ -2,9 +2,8 @@ name: ab_learning_app
 description: AB LEARNING prototype app (scaffold)
 version: 0.1.0
 environment:
-  # Aligned with CI (Flutter 3.13 / Dart 3.1) and newer SDKs. The previous
-  # ">=2.17.0 <3.0.0" range conflicted with the Dart 3 toolchain in pubspec.lock.
-  sdk: ">=3.1.0 <4.0.0"
+  # Dart 3.3+ for dart:js_interop extension types (per-tab web sessions).
+  sdk: ">=3.3.0 <4.0.0"
 dependencies:
   flutter:
     sdk: flutter
