@@ -113,8 +113,7 @@ Widget _app() => MaterialApp.router(
         routes: [
           GoRoute(
             path: '/checkout/:id',
-            builder: (_, s) =>
-                PaymentScreen(courseId: s.pathParameters['id']!),
+            builder: (_, s) => PaymentScreen(courseId: s.pathParameters['id']!),
           ),
           GoRoute(
             path: '/course/:id/curriculum',
@@ -244,8 +243,8 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 200));
 
-      expect(find.text('ชำระเงินไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'),
-          findsOneWidget);
+      expect(
+          find.text('ชำระเงินไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'), findsOneWidget);
       expect(find.text('ชำระเงินสำเร็จ'), findsNothing);
       expect(find.text('CURRICULUM'), findsNothing);
     });

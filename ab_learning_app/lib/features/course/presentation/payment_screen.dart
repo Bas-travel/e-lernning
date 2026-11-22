@@ -262,8 +262,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     children: [
                       Expanded(child: _buildPaymentMethods()),
                       const SizedBox(width: 20),
-                      SizedBox(
-                          width: 330, child: _buildOrderSummary(summary)),
+                      SizedBox(width: 330, child: _buildOrderSummary(summary)),
                     ],
                   )
                 else ...[
@@ -392,14 +391,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 width: 58,
                 height: 58,
                 decoration: BoxDecoration(
-                  color:
-                      Color(int.parse('FF${summary.colorHex}', radix: 16))
-                          .withValues(alpha: 0.14),
+                  color: Color(int.parse('FF${summary.colorHex}', radix: 16))
+                      .withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(AppRadius.input),
                 ),
                 child: Icon(Icons.school_outlined,
-                    color: Color(
-                        int.parse('FF${summary.colorHex}', radix: 16))),
+                    color:
+                        Color(int.parse('FF${summary.colorHex}', radix: 16))),
               ),
               const SizedBox(width: 12),
               Expanded(

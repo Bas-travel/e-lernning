@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/app_dependencies.dart';
-import '../../catalog/data/catalog_repository.dart';
 import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
@@ -16,61 +15,19 @@ import '../../../core/widgets/app_sidebar.dart';
 import '../../../core/widgets/gradient_course_card.dart';
 import '../../../core/widgets/responsive.dart';
 import '../../../core/widgets/status_pill.dart';
-import 'home_content.dart';
 import 'home_sample_data.dart';
 
-class HifiHomeScreen extends StatefulWidget {
+class HifiHomeScreen extends StatelessWidget {
   const HifiHomeScreen({super.key});
 
   @override
-  State<HifiHomeScreen> createState() => _HifiHomeScreenState();
-}
-
-class _HifiHomeScreenState extends State<HifiHomeScreen> {
-  HomeContent? _content;
-
-  @override
-  void initState() {
-    super.initState();
-    final repo = AppDependencies.catalogRepository;
-    if (repo.bundledOnly) {
-      _content = HomeContent.sample();
-    } else {
-      _load(repo);
-    }
-  }
-
-  /// Falls back to the bundled demo content when the server has nothing
-  /// (signed out, offline, error), so the screen is never blank.
-  Future<void> _load(CatalogRepository repo) async {
-    final feed = await repo.homeFeed();
-    if (!mounted) return;
-    setState(() {
-      _content =
-          feed == null ? HomeContent.sample() : HomeContent.fromFeed(feed);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final content = _content;
-    if (content == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
     final user = AppDependencies.authRepository.currentUser;
     final name = user?.displayName ?? HomeSampleData.userName;
     final initial = user?.initial ?? HomeSampleData.userInitial;
     return ResponsiveBuilder(
-      mobile: (_) => _HomeMobile(
-        name: name,
-        initial: initial,
-        content: content,
-      ),
-      desktop: (_) => _HomeDesktop(
-        name: name,
-        initial: initial,
-        content: content,
-      ),
+      mobile: (_) => _HomeMobile(name: name, initial: initial),
+      desktop: (_) => _HomeDesktop(name: name, initial: initial),
     );
   }
 }
@@ -78,15 +35,10 @@ class _HifiHomeScreenState extends State<HifiHomeScreen> {
 // ---------------------------------------------------------------- mobile
 
 class _HomeMobile extends StatelessWidget {
-  const _HomeMobile({
-    required this.name,
-    required this.initial,
-    required this.content,
-  });
+  const _HomeMobile({required this.name, required this.initial});
 
   final String name;
   final String initial;
-  final HomeContent content;
 
   @override
   Widget build(BuildContext context) {
@@ -120,46 +72,35 @@ class _HomeMobile extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
+          const Expanded(
             child: SingleChildScrollView(
               child: CenteredContent(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(16),
                       child: _HeroCard(
                         titleSize: 14,
                         subtitleSize: 11.5,
                         subtitle: 'ถาม AI Tutor เพื่อวางแผนการเรียนของคุณ',
-                        buttonPadding: EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
+                        buttonPadding:
+                            EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         buttonFontSize: 12,
                         titleGap: 4,
                         subtitleGap: 10,
                       ),
                     ),
-                    if (content.continueItems.isNotEmpty) ...[
-                      const _SectionTitle('เรียนต่อ', horizontalPadding: 16),
-                      _ContinueRow(items: content.continueItems),
-                    ],
-                    if (content.recommended.isNotEmpty) ...[
-                      const _SectionTitle(
-                        'แนะนำสำหรับคุณ',
-                        horizontalPadding: 16,
-                      ),
-                      _RecommendedRow(courses: content.recommended),
-                    ],
-                    if (content.live != null) ...[
-                      const _SectionTitle(
-                        'Live กำลังจะเริ่ม',
-                        horizontalPadding: 16,
-                      ),
-                      _LiveRow(live: content.live!),
-                    ],
-                    const SizedBox(height: 16),
+                    _SectionTitle('เรียนต่อ', horizontalPadding: 16),
+                    _ContinueRow(),
+                    _SectionTitle('แนะนำสำหรับคุณ', horizontalPadding: 16),
+                    _RecommendedRow(),
+                    _SectionTitle(
+                      'Live กำลังจะเริ่ม',
+                      horizontalPadding: 16,
+                    ),
+                    _LiveRow(),
+                    SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -177,58 +118,51 @@ class _HomeMobile extends StatelessWidget {
 }
 
 class _ContinueRow extends StatelessWidget {
-  const _ContinueRow({required this.items});
-
-  final List<HomeContinue> items;
+  const _ContinueRow();
 
   @override
   Widget build(BuildContext context) {
     return _HScroll(
       children: [
-        for (final item in items)
-          GradientCourseCard(
-            width: 230,
-            title: item.title,
-            extra: AppProgressBar(value: item.progress),
-            meta: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    '${(item.progress * 100).round()}% เสร็จแล้ว',
-                    overflow: TextOverflow.ellipsis,
-                  ),
+        GradientCourseCard(
+          width: 230,
+          title: HomeSampleData.continueTitle,
+          extra: const AppProgressBar(value: HomeSampleData.continueProgress),
+          meta: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Flexible(
+                child: Text('68% เสร็จแล้ว', overflow: TextOverflow.ellipsis),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'เรียนต่อ',
+                style: AppTypography.base(
+                  11,
+                  weight: FontWeight.w600,
+                  color: AppColors.primary,
+                  height: 1.2,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  'เรียนต่อ',
-                  style: AppTypography.base(
-                    11,
-                    weight: FontWeight.w600,
-                    color: AppColors.primary,
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            ),
-            onTap: () => context.push(item.route),
+              ),
+            ],
           ),
+          onTap: () =>
+              context.push('/player/${HomeSampleData.continueLessonId}'),
+        ),
       ],
     );
   }
 }
 
 class _RecommendedRow extends StatelessWidget {
-  const _RecommendedRow({required this.courses});
-
-  final List<HomeCourse> courses;
+  const _RecommendedRow();
 
   @override
   Widget build(BuildContext context) {
     // Mockup (mobile) shows the first two recommended courses.
     return _HScroll(
       children: [
-        for (final course in courses.take(2))
+        for (final course in HomeSampleData.recommended.take(2))
           _recommendedCard(context, course, width: 180),
       ],
     );
@@ -236,28 +170,21 @@ class _RecommendedRow extends StatelessWidget {
 }
 
 class _LiveRow extends StatelessWidget {
-  const _LiveRow({required this.live});
-
-  final HomeLive live;
+  const _LiveRow();
 
   @override
   Widget build(BuildContext context) {
-    return _HScroll(children: [_liveCard(live, width: 180)]);
+    return _HScroll(children: [_liveCard(width: 180)]);
   }
 }
 
 // --------------------------------------------------------------- desktop
 
 class _HomeDesktop extends StatelessWidget {
-  const _HomeDesktop({
-    required this.name,
-    required this.initial,
-    required this.content,
-  });
+  const _HomeDesktop({required this.name, required this.initial});
 
   final String name;
   final String initial;
-  final HomeContent content;
 
   @override
   Widget build(BuildContext context) {
@@ -341,14 +268,16 @@ class _HomeDesktop extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '${(content.careerProgress * 100).round()}%',
+                                    '${(HomeSampleData.careerProgress * 100).round()}%',
                                     style: AppTypography.base(
                                       20,
                                       weight: FontWeight.w700,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  AppProgressBar(value: content.careerProgress),
+                                  const AppProgressBar(
+                                    value: HomeSampleData.careerProgress,
+                                  ),
                                 ],
                               ),
                             ),
@@ -357,24 +286,19 @@ class _HomeDesktop extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 22),
-                    if (content.recommended.isNotEmpty) ...[
-                      const _SectionTitle('แนะนำสำหรับคุณ'),
-                      const SizedBox(height: 12),
-                      CardGrid(
-                        columns: 3,
-                        children: [
-                          for (final course in content.recommended)
-                            _recommendedCard(context, course),
-                        ],
-                      ),
-                    ],
-                    if (content.live != null) ...[
-                      const SizedBox(height: 22),
-                      const _SectionTitle('Live กำลังจะเริ่ม'),
-                      const SizedBox(height: 12),
-                      CardGrid(
-                          columns: 3, children: [_liveCard(content.live!)]),
-                    ],
+                    const _SectionTitle('แนะนำสำหรับคุณ'),
+                    const SizedBox(height: 12),
+                    CardGrid(
+                      columns: 3,
+                      children: [
+                        for (final course in HomeSampleData.recommended)
+                          _recommendedCard(context, course),
+                      ],
+                    ),
+                    const SizedBox(height: 22),
+                    const _SectionTitle('Live กำลังจะเริ่ม'),
+                    const SizedBox(height: 12),
+                    CardGrid(columns: 3, children: [_liveCard()]),
                   ],
                 ),
               ),
@@ -405,14 +329,17 @@ Widget _recommendedCard(
   );
 }
 
-Widget _liveCard(HomeLive live, {double? width}) {
+Widget _liveCard({double? width}) {
   return GradientCourseCard(
     width: width,
-    title: live.title,
+    title: HomeSampleData.liveTitle,
     gradient: AppGradients.live,
-    meta: Row(
+    meta: const Row(
       children: [
-        StatusPill(label: live.startsIn, variant: StatusPillVariant.live),
+        StatusPill(
+          label: HomeSampleData.liveStartsIn,
+          variant: StatusPillVariant.live,
+        ),
       ],
     ),
   );
