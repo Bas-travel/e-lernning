@@ -42,3 +42,6 @@ ab_learning_app/windows/flutter/generated_*
 
 # Local MySQL data dir (never commit database files)
 ab-learning-api/mysql/
+
+# stray file created by local tooling
+ab-learning-api/mysql
