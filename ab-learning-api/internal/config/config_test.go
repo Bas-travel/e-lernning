@@ -4,13 +4,15 @@ import "testing"
 
 func TestValidateRequiresProductionSecretsAndOrigins(t *testing.T) {
 	valid := Config{
-		Env:                "production",
-		DBDSN:              "app:secret@tcp(db:3306)/ablearning?parseTime=true",
-		JWTSecret:          "01234567890123456789012345678901",
-		CORSAllowOrigin:    "https://app.example.com",
-		MaxVideoMB:         500,
-		RateLimitRequests:  120,
-		RateLimitWindowSec: 60,
+		Env:                  "production",
+		DBDSN:                "app:secret@tcp(db:3306)/ablearning?parseTime=true",
+		JWTSecret:            "01234567890123456789012345678901",
+		CORSAllowOrigin:      "https://app.example.com",
+		MaxVideoMB:           500,
+		RateLimitRequests:    120,
+		RateLimitWindowSec:   60,
+		PaymentMode:          "sandbox",
+		PaymentWebhookSecret: "abcdefghijklmnopqrstuvwxyz012345",
 	}
 	if err := valid.Validate(); err != nil {
 		t.Fatalf("valid production config rejected: %v", err)
@@ -26,6 +28,8 @@ func TestValidateRequiresProductionSecretsAndOrigins(t *testing.T) {
 		{"wildcard CORS", func(c *Config) { c.CORSAllowOrigin = "*" }},
 		{"missing CORS origin", func(c *Config) { c.CORSAllowOrigin = "" }},
 		{"dev-only code delivery", func(c *Config) { c.AuthDelivery = "log" }},
+		{"live payments not authorised", func(c *Config) { c.PaymentMode = "live" }},
+		{"short webhook secret", func(c *Config) { c.PaymentWebhookSecret = "short" }},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

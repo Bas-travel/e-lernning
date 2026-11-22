@@ -98,10 +98,10 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '1.22.x'
-      - name: Apply migrations twice (idempotency)
+      - name: Apply migrations twice (idempotency) and run payments against MySQL
         env:
           TEST_DB_DSN: root:ci_root_pw@tcp(127.0.0.1:3306)/ab_learning_test?charset=utf8mb4&parseTime=true
-        run: go test ./internal/database/... -run TestMigrateFromEmpty -v -count=1
+        run: go test -p 1 ./internal/database/... ./internal/payments/... -run 'TestMigrateFromEmpty|TestPaymentsAgainstMySQL' -v -count=1
 
   local-stack:
     name: Backend — Docker stack smoke
