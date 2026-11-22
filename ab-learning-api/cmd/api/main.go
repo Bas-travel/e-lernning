@@ -23,6 +23,7 @@ import (
 	"github.com/ablearning/api/internal/instructor"
 	"github.com/ablearning/api/internal/learning"
 	"github.com/ablearning/api/internal/middleware"
+	"github.com/ablearning/api/internal/notifications"
 	"github.com/ablearning/api/internal/payments"
 	"github.com/ablearning/api/internal/platform"
 	"github.com/ablearning/api/internal/quiz"
@@ -83,6 +84,7 @@ func main() {
 	learning.NewHandler(learning.NewService(learningRepo, learningRepo, certificateRepo)).RegisterRoutes(mux, protected)
 	quiz.NewHandler(quiz.NewService(quiz.NewRepository(db), learningRepo)).RegisterRoutes(mux, protected)
 	certificate.NewHTTPHandler(certificateRepo).RegisterRoutes(mux, protected)
+	notifications.NewHandler(notifications.NewService(notifications.NewRepository(db))).RegisterRoutes(mux, protected)
 	payments.NewHandler(payments.NewService(payments.NewRepository(db), payments.NewSandboxProvider(cfg.PaymentWebhookSecret))).RegisterRoutes(mux, protected)
 	instructor.Register(mux, guard, instructor.NewService(instructor.NewRepository(db)), instructor.Uploader{
 		Dir: cfg.UploadDir, MaxVideo: cfg.MaxVideoMB << 20, MaxImage: 5 << 20,
