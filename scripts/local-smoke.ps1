@@ -19,7 +19,11 @@ for ($i = 0; $i -lt 60; $i++) {
   try { Invoke-RestMethod "$api/health" | Out-Null; $ok = $true; break } catch { Start-Sleep 2; Write-Host '.' -NoNewline }
 }
 Write-Host ''
-if (-not $ok) { throw 'API did not become healthy (run: docker compose logs api)' }
+if (-not $ok) {
+  Push-Location (Join-Path $PSScriptRoot '..\ab-learning-api')
+  try { docker compose ps; docker compose logs api --tail 40 } finally { Pop-Location }
+  throw 'API did not become healthy (see the logs above)'
+}
 
 function Check($name, [scriptblock]$body) {
   try { $r = & $body; Write-Host "PASS  $name"; return $r }
