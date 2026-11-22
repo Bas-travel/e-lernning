@@ -536,10 +536,17 @@ class _UserActions extends StatelessWidget {
       children: [
         const Icon(Icons.search, size: 18, color: AppColors.textSecondary),
         SizedBox(width: gap),
-        const Icon(
-          Icons.notifications_none,
-          size: 18,
-          color: AppColors.textSecondary,
+        InkWell(
+          onTap: () => context.push('/notifications'),
+          borderRadius: BorderRadius.circular(AppRadius.badge),
+          child: const Padding(
+            padding: EdgeInsets.all(4),
+            child: Icon(
+              Icons.notifications_none,
+              size: 18,
+              color: AppColors.textSecondary,
+            ),
+          ),
         ),
         SizedBox(width: gap),
         Container(

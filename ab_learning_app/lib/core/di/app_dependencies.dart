@@ -1,6 +1,7 @@
 import '../../features/auth/data/account_repository.dart';
 import '../../features/catalog/data/catalog_repository.dart';
 import '../../features/checkout/data/orders_repository.dart';
+import '../../features/notifications/data/notifications_repository.dart';
 import '../../features/tutor/data/tutor_repository.dart';
 import '../network/rest_client.dart';
 import '../network/api_config.dart';
@@ -14,6 +15,7 @@ class AppDependencies {
   static TutorRepository? _tutor;
   static CatalogRepository? _catalog;
   static OrdersRepository? _orders;
+  static NotificationsRepository? _notifications;
 
   /// One client (and token store) shared by every API repository.
   static RestClient get apiClient =>
@@ -45,11 +47,20 @@ class AppDependencies {
 
   static set ordersRepository(OrdersRepository value) => _orders = value;
 
+  static NotificationsRepository get notificationsRepository =>
+      _notifications ??= ApiConfig.useMockAuth
+          ? const OfflineNotificationsRepository()
+          : ApiNotificationsRepository(apiClient);
+
+  static set notificationsRepository(NotificationsRepository value) =>
+      _notifications = value;
+
   static void reset() {
     _client = null;
     _auth = null;
     _tutor = null;
     _catalog = null;
     _orders = null;
+    _notifications = null;
   }
 }
