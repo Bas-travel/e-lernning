@@ -152,6 +152,5 @@ class OfflineWalletRepository implements WalletRepository {
       );
 
   @override
-  Future<bool> topup(int baht, {required String idempotencyKey}) async =>
-      false;
+  Future<bool> topup(int baht, {required String idempotencyKey}) async => false;
 }
