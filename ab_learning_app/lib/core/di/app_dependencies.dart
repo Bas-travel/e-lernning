@@ -2,6 +2,7 @@ import '../../features/auth/data/account_repository.dart';
 import '../../features/catalog/data/catalog_repository.dart';
 import '../../features/checkout/data/orders_repository.dart';
 import '../../features/notifications/data/notifications_repository.dart';
+import '../../features/reviews/data/reviews_repository.dart';
 import '../../features/tutor/data/tutor_repository.dart';
 import '../../features/wallet/data/wallet_repository.dart';
 import '../network/rest_client.dart';
@@ -18,6 +19,7 @@ class AppDependencies {
   static OrdersRepository? _orders;
   static NotificationsRepository? _notifications;
   static WalletRepository? _wallet;
+  static ReviewsRepository? _reviews;
 
   /// One client (and token store) shared by every API repository.
   static RestClient get apiClient =>
@@ -64,6 +66,13 @@ class AppDependencies {
 
   static set walletRepository(WalletRepository value) => _wallet = value;
 
+  static ReviewsRepository get reviewsRepository =>
+      _reviews ??= ApiConfig.useMockAuth
+          ? const OfflineReviewsRepository()
+          : ApiReviewsRepository(apiClient);
+
+  static set reviewsRepository(ReviewsRepository value) => _reviews = value;
+
   static void reset() {
     _client = null;
     _auth = null;
@@ -72,5 +81,6 @@ class AppDependencies {
     _orders = null;
     _notifications = null;
     _wallet = null;
+    _reviews = null;
   }
 }

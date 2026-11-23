@@ -144,6 +144,7 @@ class _CourseMobile extends StatelessWidget {
                             durationSize: 11,
                           ),
                         ],
+                        _ReviewsLink(courseId: courseId),
                       ],
                     ),
                   ),
@@ -250,6 +251,7 @@ class _CourseDesktop extends StatelessWidget {
                         durationSize: 11.5,
                       ),
                     ],
+                    _ReviewsLink(courseId: courseId),
                   ],
                 ),
               ),
@@ -443,6 +445,30 @@ class _CurriculumCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Opens the reviews page. Only shown for courses that exist on the server
+/// (numeric id, online), since the bundled demo courses have no reviews.
+class _ReviewsLink extends StatelessWidget {
+  const _ReviewsLink({required this.courseId});
+
+  final String courseId;
+
+  @override
+  Widget build(BuildContext context) {
+    if (AppDependencies.catalogRepository.bundledOnly ||
+        int.tryParse(courseId) == null) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: AppButton.secondary(
+        label: 'รีวิวและให้คะแนนคอร์ส',
+        onPressed: () => context.push('/course/$courseId/reviews'),
+        expand: true,
       ),
     );
   }

@@ -48,6 +48,7 @@ import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/wallet_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/reviews/presentation/course_reviews_screen.dart';
 import '../../features/tutor/presentation/ai_tutor_screen.dart';
 import '../widgets/main_shell.dart';
 import '../widgets/role_scaffold.dart';
@@ -200,6 +201,13 @@ class AppRouter {
               builder: (context, state) {
                 final id = state.pathParameters['id'] ?? '';
                 return CurriculumScreen(courseId: id);
+              },
+            ),
+            GoRoute(
+              path: 'reviews',
+              builder: (context, state) {
+                final id = state.pathParameters['id'] ?? '';
+                return CourseReviewsScreen(courseId: id);
               },
             ),
           ],
