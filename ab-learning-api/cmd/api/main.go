@@ -26,8 +26,8 @@ import (
 	"github.com/ablearning/api/internal/notifications"
 	"github.com/ablearning/api/internal/payments"
 	"github.com/ablearning/api/internal/platform"
-	"github.com/ablearning/api/internal/reviews"
 	"github.com/ablearning/api/internal/quiz"
+	"github.com/ablearning/api/internal/reviews"
 	"github.com/ablearning/api/internal/security"
 )
 
