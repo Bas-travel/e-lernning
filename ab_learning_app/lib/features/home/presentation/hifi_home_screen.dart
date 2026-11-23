@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/di/app_dependencies.dart';
 import '../../catalog/data/catalog_repository.dart';
+import '../../notifications/presentation/notification_bell.dart';
 import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/radius.dart';
@@ -536,18 +537,7 @@ class _UserActions extends StatelessWidget {
       children: [
         const Icon(Icons.search, size: 18, color: AppColors.textSecondary),
         SizedBox(width: gap),
-        InkWell(
-          onTap: () => context.push('/notifications'),
-          borderRadius: BorderRadius.circular(AppRadius.badge),
-          child: const Padding(
-            padding: EdgeInsets.all(4),
-            child: Icon(
-              Icons.notifications_none,
-              size: 18,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ),
+        const NotificationBell(),
         SizedBox(width: gap),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

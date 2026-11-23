@@ -4,10 +4,12 @@ import 'package:ab_learning_app/core/di/app_dependencies.dart';
 import 'package:ab_learning_app/core/network/rest_client.dart';
 import 'package:ab_learning_app/core/network/token_store.dart';
 import 'package:ab_learning_app/features/notifications/data/notifications_repository.dart';
+import 'package:ab_learning_app/features/notifications/presentation/notification_bell.dart';
 import 'package:ab_learning_app/features/notifications/presentation/notifications_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import '../helpers/test_helpers.dart';
 
@@ -100,6 +102,7 @@ Future<void> _pump(WidgetTester tester) async {
 
 void main() {
   tearDown(AppDependencies.reset);
+  bellTests();
 
   group('ApiNotificationsRepository', () {
     test('parses the page and sends paging params', () async {
@@ -185,6 +188,70 @@ void main() {
 
       expect(find.text('ชำระเงินสำเร็จ'), findsOneWidget);
       expect(repo.calls.where((c) => c == 'list').length, 2);
+    });
+  });
+}
+
+class _CountingRepo extends _FakeRepo {
+  _CountingRepo(super.page);
+
+  int unreadCalls = 0;
+
+  @override
+  Future<NotificationPage> list({bool unreadOnly = false}) async {
+    if (unreadOnly) unreadCalls++;
+    return super.list(unreadOnly: unreadOnly);
+  }
+}
+
+Widget _bellApp() => MaterialApp.router(
+      routerConfig: GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) =>
+                const Scaffold(body: Center(child: NotificationBell())),
+          ),
+          GoRoute(
+            path: '/notifications',
+            builder: (context, state) =>
+                const Scaffold(body: Text('inbox page')),
+          ),
+        ],
+      ),
+    );
+
+void bellTests() {
+  group('NotificationBell', () {
+    testWidgets('shows the unread count', (tester) async {
+      AppDependencies.notificationsRepository = _CountingRepo(_two);
+      await tester.pumpWidget(_bellApp());
+      await tester.pumpAndSettle();
+      expect(find.text('2'), findsOneWidget);
+    });
+
+    testWidgets('shows no badge when nothing is unread', (tester) async {
+      AppDependencies.notificationsRepository =
+          _CountingRepo(NotificationPage.empty);
+      await tester.pumpWidget(_bellApp());
+      await tester.pumpAndSettle();
+      expect(find.text('0'), findsNothing);
+    });
+
+    testWidgets('tap opens the inbox and refreshes the count on return',
+        (tester) async {
+      final repo = _CountingRepo(_two);
+      AppDependencies.notificationsRepository = repo;
+      await tester.pumpWidget(_bellApp());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(NotificationBell));
+      await tester.pumpAndSettle();
+      expect(find.text('inbox page'), findsOneWidget);
+
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      expect(repo.unreadCalls, 2);
     });
   });
 }
