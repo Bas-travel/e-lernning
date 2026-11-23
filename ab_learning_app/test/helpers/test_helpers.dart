@@ -3,6 +3,7 @@ import 'package:ab_learning_app/features/auth/data/account_repository.dart';
 import 'package:ab_learning_app/features/catalog/data/catalog_repository.dart';
 import 'package:ab_learning_app/features/checkout/data/orders_repository.dart';
 import 'package:ab_learning_app/features/notifications/data/notifications_repository.dart';
+import 'package:ab_learning_app/features/wallet/data/wallet_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -25,6 +26,7 @@ void installMockAuth() {
     AppDependencies.ordersRepository = const OfflineOrdersRepository();
     AppDependencies.notificationsRepository =
         const OfflineNotificationsRepository();
+    AppDependencies.walletRepository = const OfflineWalletRepository();
   });
   tearDown(AppDependencies.reset);
 }
