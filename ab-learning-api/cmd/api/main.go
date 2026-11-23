@@ -29,6 +29,7 @@ import (
 	"github.com/ablearning/api/internal/quiz"
 	"github.com/ablearning/api/internal/reviews"
 	"github.com/ablearning/api/internal/security"
+	"github.com/ablearning/api/internal/wallet"
 )
 
 type accessTokenVerifier struct {
@@ -87,6 +88,7 @@ func main() {
 	certificate.NewHTTPHandler(certificateRepo).RegisterRoutes(mux, protected)
 	notifications.NewHandler(notifications.NewService(notifications.NewRepository(db))).RegisterRoutes(mux, protected)
 	reviews.NewHandler(reviews.NewService(reviews.NewRepository(db))).RegisterRoutes(mux, protected)
+	wallet.NewHandler(wallet.NewService(wallet.NewRepository(db), cfg.PaymentMode == "sandbox")).RegisterRoutes(mux, protected)
 	payments.NewHandler(payments.NewService(payments.NewRepository(db), payments.NewSandboxProvider(cfg.PaymentWebhookSecret))).RegisterRoutes(mux, protected)
 	instructor.Register(mux, guard, instructor.NewService(instructor.NewRepository(db)), instructor.Uploader{
 		Dir: cfg.UploadDir, MaxVideo: cfg.MaxVideoMB << 20, MaxImage: 5 << 20,
