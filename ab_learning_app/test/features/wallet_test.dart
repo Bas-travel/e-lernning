@@ -163,7 +163,7 @@ void main() {
     expect(find.text('โหลดข้อมูล Wallet ไม่สำเร็จ'), findsOneWidget);
     await tester.tap(find.text('ลองใหม่'));
     await tester.pumpAndSettle();
-    expect(find.text('+฿100'), findsOneWidget);
+    expect(find.text('เติมเงิน (ทดสอบ)'), findsOneWidget);
   });
 
   testWidgets('a failed top-up is retried with the same key', (tester) async {
@@ -181,7 +181,7 @@ void main() {
     expect(repo.keys[0], repo.keys[1]);
     expect(find.text('฿600'), findsOneWidget);
 
-    await tester.tap(find.text('+฿100'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '+฿100'));
     await tester.pumpAndSettle();
     expect(repo.keys[2], isNot(repo.keys[1]));
   });
