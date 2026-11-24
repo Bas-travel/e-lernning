@@ -75,10 +75,9 @@ class AppDependencies {
 
   static set reviewsRepository(ReviewsRepository value) => _reviews = value;
 
-  static LearnRepository get learnRepository =>
-      _learn ??= ApiConfig.useMockAuth
-          ? const OfflineLearnRepository()
-          : ApiLearnRepository(apiClient);
+  static LearnRepository get learnRepository => _learn ??= ApiConfig.useMockAuth
+      ? const OfflineLearnRepository()
+      : ApiLearnRepository(apiClient);
 
   static set learnRepository(LearnRepository value) => _learn = value;
 
