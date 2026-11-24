@@ -201,7 +201,12 @@ class _Summary extends StatelessWidget {
         children: [
           _Stars(value: page.average.round(), size: 20),
           const SizedBox(width: 12),
-          Text(label, style: AppTypography.base(13, weight: FontWeight.w600)),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTypography.base(13, weight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );
