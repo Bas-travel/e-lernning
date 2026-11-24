@@ -11,7 +11,6 @@ import '../../../core/widgets/app_progress_bar.dart';
 import '../../../core/widgets/app_sidebar.dart';
 import '../../../core/widgets/gradient_course_card.dart';
 import '../../../core/widgets/responsive.dart';
-import '../data/learn_repository.dart';
 import 'learn_sample_data.dart';
 
 /// "My Learning" (bottom tab "Learn" / sidebar "My Learning").
