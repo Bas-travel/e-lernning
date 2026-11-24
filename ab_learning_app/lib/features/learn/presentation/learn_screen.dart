@@ -97,6 +97,14 @@ class _LearnScreenState extends State<LearnScreen> {
   void _resume(BuildContext context, EnrolledCourse c) =>
       context.push(c.resumeRoute ?? '/player/${c.nextLessonId}');
 
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveBuilder(
+      mobile: (_) => _buildMobile(context),
+      desktop: (_) => _buildDesktop(context),
+    );
+  }
+
   Widget _buildMobile(BuildContext context) {
     return Scaffold(
       body: SafeArea(
