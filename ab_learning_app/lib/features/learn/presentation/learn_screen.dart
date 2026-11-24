@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/di/app_dependencies.dart';
 import '../../../core/router/nav_targets.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
@@ -10,25 +11,91 @@ import '../../../core/widgets/app_progress_bar.dart';
 import '../../../core/widgets/app_sidebar.dart';
 import '../../../core/widgets/gradient_course_card.dart';
 import '../../../core/widgets/responsive.dart';
+import '../data/learn_repository.dart';
 import 'learn_sample_data.dart';
 
 /// "My Learning" (bottom tab "Learn" / sidebar "My Learning").
 ///
 /// There is no dedicated mockup for this screen: it is composed from the
 /// existing Home "Continue learning" card and course list tile patterns.
-class LearnScreen extends StatelessWidget {
+class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ResponsiveBuilder(
-      mobile: (_) => _buildMobile(context),
-      desktop: (_) => _buildDesktop(context),
+  State<LearnScreen> createState() => _LearnScreenState();
+}
+
+class _LearnScreenState extends State<LearnScreen> {
+  List<EnrolledCourse>? _courses;
+  bool _failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = AppDependencies.learnRepository;
+    if (repo.bundledOnly) {
+      // The bundled demo needs no network, so the first frame already has it.
+      _courses = LearnSampleData.enrolled;
+    } else {
+      _load();
+    }
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _courses = null;
+      _failed = false;
+    });
+    try {
+      final courses = await AppDependencies.learnRepository.enrolled();
+      if (!mounted) return;
+      setState(() => _courses = courses);
+    } on Object catch (e) {
+      debugPrint('my learning failed to load: $e');
+      if (!mounted) return;
+      setState(() => _failed = true);
+    }
+  }
+
+  /// Loading, error or empty content; null when there are courses to list.
+  Widget? _stateView() {
+    final courses = _courses;
+    if (courses != null && courses.isNotEmpty) return null;
+    final Widget content;
+    if (_failed) {
+      content = Column(
+        children: [
+          Text(
+            'โหลดคอร์สของคุณไม่สำเร็จ',
+            style: AppTypography.base(13, color: AppColors.textSecondary),
+          ),
+          TextButton(onPressed: _load, child: const Text('ลองใหม่')),
+        ],
+      );
+    } else if (courses == null) {
+      content = const CircularProgressIndicator();
+    } else {
+      content = Column(
+        children: [
+          Text(
+            'ยังไม่มีคอร์สที่ลงทะเบียน',
+            style: AppTypography.base(13, color: AppColors.textSecondary),
+          ),
+          TextButton(
+            onPressed: () => context.go('/explore'),
+            child: const Text('เลือกคอร์ส'),
+          ),
+        ],
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Center(child: content),
     );
   }
 
   void _resume(BuildContext context, EnrolledCourse c) =>
-      context.push('/player/${c.nextLessonId}');
+      context.push(c.resumeRoute ?? '/player/${c.nextLessonId}');
 
   Widget _buildMobile(BuildContext context) {
     return Scaffold(
@@ -45,7 +112,8 @@ class LearnScreen extends StatelessWidget {
                   style: AppTypography.base(16, weight: FontWeight.w700),
                 ),
                 const SizedBox(height: 14),
-                for (final c in LearnSampleData.enrolled) ...[
+                if (_stateView() case final view?) view,
+                for (final c in _courses ?? const <EnrolledCourse>[]) ...[
                   AppCard(
                     onTap: () => _resume(context, c),
                     child: Row(
@@ -119,10 +187,11 @@ class LearnScreen extends StatelessWidget {
                       style: AppTypography.base(19, weight: FontWeight.w700),
                     ),
                     const SizedBox(height: 20),
+                    if (_stateView() case final view?) view,
                     CardGrid(
                       columns: 3,
                       children: [
-                        for (final c in LearnSampleData.enrolled)
+                        for (final c in _courses ?? const <EnrolledCourse>[])
                           GradientCourseCard(
                             title: c.title,
                             gradient: c.gradient,

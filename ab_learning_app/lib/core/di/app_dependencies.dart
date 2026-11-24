@@ -1,6 +1,7 @@
 import '../../features/auth/data/account_repository.dart';
 import '../../features/catalog/data/catalog_repository.dart';
 import '../../features/checkout/data/orders_repository.dart';
+import '../../features/learn/data/learn_repository.dart';
 import '../../features/notifications/data/notifications_repository.dart';
 import '../../features/reviews/data/reviews_repository.dart';
 import '../../features/tutor/data/tutor_repository.dart';
@@ -20,6 +21,7 @@ class AppDependencies {
   static NotificationsRepository? _notifications;
   static WalletRepository? _wallet;
   static ReviewsRepository? _reviews;
+  static LearnRepository? _learn;
 
   /// One client (and token store) shared by every API repository.
   static RestClient get apiClient =>
@@ -73,6 +75,13 @@ class AppDependencies {
 
   static set reviewsRepository(ReviewsRepository value) => _reviews = value;
 
+  static LearnRepository get learnRepository =>
+      _learn ??= ApiConfig.useMockAuth
+          ? const OfflineLearnRepository()
+          : ApiLearnRepository(apiClient);
+
+  static set learnRepository(LearnRepository value) => _learn = value;
+
   static void reset() {
     _client = null;
     _auth = null;
@@ -82,5 +91,6 @@ class AppDependencies {
     _notifications = null;
     _wallet = null;
     _reviews = null;
+    _learn = null;
   }
 }

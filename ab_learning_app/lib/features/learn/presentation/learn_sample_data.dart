@@ -10,6 +10,7 @@ class EnrolledCourse {
     required this.progress,
     required this.gradient,
     this.nextLessonId = 'lesson1',
+    this.resumeRoute,
   });
 
   final String id;
@@ -17,6 +18,9 @@ class EnrolledCourse {
   final double progress;
   final Gradient gradient;
   final String nextLessonId;
+
+  /// Where "continue" goes. Null means the bundled demo: the player page.
+  final String? resumeRoute;
 }
 
 class LearnSampleData {
